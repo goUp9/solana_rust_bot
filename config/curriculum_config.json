@@ -1,0 +1,29 @@
+{
+  "curriculum_stages": [
+    {
+      "name": "easy",
+      "task_range": [0, 799999999],
+      "opponent": "random",
+      "weight": 1.0,
+      "min_success_rate": 0.6
+    },
+    {
+      "name": "medium",
+      "task_range": [0, 799999999],
+      "opponent": "random",
+      "weight": 1.0,
+      "min_success_rate": 0.5
+    },
+    {
+      "name": "hard",
+      "task_range": [0, 799999999],
+      "opponent": "mcts",
+      "weight": 1.0,
+      "min_success_rate": 0.4
+    }
+  ],
+  "failure_buffer_size": 1000,
+  "failure_replay_prob": 0.3,
+  "progression_threshold": 0.7,
+  "eval_window": 100
+}

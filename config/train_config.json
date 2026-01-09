@@ -1,0 +1,51 @@
+{
+  "model": {
+    "model_name": "Qwen/Qwen3-4B",
+    "use_4bit": true,
+    "bnb_4bit_compute_dtype": "bfloat16",
+    "bnb_4bit_quant_type": "nf4",
+    "use_nested_quant": true
+  },
+  "lora": {
+    "r": 16,
+    "lora_alpha": 32,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "lora_dropout": 0.05,
+    "bias": "none",
+    "task_type": "CAUSAL_LM"
+  },
+  "ppo": {
+    "batch_size": 8,
+    "mini_batch_size": 2,
+    "gradient_accumulation_steps": 1,
+    "learning_rate": 5e-6,
+    "ppo_epochs": 2,
+    "init_kl_coef": 0.2,
+    "target_kl": 6.0,
+    "adap_kl_ctrl": true,
+    "cliprange": 0.2,
+    "cliprange_value": 0.2,
+    "vf_coef": 0.1,
+    "num_train_steps": 3000,
+    "save_freq": 1000,
+    "eval_freq": 250,
+    "log_freq": 10,
+    "max_seq_length": 1024,
+    "max_new_tokens": 8,
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "output_dir": "./checkpoints/game_ppo_lora",
+    "resume_from": null,
+    "use_wandb": true,
+    "wandb_project": "game-rl-training",
+    "wandb_run_name": "balanced_h100"
+  }
+}

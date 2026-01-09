@@ -1,0 +1,10 @@
+{
+  "env_name": "game",
+  "env_mode": "docker",
+  "max_seq_length": 1024,
+  "reward_shaping": true,
+  "timeout": 7200,
+  "execution": "local_openspiel",
+  "opponent": "mcts",
+  "gamma": 0.99
+}
