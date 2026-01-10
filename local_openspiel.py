@@ -213,31 +213,37 @@ def run_local_openspiel_episode(
         response_text = tokenizer.decode(outputs[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
         action_id = _parse_action_id(response_text)
 
+        # Track if this was a valid model response or a fallback
+        is_valid_response = action_id is not None and action_id in legal_actions
+
         # Enforce validity; fallback to random legal action if invalid
-        if action_id is None or action_id not in legal_actions:
+        if not is_valid_response:
             action_id = int(rng.choice(legal_actions)) if legal_actions else 0
-            response_text = str(action_id)
+            # Keep original response_text for PPO (what model actually generated)
+            # but use valid action_id for game
 
         # Apply action
         state.apply_action(action_id)
-        action_history.append({"player_id": int(llm_player_id), "action": int(action_id), "is_llm": True})
-        messages.append({"role": "assistant", "content": response_text})
+        action_history.append({"player_id": int(llm_player_id), "action": int(action_id), "is_llm": True, "valid": is_valid_response})
+        messages.append({"role": "assistant", "content": str(action_id)})
 
-        # Placeholder reward for now; fill after terminal
-        turn_samples.append(
-            TurnSample(
-                prompt_text=prompt_text,
-                response_text=response_text,
-                reward=0.0,
-                info={
-                    "game_name": game_name,
-                    "task_id": task_id,
-                    "seed": seed,
-                    "opponent": opponent,
-                    "llm_player_id": llm_player_id,
-                },
+        # Only add valid model responses to PPO training samples
+        # Invalid responses cause KL divergence issues
+        if is_valid_response:
+            turn_samples.append(
+                TurnSample(
+                    prompt_text=prompt_text,
+                    response_text=str(action_id),  # Use the actual action ID as response
+                    reward=0.0,
+                    info={
+                        "game_name": game_name,
+                        "task_id": task_id,
+                        "seed": seed,
+                        "opponent": opponent,
+                        "llm_player_id": llm_player_id,
+                    },
+                )
             )
-        )
 
     returns = state.returns()
     llm_return = float(returns[llm_player_id])

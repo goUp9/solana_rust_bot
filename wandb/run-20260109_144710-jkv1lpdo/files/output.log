@@ -1,0 +1,34 @@
+2026-01-09 14:47:11 | INFO | game_rl_training | Loading tokenizer: Qwen/Qwen3-4B
+tokenizer_config.json: 9.73kB [00:00, 13.0MB/s]
+vocab.json: 2.78MB [00:00, 24.0MB/s]
+merges.txt: 1.67MB [00:00, 103MB/s]
+tokenizer.json: 100%|█████████████████████████████████████████████████████████████████████████████████████████████| 11.4M/11.4M [00:00<00:00, 13.5MB/s]
+2026-01-09 14:47:15 | INFO | game_rl_training | Loading base model: Qwen/Qwen3-4B
+config.json: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████| 726/726 [00:00<00:00, 2.21MB/s]
+`torch_dtype` is deprecated! Use `dtype` instead!
+model.safetensors.index.json: 32.8kB [00:00, 34.1MB/s]
+model-00003-of-00003.safetensors: 100%|███████████████████████████████████████████████████████████████████████████| 99.6M/99.6M [00:04<00:00, 21.9MB/s]
+model-00001-of-00003.safetensors: 100%|████████████████████████████████████████████████████████████████████████████| 3.96G/3.96G [00:17<00:00, 228MB/s]
+model-00002-of-00003.safetensors: 100%|████████████████████████████████████████████████████████████████████████████| 3.99G/3.99G [00:18<00:00, 217MB/s]
+Fetching 3 files: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:18<00:00,  6.26s/it]
+Loading checkpoint shards: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:01<00:00,  1.75it/s]
+2026-01-09 14:47:35 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+generation_config.json: 100%|██████████████████████████████████████████████████████████████████████████████████████████| 239/239 [00:00<00:00, 293kB/s]
+2026-01-09 14:47:37 | INFO | game_rl_training | Applying LoRA configuration...
+2026-01-09 14:47:40 | INFO | root | peft adapter initialised
+2026-01-09 14:47:40 | INFO | game_rl_training | Creating reference model...
+2026-01-09 14:47:40 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards: 100%|█████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:01<00:00,  1.77it/s]
+2026-01-09 14:47:42 | WARNING | root | A <class 'transformers.models.qwen3.modeling_qwen3.Qwen3ForCausalLM'> model is loaded from 'Qwen/Qwen3-4B', and no v_head weight is found. This IS expected if you are not resuming PPO training.
+Traceback (most recent call last):
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 562, in <module>
+    main()
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 548, in main
+    trainer = GamePPOTrainer(
+              ^^^^^^^^^^^^^^^
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 150, in __init__
+    self._setup()
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 227, in _setup
+    ppo_config_obj = PPOConfig(
+                     ^^^^^^^^^^
+TypeError: PPOConfig.__init__() got an unexpected keyword argument 'ppo_epochs'

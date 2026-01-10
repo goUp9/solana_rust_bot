@@ -1,0 +1,47 @@
+2026-01-09 15:03:59 | INFO | game_rl_training | Loading tokenizer: Qwen/Qwen3-4B
+2026-01-09 15:04:01 | INFO | game_rl_training | Loading base model: Qwen/Qwen3-4B
+`torch_dtype` is deprecated! Use `dtype` instead!
+2026-01-09 15:04:01 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:01<00:00,  1.80it/s]
+2026-01-09 15:04:03 | INFO | game_rl_training | Applying LoRA configuration...
+2026-01-09 15:04:06 | INFO | root | peft adapter initialised
+2026-01-09 15:04:06 | INFO | game_rl_training | Creating reference model...
+2026-01-09 15:04:06 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:01<00:00,  1.79it/s]
+2026-01-09 15:04:08 | WARNING | root | A <class 'transformers.models.qwen3.modeling_qwen3.Qwen3ForCausalLM'> model is loaded from 'Qwen/Qwen3-4B', and no v_head weight is found. This IS expected if you are not resuming PPO training.
+2026-01-09 15:04:09 | INFO | game_rl_training | Initializing PPO trainer...
+[34m[1mwandb[0m: wandb.init() called while a run is active and reinit is set to 'default', so returning the previous run.
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:262: UserWarning: No dataset is provided. Make sure to set config.batch_size to the correct value before training.
+  warnings.warn(
+2026-01-09 15:04:09 | INFO | game_rl_training | Using local OpenSpiel execution (in-process inference, no env server, no vLLM).
+2026-01-09 15:04:09 | INFO | game_rl_training | Initializing curriculum sampler...
+2026-01-09 15:04:09 | INFO | game_rl_training | Setup complete!
+2026-01-09 15:04:09 | INFO | game_rl_training | Starting training...
+2026-01-09 15:04:09 | INFO | game_rl_training | Step 1/3000: Collecting rollouts...
+Traceback (most recent call last):
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 562, in <module>
+    main()
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 558, in main
+    asyncio.run(trainer.train())
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 422, in train
+    rollouts = await self.collect_rollouts(self.ppo_config.batch_size)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 312, in collect_rollouts
+    turn_samples, episode_info = run_local_openspiel_episode(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/workplace/game_rl_training/local_openspiel.py", line 144, in run_local_openspiel_episode
+    pyspiel, _, _, create_game, GAME_AGENTS = _import_openspiel_components()
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/workplace/game_rl_training/local_openspiel.py", line 34, in _import_openspiel_components
+    from affinetes.environments.openspiel.game_config import create_game  # type: ignore
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'affinetes.environments'

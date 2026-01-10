@@ -1,0 +1,11 @@
+{"time":"2026-01-09T14:47:11.042436776Z","level":"INFO","msg":"stream: starting","core version":"0.23.1"}
+{"time":"2026-01-09T14:47:11.347009848Z","level":"INFO","msg":"stream: created new stream","id":"jkv1lpdo"}
+{"time":"2026-01-09T14:47:11.347173719Z","level":"INFO","msg":"handler: started","stream_id":"jkv1lpdo"}
+{"time":"2026-01-09T14:47:11.34744323Z","level":"INFO","msg":"stream: started","id":"jkv1lpdo"}
+{"time":"2026-01-09T14:47:11.347502831Z","level":"INFO","msg":"writer: started","stream_id":"jkv1lpdo"}
+{"time":"2026-01-09T14:47:11.347524181Z","level":"INFO","msg":"sender: started","stream_id":"jkv1lpdo"}
+{"time":"2026-01-09T14:47:43.07885057Z","level":"INFO","msg":"stream: closing","id":"jkv1lpdo"}
+{"time":"2026-01-09T14:47:43.61005688Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-01-09T14:47:43.871141045Z","level":"INFO","msg":"handler: closed","stream_id":"jkv1lpdo"}
+{"time":"2026-01-09T14:47:43.871275316Z","level":"INFO","msg":"sender: closed","stream_id":"jkv1lpdo"}
+{"time":"2026-01-09T14:47:43.871355816Z","level":"INFO","msg":"stream: closed","id":"jkv1lpdo"}

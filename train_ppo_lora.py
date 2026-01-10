@@ -26,14 +26,18 @@ from transformers import (
 )
 from peft import LoraConfig, get_peft_model, TaskType, PeftModel
 from trl import PPOConfig, PPOTrainer, AutoModelForCausalLMWithValueHead
-from trl.core import LengthSampler
 import wandb
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from affine.core.environments import create_environment
-from game_rl_training.env_wrapper import GameEnvironmentWrapper
+# Conditional imports - only needed for non-local execution
+try:
+    from affine.core.environments import create_environment
+    from game_rl_training.env_wrapper import GameEnvironmentWrapper
+except ImportError:
+    create_environment = None
+    GameEnvironmentWrapper = None
 from game_rl_training.curriculum import CurriculumSampler
 from game_rl_training.utils import setup_logging, save_checkpoint
 from game_rl_training.local_openspiel import run_local_openspiel_episode
@@ -233,6 +237,10 @@ class GamePPOTrainer:
             cliprange_value=self.ppo_config.cliprange_value,
             vf_coef=self.ppo_config.vf_coef,
             log_with="wandb" if self.ppo_config.use_wandb else None,
+            # Reduce KL divergence issues
+            use_score_scaling=True,
+            use_score_norm=True,
+            score_clip=10.0,
         )
         
         # Initialize PPO trainer
@@ -336,8 +344,9 @@ class GamePPOTrainer:
                     # Encode response tokens (tiny)
                     r = self.tokenizer.encode(ts.response_text, return_tensors="pt", truncation=True).to(self.device)
 
-                    rollouts["queries"].append(q)
-                    rollouts["responses"].append(r[0])
+                    # PPO trainer expects 1D tensors (squeeze batch dimension)
+                    rollouts["queries"].append(q.squeeze(0))
+                    rollouts["responses"].append(r.squeeze(0))
                     rollouts["rewards"].append(torch.tensor(ts.reward))
                     rollouts["task_ids"].append(task_id)
                     rollouts["metadata"].append(
@@ -396,13 +405,47 @@ class GamePPOTrainer:
         responses = rollouts["responses"]
         rewards = rollouts["rewards"]
         
-        # Run PPO step
-        stats = self.ppo_trainer.step(queries, responses, rewards)
+        # PPO trainer expects batch_size samples; process in batches
+        all_stats = []
+        batch_size = self.ppo_config.batch_size
+        num_samples = len(queries)
+        
+        for i in range(0, num_samples, batch_size):
+            end_idx = min(i + batch_size, num_samples)
+            batch_queries = queries[i:end_idx]
+            batch_responses = responses[i:end_idx]
+            batch_rewards = rewards[i:end_idx]
+            
+            # Skip incomplete batches at the end
+            if len(batch_queries) < batch_size:
+                continue
+            
+            # Run PPO step on this batch
+            stats = self.ppo_trainer.step(batch_queries, batch_responses, batch_rewards)
+            all_stats.append(stats)
+        
+        # Aggregate stats from all batches (only scalar values)
+        if all_stats:
+            stats = {}
+            for k in all_stats[0].keys():
+                values = [s.get(k, 0) for s in all_stats]
+                # Only aggregate scalar values
+                if isinstance(values[0], (int, float)):
+                    stats[k] = sum(values) / len(values)
+                elif hasattr(values[0], 'item'):
+                    try:
+                        stats[k] = sum(v.item() if hasattr(v, 'item') else v for v in values) / len(values)
+                    except:
+                        pass  # Skip non-scalar tensors
+        else:
+            stats = {}
         
         # Add custom metrics
         stats["mean_reward"] = torch.mean(torch.stack(rewards)).item()
         stats["mean_score"] = sum(m["score"] for m in rollouts["metadata"]) / len(rollouts["metadata"])
         stats["success_rate"] = sum(m["success"] for m in rollouts["metadata"]) / len(rollouts["metadata"])
+        stats["num_samples"] = num_samples
+        stats["num_batches"] = len(all_stats)
         
         return stats
     

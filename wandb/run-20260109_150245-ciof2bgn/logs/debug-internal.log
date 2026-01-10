@@ -1,0 +1,11 @@
+{"time":"2026-01-09T15:02:45.662389618Z","level":"INFO","msg":"stream: starting","core version":"0.23.1"}
+{"time":"2026-01-09T15:02:45.973995778Z","level":"INFO","msg":"stream: created new stream","id":"ciof2bgn"}
+{"time":"2026-01-09T15:02:45.974120049Z","level":"INFO","msg":"handler: started","stream_id":"ciof2bgn"}
+{"time":"2026-01-09T15:02:45.97427786Z","level":"INFO","msg":"stream: started","id":"ciof2bgn"}
+{"time":"2026-01-09T15:02:45.974362991Z","level":"INFO","msg":"writer: started","stream_id":"ciof2bgn"}
+{"time":"2026-01-09T15:02:45.974375971Z","level":"INFO","msg":"sender: started","stream_id":"ciof2bgn"}
+{"time":"2026-01-09T15:02:56.384656651Z","level":"INFO","msg":"stream: closing","id":"ciof2bgn"}
+{"time":"2026-01-09T15:02:57.152196789Z","level":"INFO","msg":"fileTransfer: Close: file transfer manager closed"}
+{"time":"2026-01-09T15:02:57.405237922Z","level":"INFO","msg":"handler: closed","stream_id":"ciof2bgn"}
+{"time":"2026-01-09T15:02:57.405506553Z","level":"INFO","msg":"sender: closed","stream_id":"ciof2bgn"}
+{"time":"2026-01-09T15:02:57.405525224Z","level":"INFO","msg":"stream: closed","id":"ciof2bgn"}

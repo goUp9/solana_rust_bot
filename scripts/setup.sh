@@ -17,6 +17,17 @@ else
     echo "⚠ CUDA not found - training will be slow!"
 fi
 
+# Create and activate virtual environment
+echo ""
+echo "🐍 Setting up virtual environment..."
+if [ ! -d "venv" ]; then
+    python3 -m venv venv
+    echo "✓ Virtual environment created"
+else
+    echo "✓ Virtual environment already exists"
+fi
+source venv/bin/activate
+
 # Install dependencies
 echo ""
 echo "📦 Installing dependencies..."
