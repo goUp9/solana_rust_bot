@@ -1,0 +1,8 @@
+{"time":"2026-01-09T19:59:08.358708808Z","level":"INFO","msg":"stream: starting","core version":"0.23.1"}
+{"time":"2026-01-09T19:59:08.676831162Z","level":"INFO","msg":"stream: created new stream","id":"rf3aa3ul"}
+{"time":"2026-01-09T19:59:08.677075053Z","level":"INFO","msg":"handler: started","stream_id":"rf3aa3ul"}
+{"time":"2026-01-09T19:59:08.677305923Z","level":"INFO","msg":"stream: started","id":"rf3aa3ul"}
+{"time":"2026-01-09T19:59:08.677368433Z","level":"INFO","msg":"writer: started","stream_id":"rf3aa3ul"}
+{"time":"2026-01-09T19:59:08.677391203Z","level":"INFO","msg":"sender: started","stream_id":"rf3aa3ul"}
+{"time":"2026-01-09T21:09:24.303600995Z","level":"INFO","msg":"api: retrying HTTP error","status":502,"url":"https://api.wandb.ai/files/tech-whiz0314-beta/game-rl-training/rf3aa3ul/file_stream","body":"\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>502 Server Error</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Server Error</h1>\n<h2>The server encountered a temporary error and could not complete your request.<p>Please try again in 30 seconds.</h2>\n<h2></h2>\n</body></html>\n"}
+{"time":"2026-01-09T21:12:24.210553093Z","level":"INFO","msg":"api: retrying HTTP error","status":502,"url":"https://api.wandb.ai/files/tech-whiz0314-beta/game-rl-training/rf3aa3ul/file_stream","body":"\n<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\">\n<title>502 Server Error</title>\n</head>\n<body text=#000000 bgcolor=#ffffff>\n<h1>Error: Server Error</h1>\n<h2>The server encountered a temporary error and could not complete your request.<p>Please try again in 30 seconds.</h2>\n<h2></h2>\n</body></html>\n"}

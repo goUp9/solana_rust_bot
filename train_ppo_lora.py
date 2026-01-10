@@ -440,10 +440,19 @@ class GamePPOTrainer:
         else:
             stats = {}
         
-        # Add custom metrics
-        stats["mean_reward"] = torch.mean(torch.stack(rewards)).item()
-        stats["mean_score"] = sum(m["score"] for m in rollouts["metadata"]) / len(rollouts["metadata"])
-        stats["success_rate"] = sum(m["success"] for m in rollouts["metadata"]) / len(rollouts["metadata"])
+        # Add custom metrics (handle empty rewards case)
+        if rewards:
+            stats["mean_reward"] = torch.mean(torch.stack(rewards)).item()
+        else:
+            stats["mean_reward"] = 0.0
+        
+        if rollouts["metadata"]:
+            stats["mean_score"] = sum(m["score"] for m in rollouts["metadata"]) / len(rollouts["metadata"])
+            stats["success_rate"] = sum(m["success"] for m in rollouts["metadata"]) / len(rollouts["metadata"])
+        else:
+            stats["mean_score"] = 0.0
+            stats["success_rate"] = 0.0
+        
         stats["num_samples"] = num_samples
         stats["num_batches"] = len(all_stats)
         
@@ -456,12 +465,21 @@ class GamePPOTrainer:
         global_step = 0
         
         for step in range(self.ppo_config.num_train_steps):
-            # Collect rollouts
-            self.logger.info(f"Step {step + 1}/{self.ppo_config.num_train_steps}: Collecting rollouts...")
-            rollouts = await self.collect_rollouts(self.ppo_config.batch_size)
+            # Collect rollouts - collect many episodes to ensure enough VALID samples
+            # Only valid responses are used for training (to avoid KL divergence issues)
+            # Untrained models have low valid response rate, so we need many episodes
+            num_episodes = max(16, self.ppo_config.batch_size * 4)  # Collect 16+ episodes per step
+            self.logger.info(f"Step {step + 1}/{self.ppo_config.num_train_steps}: Collecting rollouts from {num_episodes} episodes...")
+            rollouts = await self.collect_rollouts(num_episodes)
+            
+            # Check if we have enough samples for training
+            num_samples = len(rollouts["queries"])
+            if num_samples < self.ppo_config.batch_size:
+                self.logger.warning(f"Step {step + 1}: Only {num_samples} valid samples collected (need {self.ppo_config.batch_size}). Skipping training step.")
+                continue
             
             # Train
-            self.logger.info("Training...")
+            self.logger.info(f"Training with {num_samples} samples...")
             stats = self.train_step(rollouts)
             
             # Log

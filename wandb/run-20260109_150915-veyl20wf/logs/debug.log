@@ -1,5 +1,0 @@
-2026-01-09 15:09:15,038 INFO    MainThread:15059 [wandb_init.py:setup_run_log_directory():714] Logging user logs to /root/workplace/game_rl_training/wandb/run-20260109_150915-veyl20wf/logs/debug.log
-2026-01-09 15:09:15,039 INFO    MainThread:15059 [wandb_init.py:setup_run_log_directory():715] Logging internal logs to /root/workplace/game_rl_training/wandb/run-20260109_150915-veyl20wf/logs/debug-internal.log
-2026-01-09 15:09:15,039 INFO    MainThread:15059 [wandb_init.py:init():841] calling init triggers
-2026-01-09 15:09:15,039 INFO    MainThread:15059 [wandb_init.py:init():846] wandb.init called with sweep_config: {}
-config: {'_wandb': {}}

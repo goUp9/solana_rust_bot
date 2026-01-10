@@ -27,12 +27,18 @@ class TurnSample:
 
 def _import_openspiel_components():
     # Lazily import to keep module importable even if open_spiel isn't installed.
+    import sys
     import pyspiel  # type: ignore
     from open_spiel.python.algorithms import mcts  # type: ignore
     from open_spiel.python.bots import uniform_random  # type: ignore
 
-    from affinetes.environments.openspiel.game_config import create_game  # type: ignore
-    from affinetes.environments.openspiel.agents import GAME_AGENTS  # type: ignore
+    # Add the actual affinetes repo to path for direct import
+    affinetes_openspiel_path = "/root/workplace/affinetes/environments/openspiel"
+    if affinetes_openspiel_path not in sys.path:
+        sys.path.insert(0, affinetes_openspiel_path)
+    
+    from game_config import create_game  # type: ignore
+    from agents import GAME_AGENTS  # type: ignore
 
     return pyspiel, mcts, uniform_random, create_game, GAME_AGENTS
 
@@ -180,7 +186,22 @@ def run_local_openspiel_episode(
 
         # Non-LLM players use opponent bots
         if cur_player != llm_player_id:
-            a = bots[cur_player].step(state)
+            # Handle simultaneous move games where cur_player might be SIMULTANEOUS
+            if cur_player < 0 or cur_player >= num_players:
+                # Simultaneous move - all players act at once
+                # For simplicity, treat as LLM's turn and let opponents use random
+                legal_actions = state.legal_actions()
+                if legal_actions:
+                    a = int(rng.choice(legal_actions))
+                    state.apply_action(a)
+                continue
+            
+            if bots[cur_player] is None:
+                # Fallback: use random action if bot not initialized
+                legal_actions = state.legal_actions(cur_player)
+                a = int(rng.choice(legal_actions)) if legal_actions else 0
+            else:
+                a = bots[cur_player].step(state)
             state.apply_action(a)
             action_history.append({"player_id": int(cur_player), "action": int(a), "is_llm": False})
             continue
@@ -210,37 +231,40 @@ def run_local_openspiel_episode(
             eos_token_id=tokenizer.eos_token_id,
         )
 
-        response_text = tokenizer.decode(outputs[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True)
+        # Get the actual generated tokens (not decoded text) for PPO
+        response_ids = outputs[0][inputs["input_ids"].shape[1]:]
+        response_text = tokenizer.decode(response_ids, skip_special_tokens=True)
         action_id = _parse_action_id(response_text)
 
         # Track if this was a valid model response or a fallback
         is_valid_response = action_id is not None and action_id in legal_actions
 
         # Enforce validity; fallback to random legal action if invalid
-        if not is_valid_response:
-            action_id = int(rng.choice(legal_actions)) if legal_actions else 0
-            # Keep original response_text for PPO (what model actually generated)
-            # but use valid action_id for game
+        actual_action_id = action_id if is_valid_response else (int(rng.choice(legal_actions)) if legal_actions else 0)
 
         # Apply action
-        state.apply_action(action_id)
-        action_history.append({"player_id": int(llm_player_id), "action": int(action_id), "is_llm": True, "valid": is_valid_response})
-        messages.append({"role": "assistant", "content": str(action_id)})
+        state.apply_action(actual_action_id)
+        action_history.append({"player_id": int(llm_player_id), "action": int(actual_action_id), "is_llm": True, "valid": is_valid_response})
+        messages.append({"role": "assistant", "content": str(actual_action_id)})
 
-        # Only add valid model responses to PPO training samples
-        # Invalid responses cause KL divergence issues
+        # Only include VALID responses for PPO training
+        # Invalid responses cause KL divergence issues (policy ratio explosion)
+        # The response_text must be just the action number for PPO to work correctly
         if is_valid_response:
+            # Use the actual action ID as response (just the number)
+            # This ensures the response matches what we want the model to learn
             turn_samples.append(
                 TurnSample(
                     prompt_text=prompt_text,
-                    response_text=str(action_id),  # Use the actual action ID as response
-                    reward=0.0,
+                    response_text=str(actual_action_id),  # Use clean action ID, not raw model output
+                    reward=0.0,  # Will be filled with game outcome
                     info={
                         "game_name": game_name,
                         "task_id": task_id,
                         "seed": seed,
                         "opponent": opponent,
                         "llm_player_id": llm_player_id,
+                        "valid_response": True,
                     },
                 )
             )
@@ -260,7 +284,7 @@ def run_local_openspiel_episode(
     except Exception:
         final_reward = llm_return
 
-    # Discount backwards across turns
+    # Assign rewards to each turn sample (discounted game outcome, Monte-Carlo style)
     for i in range(len(turn_samples) - 1, -1, -1):
         turn_samples[i].reward = float((gamma ** (len(turn_samples) - 1 - i)) * final_reward)
 

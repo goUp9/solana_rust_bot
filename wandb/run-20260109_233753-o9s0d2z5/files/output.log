@@ -1,0 +1,29 @@
+2026-01-09 23:37:54 | INFO | game_rl_training | Loading tokenizer: Qwen/Qwen3-4B
+2026-01-09 23:37:55 | INFO | game_rl_training | Loading base model: Qwen/Qwen3-4B
+`torch_dtype` is deprecated! Use `dtype` instead!
+2026-01-09 23:37:58 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards: 100%|██████████| 3/3 [00:06<00:00,  2.32s/it]
+2026-01-09 23:38:05 | INFO | game_rl_training | Applying LoRA configuration...
+2026-01-09 23:38:05 | WARNING | root | The `device_map` argument is not provided. We will override the device_map argument. to set the entire model on the current device. If you want to set the model on multiple devices, please provide a custom `device_map` argument.
+2026-01-09 23:38:06 | INFO | root | peft adapter initialised
+2026-01-09 23:38:06 | INFO | game_rl_training | Creating reference model...
+2026-01-09 23:38:06 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards: 100%|██████████| 3/3 [00:06<00:00,  2.32s/it]
+2026-01-09 23:38:14 | WARNING | root | A <class 'transformers.models.qwen3.modeling_qwen3.Qwen3ForCausalLM'> model is loaded from 'Qwen/Qwen3-4B', and no v_head weight is found. This IS expected if you are not resuming PPO training.
+Traceback (most recent call last):
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 618, in <module>
+    main()
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 604, in main
+    trainer = GamePPOTrainer(
+              ^^^^^^^^^^^^^^^
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 150, in __init__
+    self._setup()
+  File "/root/workplace/game_rl_training/train_ppo_lora.py", line 227, in _setup
+    ppo_config_obj = PPOConfig(
+                     ^^^^^^^^^^
+  File "<string>", line 50, in __init__
+  File "/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_config.py", line 156, in __post_init__
+    exact_div(
+  File "/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/utils.py", line 586, in exact_div
+    raise ValueError(f"{custom_error_message}, {a_str}={a}, {b_str}={b}, inexact division: {a} / {b} = {a / b}")
+ValueError: `batch_size` must be a multiple of `mini_batch_size * gradient_accumulation_steps`, `batch_size`=4, `mini_batch_size * gradient_accumulation_steps`=8, inexact division: 4 / 8 = 0.5
