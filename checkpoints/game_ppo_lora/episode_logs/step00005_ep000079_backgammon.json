@@ -1,0 +1,2060 @@
+{
+  "task_id": 572199579,
+  "seed": 765742497,
+  "game_name": "backgammon",
+  "opponent": "random",
+  "llm_player_id": 1,
+  "num_players": 2,
+  "final_reward": 1.0,
+  "llm_return": 1.0,
+  "all_returns": [
+    -1.0,
+    1.0
+  ],
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are playing backgammon.\n\n# Game Rules\nBACKGAMMON RULES:\nSetup: Each player has 15 checkers. Board has 24 points (triangles). Players move in opposite directions.\nGoal: Move all your checkers to your home board, then bear them off.\n\nTurn: Roll 2 dice. Move checkers forward by dice values. If doubles, move 4 times.\nMovement: Can land on empty point, your own checkers, or single opponent checker (hit it to bar).\nBar: Hit checkers must re-enter from opponent's home board before other moves.\n\nBearing off: Once all checkers in home board, remove them by rolling their point number or higher.\nWinning: First to bear off all checkers wins.\n\nUNDERSTANDING THE BOARD:\n- The board display shows a top-down view with 24 points\n- 'x' represents your (Player 1's) checkers, 'o' represents opponent's (Player 0's) checkers\n- Bar: shows checkers that were hit and must re-enter\n- Actions show moves like \"8/5/3\" meaning move from point 8 to 5 to 3\n\nSTRATEGY TIPS:\n- Early game: Move checkers forward to establish control\n- Avoid leaving single checkers exposed (blots) where possible\n- Try to make points (two or more checkers) to block opponent\n- When bearing off, remove checkers efficiently\n\n\n# Output Format\nYou must respond with ONLY the action ID (a single number).\nDo NOT include descriptions or explanations.\n\nExamples:\n- For action \"0 -> roll\": respond \"0\"\n- For action \"89 -> a3\": respond \"89\""
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o...x.|xxx..o|\n|o.....|x....o|\n|o.....|x.....|\n|o.....|x.....|\n|o.....|x.....|\n|      |      |\n|x.....|o.....|\n|x.....|o.....|\n|x...o.|o.....|\n|x...o.|o....x|\n|x...o.|o....x|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 23\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n111 -> 111 - 8/5/3\n135 -> 135 - 6/4 6/3\n137 -> 137 - 8/5 6/4\n142 -> 142 - 13/10 6/4\n153 -> 153 - 24/21* 6/4\n187 -> 187 - 8/6/3\n189 -> 189 - 8/6 8/5\n194 -> 194 - 13/10 8/6\n205 -> 205 - 24/21* 8/6\n246 -> 246 - 13/10/8\n317 -> 317 - 13/11 6/3\n319 -> 319 - 13/11 8/5\n324 -> 324 - 13/11 13/10\n335 -> 335 - 24/21* 13/11\n603 -> 603 - 24/22 6/3\n605 -> 605 - 24/22 8/5\n610 -> 610 - 24/22 13/10\n621 -> 621 - 24/22 24/21*\n811 -> 811 - 6/4 6/3\n813 -> 813 - 8/6/3\n818 -> 818 - 13/11 6/3\n829 -> 829 - 24/22 6/3\n863 -> 863 - 8/5 6/4\n865 -> 865 - 8/6 8/5\n870 -> 870 - 13/11 8/5\n881 -> 881 - 24/22 8/5\n948 -> 948 - 13/11/8\n993 -> 993 - 13/10 6/4\n995 -> 995 - 13/10 8/6\n1000 -> 1000 - 13/11 13/10\n1011 -> 1011 - 24/22 13/10\n1279 -> 1279 - 24/21* 6/4\n1281 -> 1281 - 24/21* 8/6\n1286 -> 1286 - 24/21* 13/11\n1297 -> 1297 - 24/22 24/21*\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "865"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o...x.|xxx..o|\n|o.....|xx...o|\n|o.....|x.....|\n|o.....|x.....|\n|o.....|x.....|\n|      |      |\n|......|o.....|\n|x.....|o.....|\n|x.....|o.....|\n|x.....|o....x|\n|x...o.|6o...x|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 26\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n111 -> 111 - 8/2 5/3\n116 -> 116 - 13/7 5/3\n127 -> 127 - 24/18 5/3\n137 -> 137 - 8/2 6/4\n142 -> 142 - 13/7 6/4\n153 -> 153 - 24/18 6/4\n168 -> 168 - 13/7/5\n194 -> 194 - 13/7 8/6\n205 -> 205 - 24/18 8/6\n319 -> 319 - 13/11 8/2\n324 -> 324 - 13/11 13/7\n335 -> 335 - 24/18 13/11\n465 -> 465 - 24/18/16\n605 -> 605 - 24/22 8/2\n610 -> 610 - 24/22 13/7\n621 -> 621 - 24/22 24/18\n862 -> 862 - 8/2 5/3\n863 -> 863 - 8/2 6/4\n870 -> 870 - 13/11 8/2\n881 -> 881 - 24/22 8/2\n948 -> 948 - 13/11/5\n992 -> 992 - 13/7 5/3\n993 -> 993 - 13/7 6/4\n995 -> 995 - 13/7 8/6\n1000 -> 1000 - 13/11 13/7\n1011 -> 1011 - 24/22 13/7\n1245 -> 1245 - 24/22/16\n1278 -> 1278 - 24/18 5/3\n1279 -> 1279 - 24/18 6/4\n1281 -> 1281 - 24/18 8/6\n1286 -> 1286 - 24/18 13/11\n1297 -> 1297 - 24/22 24/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "993"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o.....|xxxx.o|\n|o.....|xx...o|\n|o.....|xx....|\n|o.....|x.....|\n|......|......|\n|      |      |\n|......|o.....|\n|x.....|o.....|\n|x.....|o.....|\n|x.....|o....x|\n|x...oo|ooo..x|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 15\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n59 -> 59 - 8/3/2\n84 -> 84 - 7/2 4/3\n85 -> 85 - 8/3 4/3\n90 -> 90 - 13/8 4/3\n110 -> 110 - 7/2 5/4\n111 -> 111 - 8/3 5/4\n116 -> 116 - 13/8 5/4\n136 -> 136 - 7/2 6/5\n137 -> 137 - 8/3 6/5\n142 -> 142 - 13/8 6/5\n163 -> 163 - 8/3 7/6\n168 -> 168 - 13/8 7/6\n188 -> 188 - 8/7/2\n194 -> 194 - 13/8/7\n604 -> 604 - 24/23 7/2\n605 -> 605 - 24/23 8/3\n610 -> 610 - 24/23 13/8\n835 -> 835 - 7/2 4/3\n836 -> 836 - 7/2 5/4\n837 -> 837 - 7/2 6/5\n839 -> 839 - 8/7/2\n855 -> 855 - 24/23 7/2\n861 -> 861 - 8/3 4/3\n862 -> 862 - 8/3 5/4\n863 -> 863 - 8/3 6/5\n864 -> 864 - 8/3 7/6\n881 -> 881 - 24/23 8/3\n991 -> 991 - 13/8 4/3\n992 -> 992 - 13/8 5/4\n993 -> 993 - 13/8 6/5\n994 -> 994 - 13/8 7/6\n995 -> 995 - 13/8/7\n1011 -> 1011 - 24/23 13/8\n1271 -> 1271 - 24/23/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "194"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o...x.|xxxxxo|\n|o.....|xx...o|\n|o.....|x.....|\n|......|x.....|\n|......|......|\n|      |      |\n|......|o.....|\n|......|o.....|\n|x.....|o.....|\n|x....o|o....x|\n|x...oo|ooo..x|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 36\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n111 -> 111 - 8/2 5/2\n116 -> 116 - 13/7 5/2\n127 -> 127 - 24/18 5/2\n137 -> 137 - 8/2 6/3\n142 -> 142 - 13/7 6/3\n153 -> 153 - 24/18 6/3\n163 -> 163 - 8/2 7/4\n168 -> 168 - 13/7/4\n179 -> 179 - 24/18 7/4\n194 -> 194 - 13/7 8/5\n205 -> 205 - 24/18 8/5\n319 -> 319 - 13/10 8/2\n324 -> 324 - 13/10 13/7\n335 -> 335 - 24/18 13/10\n465 -> 465 - 24/18/15\n605 -> 605 - 24/21* 8/2\n610 -> 610 - 24/21* 13/7\n621 -> 621 - 24/21* 24/18\n862 -> 862 - 8/2 5/2\n863 -> 863 - 8/2 6/3\n864 -> 864 - 8/2 7/4\n870 -> 870 - 13/10 8/2\n881 -> 881 - 24/21* 8/2\n922 -> 922 - 13/10/4\n992 -> 992 - 13/7 5/2\n993 -> 993 - 13/7 6/3\n994 -> 994 - 13/7/4\n995 -> 995 - 13/7 8/5\n1000 -> 1000 - 13/10 13/7\n1011 -> 1011 - 24/21* 13/7\n1219 -> 1219 - 24/21*/15\n1278 -> 1278 - 24/18 5/2\n1279 -> 1279 - 24/18 6/3\n1280 -> 1280 - 24/18 7/4\n1281 -> 1281 - 24/18 8/5\n1286 -> 1286 - 24/18 13/10\n1297 -> 1297 - 24/21* 24/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "111"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o...x.|xxxxxo|\n|o.....|xx...o|\n|o.....|xx....|\n|......|x.....|\n|......|......|\n|      |      |\n|......|o.....|\n|......|o.....|\n|......|o.....|\n|x....o|o...ox|\n|x....o|o.o.ox|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 45\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n136 -> 136 - 7/2 6/2\n142 -> 142 - 13/8 6/2\n162 -> 162 - 7/3 7/2\n168 -> 168 - 13/8 7/3\n194 -> 194 - 13/8/4\n318 -> 318 - 13/9 7/2\n324 -> 324 - 13/9 13/8\n837 -> 837 - 7/2 6/2\n838 -> 838 - 7/3 7/2\n844 -> 844 - 13/9 7/2\n896 -> 896 - 13/9/4\n993 -> 993 - 13/8 6/2\n994 -> 994 - 13/8 7/3\n1000 -> 1000 - 13/9 13/8\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "896"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o...x.|xxxxxo|\n|o.....|xx...o|\n|......|xx....|\n|......|x.....|\n|......|......|\n|      |      |\n|......|o.....|\n|......|o.....|\n|......|o.....|\n|x....o|o.o.o.|\n|x....o|oxoxo.|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 55\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n135 -> 135 - 6/1(2)\n136 -> 136 - 7/2 6/1\n142 -> 142 - 13/8 6/1\n161 -> 161 - 7/2 6/1\n162 -> 162 - 7/2(2)\n168 -> 168 - 13/8 7/2\n194 -> 194 - 13/8/3*\n317 -> 317 - 13/8 6/1\n318 -> 318 - 13/8 7/2\n324 -> 324 - 13/8(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "136"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o...x.|xxxxxo|\n|o.....|xx...o|\n|......|xx....|\n|......|x.....|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o...o.|\n|x.....|o.o.o.|\n|x....o|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 55\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n135 -> 135 - 6/1(2)\n136 -> 136 - 7/2 6/1\n142 -> 142 - 13/8 6/1\n161 -> 161 - 7/2 6/1\n168 -> 168 - 13/8 7/2\n194 -> 194 - 13/8/3*\n317 -> 317 - 13/8 6/1\n318 -> 318 - 13/8 7/2\n324 -> 324 - 13/8(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "317"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o..xx.|xxxxxo|\n|......|xxx..o|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|......|\n|......|o...o.|\n|......|o.o.oo|\n|x...oo|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 22\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n81 -> 81 - 4/2(2)\n83 -> 83 - 6/4/2\n84 -> 84 - 7/5* 4/2\n85 -> 85 - 8/6 4/2\n90 -> 90 - 13/11 4/2\n101 -> 101 - 24/22* 4/2\n110 -> 110 - 7/5*/3*\n133 -> 133 - 6/4/2\n135 -> 135 - 6/4(2)\n136 -> 136 - 7/5* 6/4\n137 -> 137 - 8/6/4\n142 -> 142 - 13/11 6/4\n153 -> 153 - 24/22* 6/4\n159 -> 159 - 7/5* 4/2\n161 -> 161 - 7/5* 6/4\n163 -> 163 - 8/6 7/5*\n168 -> 168 - 13/11 7/5*\n179 -> 179 - 24/22* 7/5*\n185 -> 185 - 8/6 4/2\n187 -> 187 - 8/6/4\n188 -> 188 - 8/6 7/5*\n194 -> 194 - 13/11 8/6\n205 -> 205 - 24/22* 8/6\n272 -> 272 - 13/11/9\n315 -> 315 - 13/11 4/2\n317 -> 317 - 13/11 6/4\n318 -> 318 - 13/11 7/5*\n319 -> 319 - 13/11 8/6\n335 -> 335 - 24/22* 13/11\n601 -> 601 - 24/22* 4/2\n603 -> 603 - 24/22* 6/4\n604 -> 604 - 24/22* 7/5*\n605 -> 605 - 24/22* 8/6\n610 -> 610 - 24/22* 13/11\n621 -> 621 - 24/22*(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "319"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|...xx.|xxxxxo|\n|......|xxx..o|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o...o.|\n|......|o.o.oo|\n|xo...o|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 22\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n81 -> 81 - 4/2(2)\n83 -> 83 - 6/4/2\n84 -> 84 - 7/5* 4/2\n88 -> 88 - 11/9 4/2\n101 -> 101 - 24/22* 4/2\n110 -> 110 - 7/5*/3*\n133 -> 133 - 6/4/2\n135 -> 135 - 6/4(2)\n136 -> 136 - 7/5* 6/4\n140 -> 140 - 11/9 6/4\n153 -> 153 - 24/22* 6/4\n159 -> 159 - 7/5* 4/2\n161 -> 161 - 7/5* 6/4\n166 -> 166 - 11/9 7/5*\n179 -> 179 - 24/22* 7/5*\n218 -> 218 - 11/9/7\n263 -> 263 - 11/9 4/2\n265 -> 265 - 11/9 6/4\n266 -> 266 - 11/9 7/5*\n283 -> 283 - 24/22* 11/9\n601 -> 601 - 24/22* 4/2\n603 -> 603 - 24/22* 6/4\n604 -> 604 - 24/22* 7/5*\n608 -> 608 - 24/22* 11/9\n621 -> 621 - 24/22*(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "608"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|...xx.|xxxoxo|\n|......|xxx...|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o...o.|\n|......|o.o.oo|\n|x..oxo|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n31 -> 31 - 6/2/1\n32 -> 32 - 7/3* 2/1\n34 -> 34 - 9/5* 2/1\n47 -> 47 - 22/18 2/1\n58 -> 58 - 7/3*/2\n83 -> 83 - 6/2 4/3*\n84 -> 84 - 7/3* 4/3\n86 -> 86 - 9/5* 4/3*\n99 -> 99 - 22/18 4/3*\n112 -> 112 - 9/5*/4\n135 -> 135 - 6/5* 6/2\n136 -> 136 - 7/3* 6/5*\n138 -> 138 - 9/5* 6/5\n151 -> 151 - 22/18 6/5*\n161 -> 161 - 7/6/2\n164 -> 164 - 9/5* 7/6\n177 -> 177 - 22/18 7/6\n213 -> 213 - 9/8* 6/2\n214 -> 214 - 9/8* 7/3*\n229 -> 229 - 22/18 9/8*\n463 -> 463 - 22/18/17*\n603 -> 603 - 24/23* 6/2\n604 -> 604 - 24/23* 7/3*\n606 -> 606 - 24/23* 9/5*\n619 -> 619 - 24/23* 22/18\n785 -> 785 - 6/5*/1\n807 -> 807 - 6/2/1\n809 -> 809 - 6/2 4/3*\n811 -> 811 - 6/5* 6/2\n812 -> 812 - 7/6/2\n814 -> 814 - 9/8* 6/2\n829 -> 829 - 24/23* 6/2\n833 -> 833 - 7/3* 2/1\n835 -> 835 - 7/3* 4/3\n837 -> 837 - 7/3* 6/5*\n840 -> 840 - 9/8* 7/3*\n855 -> 855 - 24/23* 7/3*\n866 -> 866 - 9/8*/4\n885 -> 885 - 9/5* 2/1\n887 -> 887 - 9/5* 4/3*\n889 -> 889 - 9/5* 6/5\n890 -> 890 - 9/5* 7/6\n907 -> 907 - 24/23* 9/5*\n1223 -> 1223 - 22/18 2/1\n1225 -> 1225 - 22/18 4/3*\n1227 -> 1227 - 22/18 6/5*\n1228 -> 1228 - 22/18 7/6\n1230 -> 1230 - 22/18 9/8*\n1245 -> 1245 - 24/23* 22/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "214"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|...xx.|xxxoxo|\n|......|xxx...|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o...o.|\n|......|oxo.oo|\n|x...o.|oxoooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 24\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n57 -> 57 - 6/2 3/1\n59 -> 59 - 8/4 3/1\n73 -> 73 - 22/18 3/1\n83 -> 83 - 6/2 4/2\n85 -> 85 - 8/4/2\n99 -> 99 - 22/18 4/2\n135 -> 135 - 6/4 6/2\n137 -> 137 - 8/4 6/4\n151 -> 151 - 22/18 6/4\n187 -> 187 - 8/6/2\n203 -> 203 - 22/18 8/6\n463 -> 463 - 22/18/16*\n603 -> 603 - 24/22 6/2\n605 -> 605 - 24/22 8/4\n619 -> 619 - 24/22/18\n808 -> 808 - 6/2 3/1\n809 -> 809 - 6/2 4/2\n811 -> 811 - 6/4 6/2\n813 -> 813 - 8/6/2\n829 -> 829 - 24/22 6/2\n860 -> 860 - 8/4 3/1\n861 -> 861 - 8/4/2\n863 -> 863 - 8/4 6/4\n881 -> 881 - 24/22 8/4\n1224 -> 1224 - 22/18 3/1\n1225 -> 1225 - 22/18 4/2\n1227 -> 1227 - 22/18 6/4\n1229 -> 1229 - 22/18 8/6\n1245 -> 1245 - 24/22/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "860"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|...xx.|xxxoxo|\n|......|xxx...|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o.o.oo|\n|......|oxo.oo|\n|x.....|oxo.oo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n31 -> 31 - 6/2/1\n47 -> 47 - 22/18 2/1\n83 -> 83 - 6/2 4/3\n99 -> 99 - 22/18 4/3\n463 -> 463 - 22/18/17*\n603 -> 603 - 24/23* 6/2\n619 -> 619 - 24/23* 22/18\n807 -> 807 - 6/2/1\n809 -> 809 - 6/2 4/3\n829 -> 829 - 24/23* 6/2\n1223 -> 1223 - 22/18 2/1\n1225 -> 1225 - 22/18 4/3\n1245 -> 1245 - 24/23* 22/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "809"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|...xx.|xxxxxo|\n|......|xxx...|\n|......|x.....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|....o.|\n|......|ox..oo|\n|......|oxo.oo|\n|x.....|oxoooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 46\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1351 -> Pass\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "1351"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|...xx.|xxxxxo|\n|......|xxx.x.|\n|......|......|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|....o.|\n|......|o...oo|\n|......|oxo.oo|\n|xx....|oxoooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 16\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1298 -> 1298 - Bar/24/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "1298"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|....xo|xxxxxo|\n|......|xxxxx.|\n|......|......|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|....o.|\n|......|o...oo|\n|......|o.o.oo|\n|xx..x.|oxoooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 15\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n31 -> 31 - 6/1 2/1\n43 -> 43 - 18/13 2/1\n57 -> 57 - 6/1 3/2\n69 -> 69 - 18/13 3/2\n83 -> 83 - 6/1 4/3\n95 -> 95 - 18/13 4/3\n135 -> 135 - 6/5* 6/1\n147 -> 147 - 18/13 6/5*\n329 -> 329 - 18/13/12*\n447 -> 447 - 18/17* 6/1\n807 -> 807 - 6/1 2/1\n808 -> 808 - 6/1 3/2\n809 -> 809 - 6/1 4/3\n811 -> 811 - 6/5* 6/1\n823 -> 823 - 18/17* 6/1\n1109 -> 1109 - 18/17*/12*\n1119 -> 1119 - 18/13 2/1\n1120 -> 1120 - 18/13 3/2\n1121 -> 1121 - 18/13 4/3\n1123 -> 1123 - 18/13 6/5*\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "135"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|....xo|xxxxxo|\n|......|.xxxx.|\n|......|....x.|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|....oo|\n|......|....oo|\n|......|..o.oo|\n|xx..x.|oooxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 36\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n102 -> 102 - Bar/19* 4/1\n128 -> 128 - Bar/19* 5/2\n154 -> 154 - Bar/19* 6/3*\n466 -> 466 - Bar/19* 18/15\n492 -> 492 - Bar/19*/16\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "102"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..x.xo|oxxxxo|\n|......|.xxxx.|\n|......|....x.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|....oo|\n|.x..x.|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 46\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n154 -> 154 - Bar/19 6/2\n466 -> 466 - Bar/19 18/14\n492 -> 492 - Bar/19/15*\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "492"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o.xo|oxxxxx|\n|......|.x.xx.|\n|......|....x.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|....oo|\n|.x..x.|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 25\nBar: oo\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1351 -> Pass\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "1351"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o.xo|oxxxxx|\n|......|..xxx.|\n|......|....x.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|....oo|\n|xx....|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 13\nBar: oo\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1350 -> 1350 - Bar/24* Pass\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "1350"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o.xo|oxxxxx|\n|......|..xxx.|\n|......|......|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|...xoo|\n|xx....|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar: oo\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1350 -> 1350 - Bar/24* Pass\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "1350"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o.xo|oxxxxo|\n|......|...xx.|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|..xxoo|\n|xx....|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 66\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n388 -> 388 - Bar/19 15/9\n466 -> 466 - Bar/19 18/12*\n492 -> 492 - Bar/19/13\n622 -> 622 - Bar/19 24/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "492"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o.o.xo|oxxxxo|\n|......|...xx.|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|..xxoo|\n|xx....|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 66\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n168 -> 168 - 13/7/1\n303 -> 303 - 18/12*/6\n326 -> 326 - 15/9 13/7\n329 -> 329 - 18/12* 13/7\n330 -> 330 - 19/13/7\n335 -> 335 - 24/18 13/7\n376 -> 376 - 15/9 13/7\n381 -> 381 - 18/12* 15/9\n382 -> 382 - 19/13 15/9\n387 -> 387 - 24/18 15/9\n454 -> 454 - 18/12* 13/7\n456 -> 456 - 18/12* 15/9\n460 -> 460 - 19/13 18/12*\n465 -> 465 - 24/18/12*\n480 -> 480 - 19/13/7\n482 -> 482 - 19/13 15/9\n485 -> 485 - 19/13 18/12*\n491 -> 491 - 24/18 19/13\n610 -> 610 - 24/18 13/7\n612 -> 612 - 24/18 15/9\n615 -> 615 - 24/18/12*\n616 -> 616 - 24/18 19/13\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "610"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o..o|oxxxx.|\n|.....o|..xxx.|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|..x.oo|\n|xx...o|xxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 16\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n50 -> 50 - Bar/19 2/1\n180 -> 180 - Bar/19 7/6*\n388 -> 388 - Bar/19 15/14\n466 -> 466 - Bar/19 18/17\n492 -> 492 - Bar/19/18\n856 -> 856 - Bar/24 7/1\n1064 -> 1064 - Bar/24 15/9\n1142 -> 1142 - Bar/24 18/12*\n1168 -> 1168 - Bar/24 19/13\n1298 -> 1298 - Bar/24/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "492"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o..o|oxxxx.|\n|.....o|..xxx.|\n|.....o|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|.x..oo|\n|xx.x.o|.xxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 44\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n170 -> 170 - 15/11* 7/3*\n173 -> 173 - 18/14 7/3*\n174 -> 174 - 19/15 7/3*\n274 -> 274 - 15/11*/7\n355 -> 355 - 18/14/10\n370 -> 370 - 15/11* 7/3*\n381 -> 381 - 18/14 15/11*\n382 -> 382 - 19/15/11*\n448 -> 448 - 18/14 7/3*\n456 -> 456 - 18/14 15/11*\n459 -> 459 - 18/14(2)\n460 -> 460 - 19/15 18/14\n474 -> 474 - 19/15 7/3*\n482 -> 482 - 19/15/11*\n485 -> 485 - 19/15 18/14\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "174"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o..o|.xxxx.|\n|..o..o|..xxx.|\n|.....o|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|.x..oo|\n|xx.x..|.xxooo|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 44\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n274 -> 274 - 15/11*/7\n355 -> 355 - 18/14/10\n378 -> 378 - 15/11*(2)\n381 -> 381 - 18/14 15/11*\n456 -> 456 - 18/14 15/11*\n459 -> 459 - 18/14(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "355"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o..o|.xxxx.|\n|..o..o|..xxx.|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|xx..oo|\n|xxox..|xx.ooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 24\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n66 -> 66 - 15/11* 3/1\n69 -> 69 - 18/14 3/1\n248 -> 248 - 15/11* 10/8\n251 -> 251 - 18/14 10/8\n274 -> 274 - 15/11*/9*\n355 -> 355 - 18/14/12*\n378 -> 378 - 15/13 15/11*\n381 -> 381 - 18/14 15/13\n456 -> 456 - 18/16 15/11*\n459 -> 459 - 18/16 18/14\n867 -> 867 - 10/8/4\n1002 -> 1002 - 15/13/9*\n1042 -> 1042 - 15/11* 3/1\n1049 -> 1049 - 15/11* 10/8\n1054 -> 1054 - 15/13 15/11*\n1057 -> 1057 - 18/16 15/11*\n1083 -> 1083 - 18/16/12*\n1120 -> 1120 - 18/14 3/1\n1127 -> 1127 - 18/14 10/8\n1132 -> 1132 - 18/14 15/13\n1135 -> 1135 - 18/16 18/14\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "248"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o..o|.xxxx.|\n|.....o|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|xx..oo|\n|xo.xo.|xxxooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 23\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n62 -> 62 - 11/8 3/1\n66 -> 66 - 15/12* 3/1\n69 -> 69 - 18/15 3/1\n274 -> 274 - 15/12* 11/9*\n277 -> 277 - 18/15 11/9*\n300 -> 300 - 15/12*/10\n374 -> 374 - 15/13 11/8\n381 -> 381 - 18/15/13\n452 -> 452 - 18/16 11/8\n456 -> 456 - 18/16 15/12*\n459 -> 459 - 18/16 18/15\n938 -> 938 - 11/8 3/1\n950 -> 950 - 15/13 11/8\n953 -> 953 - 18/16 11/8\n1002 -> 1002 - 15/13/10\n1042 -> 1042 - 15/12* 3/1\n1050 -> 1050 - 15/12* 11/9*\n1057 -> 1057 - 18/16 15/12*\n1083 -> 1083 - 18/16/13\n1120 -> 1120 - 18/15 3/1\n1128 -> 1128 - 18/15 11/9*\n1132 -> 1132 - 18/15/13\n1135 -> 1135 - 18/16 18/15\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "66"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|.....o|.xxxx.|\n|.....o|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|oo.xo.|xxxxo6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 46\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n114 -> 114 - 11/5*/1\n192 -> 192 - 11/5* 8/4*\n199 -> 199 - 18/12 8/4*\n267 -> 267 - 11/7 8/2\n277 -> 277 - 18/12 11/7\n293 -> 293 - 12/8/2\n296 -> 296 - 12/8 11/5*\n303 -> 303 - 18/12/8\n449 -> 449 - 18/14 8/2\n452 -> 452 - 18/14 11/5*\n459 -> 459 - 18/14 18/12\n842 -> 842 - 11/7/1\n868 -> 868 - 11/7 8/2\n869 -> 869 - 12/8/2\n875 -> 875 - 18/14 8/2\n943 -> 943 - 11/5* 8/4*\n947 -> 947 - 12/8 11/5*\n953 -> 953 - 18/14 11/5*\n1031 -> 1031 - 18/14/8\n1125 -> 1125 - 18/12 8/4*\n1128 -> 1128 - 18/12 11/7\n1129 -> 1129 - 18/12/8\n1135 -> 1135 - 18/14 18/12\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "875"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|.o...o|.xxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|ox.x.x|x..xo6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 36\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n310 -> 310 - Bar/19 12/9*\n362 -> 362 - Bar/19 14/11*\n466 -> 466 - Bar/19 18/15\n492 -> 492 - Bar/19/16\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "362"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|.....o|oxxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|oo.x.x|x..xo6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 56\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n296 -> 296 - 12/7* 11/5\n303 -> 303 - 18/12/7*\n304 -> 304 - 19/13 12/7*\n330 -> 330 - 19/13/8\n452 -> 452 - 18/13 11/5\n460 -> 460 - 19/13 18/13\n478 -> 478 - 19/14 11/5\n485 -> 485 - 19/14 18/12\n843 -> 843 - 12/7*/1\n947 -> 947 - 12/7* 11/5\n953 -> 953 - 18/13 11/5\n954 -> 954 - 19/14 11/5\n1005 -> 1005 - 18/13/7*\n1032 -> 1032 - 19/14/8\n1129 -> 1129 - 18/12/7*\n1136 -> 1136 - 19/14 18/12\n1155 -> 1155 - 19/13 12/7*\n1161 -> 1161 - 19/13 18/13\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "452"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o.....|oxxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|o..x.x|xo.xo6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n30 -> 30 - 5/1 2/1\n37 -> 37 - 12/8 2/1\n38 -> 38 - 13/9* 2/1\n44 -> 44 - 19/15 2/1\n115 -> 115 - 12/8 5/4\n116 -> 116 - 13/9* 5/4\n122 -> 122 - 19/15 5/4\n193 -> 193 - 12/8/7*\n220 -> 220 - 13/9*/8\n290 -> 290 - 12/11 5/1\n298 -> 298 - 13/9* 12/11\n304 -> 304 - 19/15 12/11\n316 -> 316 - 13/12 5/1\n323 -> 323 - 13/12/8\n330 -> 330 - 19/15 13/12\n382 -> 382 - 19/15/14\n472 -> 472 - 19/18 5/1\n479 -> 479 - 19/18 12/8\n480 -> 480 - 19/18 13/9*\n781 -> 781 - 5/1 2/1\n791 -> 791 - 12/11 5/1\n792 -> 792 - 13/12 5/1\n798 -> 798 - 19/18 5/1\n947 -> 947 - 12/11/7*\n963 -> 963 - 12/8 2/1\n966 -> 966 - 12/8 5/4\n974 -> 974 - 13/12/8\n980 -> 980 - 19/18 12/8\n989 -> 989 - 13/9* 2/1\n992 -> 992 - 13/9* 5/4\n999 -> 999 - 13/9* 12/11\n1006 -> 1006 - 19/18 13/9*\n1136 -> 1136 - 19/18/14\n1145 -> 1145 - 19/15 2/1\n1148 -> 1148 - 19/15 5/4\n1155 -> 1155 - 19/15 12/11\n1156 -> 1156 - 19/15 13/12\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "791"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o.....|oxxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|.o.x.x|x..xo7|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 55\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n194 -> 194 - 13/8/3*\n330 -> 330 - 19/14 13/8\n356 -> 356 - 19/14/9*\n480 -> 480 - 19/14 13/8\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "480"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|.o....|.xxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|.o.xox|x..xo7|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 55\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n195 -> 195 - 14/9* 8/3*\n221 -> 221 - 14/9*/4\n345 -> 345 - 14/9* 8/3*\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "345"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|......|.xxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|.o.o.x|xxxoo7|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 45\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n268 -> 268 - 11/7* 9/4*\n842 -> 842 - 11/7*/2\n894 -> 894 - 11/7* 9/4*\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "842"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|......|.xxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x.x.oo|\n|...o..|xxxx67|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 35\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n518 -> 518 - Bar/20*/17\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "518"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|....o.|..xxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|..x.oo|\n|......|x.x.oo|\n|...ox.|xxxx67|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 11\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/1(2)\n34 -> 34 - 9/8* 2/1\n42 -> 42 - 17/16 2/1\n190 -> 190 - 9/8*/7\n209 -> 209 - 9/8* 2/1\n224 -> 224 - 17/16 9/8*\n406 -> 406 - 17/16/15\n417 -> 417 - 17/16 2/1\n424 -> 424 - 17/16 9/8*\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "406"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|..o...|..xxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|..x.oo|\n|......|x.x.oo|\n|...ox.|xxxx67|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 11\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/1(2)\n34 -> 34 - 9/8* 2/1\n40 -> 40 - 15/14 2/1\n190 -> 190 - 9/8*/7\n209 -> 209 - 9/8* 2/1\n222 -> 222 - 15/14 9/8*\n352 -> 352 - 15/14/13\n365 -> 365 - 15/14 2/1\n372 -> 372 - 15/14 9/8*\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "352"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o.....|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x.x.oo|\n|...ox.|xxxx67|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 13\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n38 -> 38 - 13/10 2/1\n220 -> 220 - 13/10 9/8*\n246 -> 246 - 13/10/9\n866 -> 866 - 9/8*/5*\n974 -> 974 - 13/12/9\n989 -> 989 - 13/10 2/1\n996 -> 996 - 13/10 9/8*\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "866"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o.....|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x.xxoo|\n|......|xoxx67|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 16\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n38 -> 38 - 13/7 2/1\n989 -> 989 - 13/7 2/1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "38"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|......|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x..xoo|\n|......|x..xoo|\n|.....o|xxxxo8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 23\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1351 -> Pass\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "1351"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|......|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|...xoo|\n|......|x..xoo|\n|..x.xo|x.xxo8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 16\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n50 -> 50 - Bar/19 2/1\n492 -> 492 - Bar/19/18\n856 -> 856 - Bar/24* 7/1\n1298 -> 1298 - Bar/24*/18\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "492"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|....xo|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|...xoo|\n|......|x..xoo|\n|..x..o|x.xxo8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n43 -> 43 - 18/14 2/1\n355 -> 355 - 18/14/13\n1109 -> 1109 - 18/17*/13\n1119 -> 1119 - 18/14 2/1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "1109"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o.....|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x..xoo|\n|......|x..xoo|\n|..x..o|x.xxo8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 11\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/1(2)\n38 -> 38 - 13/12 2/1\n298 -> 298 - 13/12/11\n313 -> 313 - 13/12 2/1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "27"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|o.....|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|.....o|\n|......|.....o|\n|......|x..xoo|\n|......|x..xo1|\n|..x..o|x.xxo0|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 11\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/1(2)\n38 -> 38 - 13/12 2/1\n298 -> 298 - 13/12/11\n313 -> 313 - 13/12 2/1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "38"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|......|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|.....o|\n|......|x....o|\n|......|x....o|\n|..x...|x..xo1|\n|o.x..o|x..xo1|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 25\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n167 -> 167 - 12/7/5\n968 -> 968 - 12/7/5\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "167"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|...x..|...xxx|\n|......|...xxx|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|x....o|\n|......|x....o|\n|......|x..xo1|\n|..x..o|xo.xo1|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 55\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n110 -> 110 - 7/2 5/Off\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "110"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|...x..|...xxx|\n|......|...xxx|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|x....o|\n|......|x...oo|\n|......|x..xo1|\n|..x...|x..xo1|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 55\nBar:\nScores, X: 0, O: 1\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/Off(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "27"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|.x.x..|...xxx|\n|......|...xxx|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|x....o|\n|......|x....o|\n|......|x....o|\n|......|x....1|\n|......|x..xo1|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 15\nBar:\nScores, X: 0, O: 3\n\n\nYou are Player 1.\nLegal Actions:\n1 -> 1 - 2/Off 1/Off\n677 -> 677 - 2/1/Off\n702 -> 702 - 2/Off 1/Off\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "1"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|...x..|...xxx|\n|......|...xxx|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|x....o|\n|......|x....o|\n|......|x....o|\n|......|x....1|\n|......|6....0|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar:\nScores, X: 0, O: 5\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "0"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|......|x..xxx|\n|......|...xxx|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|.....o|\n|...x..|x....o|\n|...x..|x....o|\n|...x..|x....8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 46\nBar:\nScores, X: 0, O: 7\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "0"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|.x....|x..xxx|\n|......|...xxx|\n|......|...x.x|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|.....o|\n|......|x....o|\n|...x..|x....o|\n|...x..|x....6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 23\nBar:\nScores, X: 0, O: 9\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "676"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|.x....|x..xxx|\n|......|...x.x|\n|......|...x.x|\n|......|.....x|\n|......|......|\n|      |      |\n|......|......|\n|......|.....o|\n|......|.....o|\n|...x..|x....o|\n|..xx..|x....o|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 45\nBar:\nScores, X: 0, O: 11\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "676"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n+------|------+\n|.xx...|x..xxx|\n|......|...xxx|\n|......|.....x|\n|......|.....x|\n|......|......|\n|      |      |\n|......|......|\n|......|......|\n|......|......|\n|...x..|x....o|\n|...x..|x....o|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 12\nBar:\nScores, X: 0, O: 13\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "676"
+    }
+  ],
+  "action_history": [
+    {
+      "player_id": 0,
+      "action": 1108,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 865,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1051,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 993,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1110,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 194,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 981,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 111,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1051,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 896,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 0,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 136,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 317,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 980,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 319,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 608,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 752,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 214,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 674,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 860,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1351,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 809,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 518,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 1351,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 472,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 1298,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1070,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 135,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1168,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 102,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 310,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 492,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 544,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 1351,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 501,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 1350,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 596,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 1350,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 544,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 492,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 610,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 68,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 492,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 83,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 174,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 355,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 102,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 248,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 544,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 66,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 128,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 875,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 82,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 362,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1351,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 452,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1351,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 791,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1351,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 480,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 345,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 1324,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 842,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 648,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 518,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 154,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 406,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 352,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 576,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 523,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 866,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 674,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 38,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 102,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 1351,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 785,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 492,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 319,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 1109,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 102,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 27,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 38,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 55,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 167,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 555,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 110,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 27,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 912,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 1,
+      "is_llm": true,
+      "valid": true
+    },
+    {
+      "player_id": 0,
+      "action": 429,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 71,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 0,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 135,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 145,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 0,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 906,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 676,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 828,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 676,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 931,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 676,
+      "is_llm": true,
+      "valid": false
+    }
+  ],
+  "llm_turns": [
+    {
+      "turn_index": 0,
+      "user_prompt": "Current State:\n+------|------+\n|o...x.|xxx..o|\n|o.....|x....o|\n|o.....|x.....|\n|o.....|x.....|\n|o.....|x.....|\n|      |      |\n|x.....|o.....|\n|x.....|o.....|\n|x...o.|o.....|\n|x...o.|o....x|\n|x...o.|o....x|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 23\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n111 -> 111 - 8/5/3\n135 -> 135 - 6/4 6/3\n137 -> 137 - 8/5 6/4\n142 -> 142 - 13/10 6/4\n153 -> 153 - 24/21* 6/4\n187 -> 187 - 8/6/3\n189 -> 189 - 8/6 8/5\n194 -> 194 - 13/10 8/6\n205 -> 205 - 24/21* 8/6\n246 -> 246 - 13/10/8\n317 -> 317 - 13/11 6/3\n319 -> 319 - 13/11 8/5\n324 -> 324 - 13/11 13/10\n335 -> 335 - 24/21* 13/11\n603 -> 603 - 24/22 6/3\n605 -> 605 - 24/22 8/5\n610 -> 610 - 24/22 13/10\n621 -> 621 - 24/22 24/21*\n811 -> 811 - 6/4 6/3\n813 -> 813 - 8/6/3\n818 -> 818 - 13/11 6/3\n829 -> 829 - 24/22 6/3\n863 -> 863 - 8/5 6/4\n865 -> 865 - 8/6 8/5\n870 -> 870 - 13/11 8/5\n881 -> 881 - 24/22 8/5\n948 -> 948 - 13/11/8\n993 -> 993 - 13/10 6/4\n995 -> 995 - 13/10 8/6\n1000 -> 1000 - 13/11 13/10\n1011 -> 1011 - 24/22 13/10\n1279 -> 1279 - 24/21* 6/4\n1281 -> 1281 - 24/21* 8/6\n1286 -> 1286 - 24/21* 13/11\n1297 -> 1297 - 24/22 24/21*\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 865,
+      "legal_actions": [
+        111,
+        135,
+        137,
+        142,
+        153,
+        187,
+        189,
+        194,
+        205,
+        246,
+        317,
+        319,
+        324,
+        335,
+        603,
+        605,
+        610,
+        621,
+        811,
+        813
+      ],
+      "num_legal_actions": 35,
+      "is_valid": false
+    },
+    {
+      "turn_index": 1,
+      "user_prompt": "Current State:\n+------|------+\n|o...x.|xxx..o|\n|o.....|xx...o|\n|o.....|x.....|\n|o.....|x.....|\n|o.....|x.....|\n|      |      |\n|......|o.....|\n|x.....|o.....|\n|x.....|o.....|\n|x.....|o....x|\n|x...o.|6o...x|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 26\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n111 -> 111 - 8/2 5/3\n116 -> 116 - 13/7 5/3\n127 -> 127 - 24/18 5/3\n137 -> 137 - 8/2 6/4\n142 -> 142 - 13/7 6/4\n153 -> 153 - 24/18 6/4\n168 -> 168 - 13/7/5\n194 -> 194 - 13/7 8/6\n205 -> 205 - 24/18 8/6\n319 -> 319 - 13/11 8/2\n324 -> 324 - 13/11 13/7\n335 -> 335 - 24/18 13/11\n465 -> 465 - 24/18/16\n605 -> 605 - 24/22 8/2\n610 -> 610 - 24/22 13/7\n621 -> 621 - 24/22 24/18\n862 -> 862 - 8/2 5/3\n863 -> 863 - 8/2 6/4\n870 -> 870 - 13/11 8/2\n881 -> 881 - 24/22 8/2\n948 -> 948 - 13/11/5\n992 -> 992 - 13/7 5/3\n993 -> 993 - 13/7 6/4\n995 -> 995 - 13/7 8/6\n1000 -> 1000 - 13/11 13/7\n1011 -> 1011 - 24/22 13/7\n1245 -> 1245 - 24/22/16\n1278 -> 1278 - 24/18 5/3\n1279 -> 1279 - 24/18 6/4\n1281 -> 1281 - 24/18 8/6\n1286 -> 1286 - 24/18 13/11\n1297 -> 1297 - 24/22 24/18\n\nYour choice (ID only):",
+      "raw_model_output": "1xxx",
+      "parsed_action_id": 1,
+      "actual_action_id": 993,
+      "legal_actions": [
+        111,
+        116,
+        127,
+        137,
+        142,
+        153,
+        168,
+        194,
+        205,
+        319,
+        324,
+        335,
+        465,
+        605,
+        610,
+        621,
+        862,
+        863,
+        870,
+        881
+      ],
+      "num_legal_actions": 32,
+      "is_valid": false
+    },
+    {
+      "turn_index": 2,
+      "user_prompt": "Current State:\n+------|------+\n|o.....|xxxx.o|\n|o.....|xx...o|\n|o.....|xx....|\n|o.....|x.....|\n|......|......|\n|      |      |\n|......|o.....|\n|x.....|o.....|\n|x.....|o.....|\n|x.....|o....x|\n|x...oo|ooo..x|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 15\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n59 -> 59 - 8/3/2\n84 -> 84 - 7/2 4/3\n85 -> 85 - 8/3 4/3\n90 -> 90 - 13/8 4/3\n110 -> 110 - 7/2 5/4\n111 -> 111 - 8/3 5/4\n116 -> 116 - 13/8 5/4\n136 -> 136 - 7/2 6/5\n137 -> 137 - 8/3 6/5\n142 -> 142 - 13/8 6/5\n163 -> 163 - 8/3 7/6\n168 -> 168 - 13/8 7/6\n188 -> 188 - 8/7/2\n194 -> 194 - 13/8/7\n604 -> 604 - 24/23 7/2\n605 -> 605 - 24/23 8/3\n610 -> 610 - 24/23 13/8\n835 -> 835 - 7/2 4/3\n836 -> 836 - 7/2 5/4\n837 -> 837 - 7/2 6/5\n839 -> 839 - 8/7/2\n855 -> 855 - 24/23 7/2\n861 -> 861 - 8/3 4/3\n862 -> 862 - 8/3 5/4\n863 -> 863 - 8/3 6/5\n864 -> 864 - 8/3 7/6\n881 -> 881 - 24/23 8/3\n991 -> 991 - 13/8 4/3\n992 -> 992 - 13/8 5/4\n993 -> 993 - 13/8 6/5\n994 -> 994 - 13/8 7/6\n995 -> 995 - 13/8/7\n1011 -> 1011 - 24/23 13/8\n1271 -> 1271 - 24/23/18\n\nYour choice (ID only):",
+      "raw_model_output": "1.xx",
+      "parsed_action_id": 1,
+      "actual_action_id": 194,
+      "legal_actions": [
+        59,
+        84,
+        85,
+        90,
+        110,
+        111,
+        116,
+        136,
+        137,
+        142,
+        163,
+        168,
+        188,
+        194,
+        604,
+        605,
+        610,
+        835,
+        836,
+        837
+      ],
+      "num_legal_actions": 34,
+      "is_valid": false
+    },
+    {
+      "turn_index": 3,
+      "user_prompt": "Current State:\n+------|------+\n|o...x.|xxxxxo|\n|o.....|xx...o|\n|o.....|x.....|\n|......|x.....|\n|......|......|\n|      |      |\n|......|o.....|\n|......|o.....|\n|x.....|o.....|\n|x....o|o....x|\n|x...oo|ooo..x|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 36\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n111 -> 111 - 8/2 5/2\n116 -> 116 - 13/7 5/2\n127 -> 127 - 24/18 5/2\n137 -> 137 - 8/2 6/3\n142 -> 142 - 13/7 6/3\n153 -> 153 - 24/18 6/3\n163 -> 163 - 8/2 7/4\n168 -> 168 - 13/7/4\n179 -> 179 - 24/18 7/4\n194 -> 194 - 13/7 8/5\n205 -> 205 - 24/18 8/5\n319 -> 319 - 13/10 8/2\n324 -> 324 - 13/10 13/7\n335 -> 335 - 24/18 13/10\n465 -> 465 - 24/18/15\n605 -> 605 - 24/21* 8/2\n610 -> 610 - 24/21* 13/7\n621 -> 621 - 24/21* 24/18\n862 -> 862 - 8/2 5/2\n863 -> 863 - 8/2 6/3\n864 -> 864 - 8/2 7/4\n870 -> 870 - 13/10 8/2\n881 -> 881 - 24/21* 8/2\n922 -> 922 - 13/10/4\n992 -> 992 - 13/7 5/2\n993 -> 993 - 13/7 6/3\n994 -> 994 - 13/7/4\n995 -> 995 - 13/7 8/5\n1000 -> 1000 - 13/10 13/7\n1011 -> 1011 - 24/21* 13/7\n1219 -> 1219 - 24/21*/15\n1278 -> 1278 - 24/18 5/2\n1279 -> 1279 - 24/18 6/3\n1280 -> 1280 - 24/18 7/4\n1281 -> 1281 - 24/18 8/5\n1286 -> 1286 - 24/18 13/10\n1297 -> 1297 - 24/21* 24/18\n\nYour choice (ID only):",
+      "raw_model_output": "1. Answers Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 111,
+      "legal_actions": [
+        111,
+        116,
+        127,
+        137,
+        142,
+        153,
+        163,
+        168,
+        179,
+        194,
+        205,
+        319,
+        324,
+        335,
+        465,
+        605,
+        610,
+        621,
+        862,
+        863
+      ],
+      "num_legal_actions": 37,
+      "is_valid": false
+    },
+    {
+      "turn_index": 4,
+      "user_prompt": "Current State:\n+------|------+\n|o...x.|xxxxxo|\n|o.....|xx...o|\n|o.....|xx....|\n|......|x.....|\n|......|......|\n|      |      |\n|......|o.....|\n|......|o.....|\n|......|o.....|\n|x....o|o...ox|\n|x....o|o.o.ox|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 45\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n136 -> 136 - 7/2 6/2\n142 -> 142 - 13/8 6/2\n162 -> 162 - 7/3 7/2\n168 -> 168 - 13/8 7/3\n194 -> 194 - 13/8/4\n318 -> 318 - 13/9 7/2\n324 -> 324 - 13/9 13/8\n837 -> 837 - 7/2 6/2\n838 -> 838 - 7/3 7/2\n844 -> 844 - 13/9 7/2\n896 -> 896 - 13/9/4\n993 -> 993 - 13/8 6/2\n994 -> 994 - 13/8 7/3\n1000 -> 1000 - 13/9 13/8\n\nYour choice (ID only):",
+      "raw_model_output": "1.. Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 896,
+      "legal_actions": [
+        136,
+        142,
+        162,
+        168,
+        194,
+        318,
+        324,
+        837,
+        838,
+        844,
+        896,
+        993,
+        994,
+        1000
+      ],
+      "num_legal_actions": 14,
+      "is_valid": false
+    },
+    {
+      "turn_index": 5,
+      "user_prompt": "Current State:\n+------|------+\n|o...x.|xxxxxo|\n|o.....|xx...o|\n|......|xx....|\n|......|x.....|\n|......|......|\n|      |      |\n|......|o.....|\n|......|o.....|\n|......|o.....|\n|x....o|o.o.o.|\n|x....o|oxoxo.|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 55\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n135 -> 135 - 6/1(2)\n136 -> 136 - 7/2 6/1\n142 -> 142 - 13/8 6/1\n161 -> 161 - 7/2 6/1\n162 -> 162 - 7/2(2)\n168 -> 168 - 13/8 7/2\n194 -> 194 - 13/8/3*\n317 -> 317 - 13/8 6/1\n318 -> 318 - 13/8 7/2\n324 -> 324 - 13/8(2)\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 136,
+      "legal_actions": [
+        135,
+        136,
+        142,
+        161,
+        162,
+        168,
+        194,
+        317,
+        318,
+        324
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 6,
+      "user_prompt": "Current State:\n+------|------+\n|o...x.|xxxxxo|\n|o.....|xx...o|\n|......|xx....|\n|......|x.....|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o...o.|\n|x.....|o.o.o.|\n|x....o|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 55\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n135 -> 135 - 6/1(2)\n136 -> 136 - 7/2 6/1\n142 -> 142 - 13/8 6/1\n161 -> 161 - 7/2 6/1\n168 -> 168 - 13/8 7/2\n194 -> 194 - 13/8/3*\n317 -> 317 - 13/8 6/1\n318 -> 318 - 13/8 7/2\n324 -> 324 - 13/8(2)\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 317,
+      "legal_actions": [
+        135,
+        136,
+        142,
+        161,
+        168,
+        194,
+        317,
+        318,
+        324
+      ],
+      "num_legal_actions": 9,
+      "is_valid": false
+    },
+    {
+      "turn_index": 7,
+      "user_prompt": "Current State:\n+------|------+\n|o..xx.|xxxxxo|\n|......|xxx..o|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|......|\n|......|o...o.|\n|......|o.o.oo|\n|x...oo|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 22\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n81 -> 81 - 4/2(2)\n83 -> 83 - 6/4/2\n84 -> 84 - 7/5* 4/2\n85 -> 85 - 8/6 4/2\n90 -> 90 - 13/11 4/2\n101 -> 101 - 24/22* 4/2\n110 -> 110 - 7/5*/3*\n133 -> 133 - 6/4/2\n135 -> 135 - 6/4(2)\n136 -> 136 - 7/5* 6/4\n137 -> 137 - 8/6/4\n142 -> 142 - 13/11 6/4\n153 -> 153 - 24/22* 6/4\n159 -> 159 - 7/5* 4/2\n161 -> 161 - 7/5* 6/4\n163 -> 163 - 8/6 7/5*\n168 -> 168 - 13/11 7/5*\n179 -> 179 - 24/22* 7/5*\n185 -> 185 - 8/6 4/2\n187 -> 187 - 8/6/4\n188 -> 188 - 8/6 7/5*\n194 -> 194 - 13/11 8/6\n205 -> 205 - 24/22* 8/6\n272 -> 272 - 13/11/9\n315 -> 315 - 13/11 4/2\n317 -> 317 - 13/11 6/4\n318 -> 318 - 13/11 7/5*\n319 -> 319 - 13/11 8/6\n335 -> 335 - 24/22* 13/11\n601 -> 601 - 24/22* 4/2\n603 -> 603 - 24/22* 6/4\n604 -> 604 - 24/22* 7/5*\n605 -> 605 - 24/22* 8/6\n610 -> 610 - 24/22* 13/11\n621 -> 621 - 24/22*(2)\n\nYour choice (ID only):",
+      "raw_model_output": "2...",
+      "parsed_action_id": 2,
+      "actual_action_id": 319,
+      "legal_actions": [
+        81,
+        83,
+        84,
+        85,
+        90,
+        101,
+        110,
+        133,
+        135,
+        136,
+        137,
+        142,
+        153,
+        159,
+        161,
+        163,
+        168,
+        179,
+        185,
+        187
+      ],
+      "num_legal_actions": 35,
+      "is_valid": false
+    },
+    {
+      "turn_index": 8,
+      "user_prompt": "Current State:\n+------|------+\n|...xx.|xxxxxo|\n|......|xxx..o|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o...o.|\n|......|o.o.oo|\n|xo...o|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 22\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n81 -> 81 - 4/2(2)\n83 -> 83 - 6/4/2\n84 -> 84 - 7/5* 4/2\n88 -> 88 - 11/9 4/2\n101 -> 101 - 24/22* 4/2\n110 -> 110 - 7/5*/3*\n133 -> 133 - 6/4/2\n135 -> 135 - 6/4(2)\n136 -> 136 - 7/5* 6/4\n140 -> 140 - 11/9 6/4\n153 -> 153 - 24/22* 6/4\n159 -> 159 - 7/5* 4/2\n161 -> 161 - 7/5* 6/4\n166 -> 166 - 11/9 7/5*\n179 -> 179 - 24/22* 7/5*\n218 -> 218 - 11/9/7\n263 -> 263 - 11/9 4/2\n265 -> 265 - 11/9 6/4\n266 -> 266 - 11/9 7/5*\n283 -> 283 - 24/22* 11/9\n601 -> 601 - 24/22* 4/2\n603 -> 603 - 24/22* 6/4\n604 -> 604 - 24/22* 7/5*\n608 -> 608 - 24/22* 11/9\n621 -> 621 - 24/22*(2)\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 608,
+      "legal_actions": [
+        81,
+        83,
+        84,
+        88,
+        101,
+        110,
+        133,
+        135,
+        136,
+        140,
+        153,
+        159,
+        161,
+        166,
+        179,
+        218,
+        263,
+        265,
+        266,
+        283
+      ],
+      "num_legal_actions": 25,
+      "is_valid": false
+    },
+    {
+      "turn_index": 9,
+      "user_prompt": "Current State:\n+------|------+\n|...xx.|xxxoxo|\n|......|xxx...|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o...o.|\n|......|o.o.oo|\n|x..oxo|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n31 -> 31 - 6/2/1\n32 -> 32 - 7/3* 2/1\n34 -> 34 - 9/5* 2/1\n47 -> 47 - 22/18 2/1\n58 -> 58 - 7/3*/2\n83 -> 83 - 6/2 4/3*\n84 -> 84 - 7/3* 4/3\n86 -> 86 - 9/5* 4/3*\n99 -> 99 - 22/18 4/3*\n112 -> 112 - 9/5*/4\n135 -> 135 - 6/5* 6/2\n136 -> 136 - 7/3* 6/5*\n138 -> 138 - 9/5* 6/5\n151 -> 151 - 22/18 6/5*\n161 -> 161 - 7/6/2\n164 -> 164 - 9/5* 7/6\n177 -> 177 - 22/18 7/6\n213 -> 213 - 9/8* 6/2\n214 -> 214 - 9/8* 7/3*\n229 -> 229 - 22/18 9/8*\n463 -> 463 - 22/18/17*\n603 -> 603 - 24/23* 6/2\n604 -> 604 - 24/23* 7/3*\n606 -> 606 - 24/23* 9/5*\n619 -> 619 - 24/23* 22/18\n785 -> 785 - 6/5*/1\n807 -> 807 - 6/2/1\n809 -> 809 - 6/2 4/3*\n811 -> 811 - 6/5* 6/2\n812 -> 812 - 7/6/2\n814 -> 814 - 9/8* 6/2\n829 -> 829 - 24/23* 6/2\n833 -> 833 - 7/3* 2/1\n835 -> 835 - 7/3* 4/3\n837 -> 837 - 7/3* 6/5*\n840 -> 840 - 9/8* 7/3*\n855 -> 855 - 24/23* 7/3*\n866 -> 866 - 9/8*/4\n885 -> 885 - 9/5* 2/1\n887 -> 887 - 9/5* 4/3*\n889 -> 889 - 9/5* 6/5\n890 -> 890 - 9/5* 7/6\n907 -> 907 - 24/23* 9/5*\n1223 -> 1223 - 22/18 2/1\n1225 -> 1225 - 22/18 4/3*\n1227 -> 1227 - 22/18 6/5*\n1228 -> 1228 - 22/18 7/6\n1230 -> 1230 - 22/18 9/8*\n1245 -> 1245 - 24/23* 22/18\n\nYour choice (ID only):",
+      "raw_model_output": "1xxx",
+      "parsed_action_id": 1,
+      "actual_action_id": 214,
+      "legal_actions": [
+        31,
+        32,
+        34,
+        47,
+        58,
+        83,
+        84,
+        86,
+        99,
+        112,
+        135,
+        136,
+        138,
+        151,
+        161,
+        164,
+        177,
+        213,
+        214,
+        229
+      ],
+      "num_legal_actions": 49,
+      "is_valid": false
+    },
+    {
+      "turn_index": 10,
+      "user_prompt": "Current State:\n+------|------+\n|...xx.|xxxoxo|\n|......|xxx...|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o...o.|\n|......|oxo.oo|\n|x...o.|oxoooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 24\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n57 -> 57 - 6/2 3/1\n59 -> 59 - 8/4 3/1\n73 -> 73 - 22/18 3/1\n83 -> 83 - 6/2 4/2\n85 -> 85 - 8/4/2\n99 -> 99 - 22/18 4/2\n135 -> 135 - 6/4 6/2\n137 -> 137 - 8/4 6/4\n151 -> 151 - 22/18 6/4\n187 -> 187 - 8/6/2\n203 -> 203 - 22/18 8/6\n463 -> 463 - 22/18/16*\n603 -> 603 - 24/22 6/2\n605 -> 605 - 24/22 8/4\n619 -> 619 - 24/22/18\n808 -> 808 - 6/2 3/1\n809 -> 809 - 6/2 4/2\n811 -> 811 - 6/4 6/2\n813 -> 813 - 8/6/2\n829 -> 829 - 24/22 6/2\n860 -> 860 - 8/4 3/1\n861 -> 861 - 8/4/2\n863 -> 863 - 8/4 6/4\n881 -> 881 - 24/22 8/4\n1224 -> 1224 - 22/18 3/1\n1225 -> 1225 - 22/18 4/2\n1227 -> 1227 - 22/18 6/4\n1229 -> 1229 - 22/18 8/6\n1245 -> 1245 - 24/22/18\n\nYour choice (ID only):",
+      "raw_model_output": "2. Answers\u6708",
+      "parsed_action_id": 2,
+      "actual_action_id": 860,
+      "legal_actions": [
+        57,
+        59,
+        73,
+        83,
+        85,
+        99,
+        135,
+        137,
+        151,
+        187,
+        203,
+        463,
+        603,
+        605,
+        619,
+        808,
+        809,
+        811,
+        813,
+        829
+      ],
+      "num_legal_actions": 29,
+      "is_valid": false
+    },
+    {
+      "turn_index": 11,
+      "user_prompt": "Current State:\n+------|------+\n|...xx.|xxxoxo|\n|......|xxx...|\n|......|xx....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|o.....|\n|......|o.o.oo|\n|......|oxo.oo|\n|x.....|oxo.oo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n31 -> 31 - 6/2/1\n47 -> 47 - 22/18 2/1\n83 -> 83 - 6/2 4/3\n99 -> 99 - 22/18 4/3\n463 -> 463 - 22/18/17*\n603 -> 603 - 24/23* 6/2\n619 -> 619 - 24/23* 22/18\n807 -> 807 - 6/2/1\n809 -> 809 - 6/2 4/3\n829 -> 829 - 24/23* 6/2\n1223 -> 1223 - 22/18 2/1\n1225 -> 1225 - 22/18 4/3\n1245 -> 1245 - 24/23* 22/18\n\nYour choice (ID only):",
+      "raw_model_output": "1. Answers Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 809,
+      "legal_actions": [
+        31,
+        47,
+        83,
+        99,
+        463,
+        603,
+        619,
+        807,
+        809,
+        829,
+        1223,
+        1225,
+        1245
+      ],
+      "num_legal_actions": 13,
+      "is_valid": false
+    },
+    {
+      "turn_index": 12,
+      "user_prompt": "Current State:\n+------|------+\n|...xx.|xxxxxo|\n|......|xxx...|\n|......|x.....|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|....o.|\n|......|ox..oo|\n|......|oxo.oo|\n|x.....|oxoooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 46\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1351 -> Pass\n\nYour choice (ID only):",
+      "raw_model_output": "1.xi",
+      "parsed_action_id": 1,
+      "actual_action_id": 1351,
+      "legal_actions": [
+        1351
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    },
+    {
+      "turn_index": 13,
+      "user_prompt": "Current State:\n+------|------+\n|...xx.|xxxxxo|\n|......|xxx.x.|\n|......|......|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|....o.|\n|......|o...oo|\n|......|oxo.oo|\n|xx....|oxoooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 16\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1298 -> 1298 - Bar/24/18\n\nYour choice (ID only):",
+      "raw_model_output": "1xxi",
+      "parsed_action_id": 1,
+      "actual_action_id": 1298,
+      "legal_actions": [
+        1298
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    },
+    {
+      "turn_index": 14,
+      "user_prompt": "Current State:\n+------|------+\n|....xo|xxxxxo|\n|......|xxxxx.|\n|......|......|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|....o.|\n|......|o...oo|\n|......|o.o.oo|\n|xx..x.|oxoooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 15\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n31 -> 31 - 6/1 2/1\n43 -> 43 - 18/13 2/1\n57 -> 57 - 6/1 3/2\n69 -> 69 - 18/13 3/2\n83 -> 83 - 6/1 4/3\n95 -> 95 - 18/13 4/3\n135 -> 135 - 6/5* 6/1\n147 -> 147 - 18/13 6/5*\n329 -> 329 - 18/13/12*\n447 -> 447 - 18/17* 6/1\n807 -> 807 - 6/1 2/1\n808 -> 808 - 6/1 3/2\n809 -> 809 - 6/1 4/3\n811 -> 811 - 6/5* 6/1\n823 -> 823 - 18/17* 6/1\n1109 -> 1109 - 18/17*/12*\n1119 -> 1119 - 18/13 2/1\n1120 -> 1120 - 18/13 3/2\n1121 -> 1121 - 18/13 4/3\n1123 -> 1123 - 18/13 6/5*\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 135,
+      "legal_actions": [
+        31,
+        43,
+        57,
+        69,
+        83,
+        95,
+        135,
+        147,
+        329,
+        447,
+        807,
+        808,
+        809,
+        811,
+        823,
+        1109,
+        1119,
+        1120,
+        1121,
+        1123
+      ],
+      "num_legal_actions": 20,
+      "is_valid": false
+    },
+    {
+      "turn_index": 15,
+      "user_prompt": "Current State:\n+------|------+\n|....xo|xxxxxo|\n|......|.xxxx.|\n|......|....x.|\n|......|......|\n|......|......|\n|      |      |\n|......|......|\n|......|....oo|\n|......|....oo|\n|......|..o.oo|\n|xx..x.|oooxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 36\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n102 -> 102 - Bar/19* 4/1\n128 -> 128 - Bar/19* 5/2\n154 -> 154 - Bar/19* 6/3*\n466 -> 466 - Bar/19* 18/15\n492 -> 492 - Bar/19*/16\n\nYour choice (ID only):",
+      "raw_model_output": "2xxi",
+      "parsed_action_id": 2,
+      "actual_action_id": 102,
+      "legal_actions": [
+        102,
+        128,
+        154,
+        466,
+        492
+      ],
+      "num_legal_actions": 5,
+      "is_valid": false
+    },
+    {
+      "turn_index": 16,
+      "user_prompt": "Current State:\n+------|------+\n|..x.xo|oxxxxo|\n|......|.xxxx.|\n|......|....x.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|....oo|\n|.x..x.|oxoxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 46\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n154 -> 154 - Bar/19 6/2\n466 -> 466 - Bar/19 18/14\n492 -> 492 - Bar/19/15*\n\nYour choice (ID only):",
+      "raw_model_output": "1.xx",
+      "parsed_action_id": 1,
+      "actual_action_id": 492,
+      "legal_actions": [
+        154,
+        466,
+        492
+      ],
+      "num_legal_actions": 3,
+      "is_valid": false
+    },
+    {
+      "turn_index": 17,
+      "user_prompt": "Current State:\n+------|------+\n|..o.xo|oxxxxx|\n|......|.x.xx.|\n|......|....x.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|....oo|\n|.x..x.|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 25\nBar: oo\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1351 -> Pass\n\nYour choice (ID only):",
+      "raw_model_output": "1..x",
+      "parsed_action_id": 1,
+      "actual_action_id": 1351,
+      "legal_actions": [
+        1351
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    },
+    {
+      "turn_index": 18,
+      "user_prompt": "Current State:\n+------|------+\n|..o.xo|oxxxxx|\n|......|..xxx.|\n|......|....x.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|....oo|\n|xx....|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 13\nBar: oo\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1350 -> 1350 - Bar/24* Pass\n\nYour choice (ID only):",
+      "raw_model_output": "1xx.",
+      "parsed_action_id": 1,
+      "actual_action_id": 1350,
+      "legal_actions": [
+        1350
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    },
+    {
+      "turn_index": 19,
+      "user_prompt": "Current State:\n+------|------+\n|..o.xo|oxxxxx|\n|......|..xxx.|\n|......|......|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|...xoo|\n|xx....|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar: oo\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1350 -> 1350 - Bar/24* Pass\n\nYour choice (ID only):",
+      "raw_model_output": "1.. Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 1350,
+      "legal_actions": [
+        1350
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    },
+    {
+      "turn_index": 20,
+      "user_prompt": "Current State:\n+------|------+\n|..o.xo|oxxxxo|\n|......|...xx.|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|..xxoo|\n|xx....|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 66\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n388 -> 388 - Bar/19 15/9\n466 -> 466 - Bar/19 18/12*\n492 -> 492 - Bar/19/13\n622 -> 622 - Bar/19 24/18\n\nYour choice (ID only):",
+      "raw_model_output": "1.. Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 492,
+      "legal_actions": [
+        388,
+        466,
+        492,
+        622
+      ],
+      "num_legal_actions": 4,
+      "is_valid": false
+    },
+    {
+      "turn_index": 21,
+      "user_prompt": "Current State:\n+------|------+\n|o.o.xo|oxxxxo|\n|......|...xx.|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|..xxoo|\n|xx....|oxxxoo|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 66\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n168 -> 168 - 13/7/1\n303 -> 303 - 18/12*/6\n326 -> 326 - 15/9 13/7\n329 -> 329 - 18/12* 13/7\n330 -> 330 - 19/13/7\n335 -> 335 - 24/18 13/7\n376 -> 376 - 15/9 13/7\n381 -> 381 - 18/12* 15/9\n382 -> 382 - 19/13 15/9\n387 -> 387 - 24/18 15/9\n454 -> 454 - 18/12* 13/7\n456 -> 456 - 18/12* 15/9\n460 -> 460 - 19/13 18/12*\n465 -> 465 - 24/18/12*\n480 -> 480 - 19/13/7\n482 -> 482 - 19/13 15/9\n485 -> 485 - 19/13 18/12*\n491 -> 491 - 24/18 19/13\n610 -> 610 - 24/18 13/7\n612 -> 612 - 24/18 15/9\n615 -> 615 - 24/18/12*\n616 -> 616 - 24/18 19/13\n\nYour choice (ID only):",
+      "raw_model_output": "2xii",
+      "parsed_action_id": 2,
+      "actual_action_id": 610,
+      "legal_actions": [
+        168,
+        303,
+        326,
+        329,
+        330,
+        335,
+        376,
+        381,
+        382,
+        387,
+        454,
+        456,
+        460,
+        465,
+        480,
+        482,
+        485,
+        491,
+        610,
+        612
+      ],
+      "num_legal_actions": 22,
+      "is_valid": false
+    },
+    {
+      "turn_index": 22,
+      "user_prompt": "Current State:\n+------|------+\n|..o..o|oxxxx.|\n|.....o|..xxx.|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|..x.oo|\n|xx...o|xxxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 16\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n50 -> 50 - Bar/19 2/1\n180 -> 180 - Bar/19 7/6*\n388 -> 388 - Bar/19 15/14\n466 -> 466 - Bar/19 18/17\n492 -> 492 - Bar/19/18\n856 -> 856 - Bar/24 7/1\n1064 -> 1064 - Bar/24 15/9\n1142 -> 1142 - Bar/24 18/12*\n1168 -> 1168 - Bar/24 19/13\n1298 -> 1298 - Bar/24/18\n\nYour choice (ID only):",
+      "raw_model_output": "1xii",
+      "parsed_action_id": 1,
+      "actual_action_id": 492,
+      "legal_actions": [
+        50,
+        180,
+        388,
+        466,
+        492,
+        856,
+        1064,
+        1142,
+        1168,
+        1298
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 23,
+      "user_prompt": "Current State:\n+------|------+\n|..o..o|oxxxx.|\n|.....o|..xxx.|\n|.....o|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|.x..oo|\n|xx.x.o|.xxxoo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 44\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n170 -> 170 - 15/11* 7/3*\n173 -> 173 - 18/14 7/3*\n174 -> 174 - 19/15 7/3*\n274 -> 274 - 15/11*/7\n355 -> 355 - 18/14/10\n370 -> 370 - 15/11* 7/3*\n381 -> 381 - 18/14 15/11*\n382 -> 382 - 19/15/11*\n448 -> 448 - 18/14 7/3*\n456 -> 456 - 18/14 15/11*\n459 -> 459 - 18/14(2)\n460 -> 460 - 19/15 18/14\n474 -> 474 - 19/15 7/3*\n482 -> 482 - 19/15/11*\n485 -> 485 - 19/15 18/14\n\nYour choice (ID only):",
+      "raw_model_output": "1.xi",
+      "parsed_action_id": 1,
+      "actual_action_id": 174,
+      "legal_actions": [
+        170,
+        173,
+        174,
+        274,
+        355,
+        370,
+        381,
+        382,
+        448,
+        456,
+        459,
+        460,
+        474,
+        482,
+        485
+      ],
+      "num_legal_actions": 15,
+      "is_valid": false
+    },
+    {
+      "turn_index": 24,
+      "user_prompt": "Current State:\n+------|------+\n|..o..o|.xxxx.|\n|..o..o|..xxx.|\n|.....o|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|.x..oo|\n|xx.x..|.xxooo|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 44\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n274 -> 274 - 15/11*/7\n355 -> 355 - 18/14/10\n378 -> 378 - 15/11*(2)\n381 -> 381 - 18/14 15/11*\n456 -> 456 - 18/14 15/11*\n459 -> 459 - 18/14(2)\n\nYour choice (ID only):",
+      "raw_model_output": "1.. Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 355,
+      "legal_actions": [
+        274,
+        355,
+        378,
+        381,
+        456,
+        459
+      ],
+      "num_legal_actions": 6,
+      "is_valid": false
+    },
+    {
+      "turn_index": 25,
+      "user_prompt": "Current State:\n+------|------+\n|..o..o|.xxxx.|\n|..o..o|..xxx.|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|xx..oo|\n|xxox..|xx.ooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 24\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n66 -> 66 - 15/11* 3/1\n69 -> 69 - 18/14 3/1\n248 -> 248 - 15/11* 10/8\n251 -> 251 - 18/14 10/8\n274 -> 274 - 15/11*/9*\n355 -> 355 - 18/14/12*\n378 -> 378 - 15/13 15/11*\n381 -> 381 - 18/14 15/13\n456 -> 456 - 18/16 15/11*\n459 -> 459 - 18/16 18/14\n867 -> 867 - 10/8/4\n1002 -> 1002 - 15/13/9*\n1042 -> 1042 - 15/11* 3/1\n1049 -> 1049 - 15/11* 10/8\n1054 -> 1054 - 15/13 15/11*\n1057 -> 1057 - 18/16 15/11*\n1083 -> 1083 - 18/16/12*\n1120 -> 1120 - 18/14 3/1\n1127 -> 1127 - 18/14 10/8\n1132 -> 1132 - 18/14 15/13\n1135 -> 1135 - 18/16 18/14\n\nYour choice (ID only):",
+      "raw_model_output": "1.xx",
+      "parsed_action_id": 1,
+      "actual_action_id": 248,
+      "legal_actions": [
+        66,
+        69,
+        248,
+        251,
+        274,
+        355,
+        378,
+        381,
+        456,
+        459,
+        867,
+        1002,
+        1042,
+        1049,
+        1054,
+        1057,
+        1083,
+        1120,
+        1127,
+        1132
+      ],
+      "num_legal_actions": 21,
+      "is_valid": false
+    },
+    {
+      "turn_index": 26,
+      "user_prompt": "Current State:\n+------|------+\n|..o..o|.xxxx.|\n|.....o|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|....oo|\n|......|xx..oo|\n|xo.xo.|xxxooo|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 23\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n62 -> 62 - 11/8 3/1\n66 -> 66 - 15/12* 3/1\n69 -> 69 - 18/15 3/1\n274 -> 274 - 15/12* 11/9*\n277 -> 277 - 18/15 11/9*\n300 -> 300 - 15/12*/10\n374 -> 374 - 15/13 11/8\n381 -> 381 - 18/15/13\n452 -> 452 - 18/16 11/8\n456 -> 456 - 18/16 15/12*\n459 -> 459 - 18/16 18/15\n938 -> 938 - 11/8 3/1\n950 -> 950 - 15/13 11/8\n953 -> 953 - 18/16 11/8\n1002 -> 1002 - 15/13/10\n1042 -> 1042 - 15/12* 3/1\n1050 -> 1050 - 15/12* 11/9*\n1057 -> 1057 - 18/16 15/12*\n1083 -> 1083 - 18/16/13\n1120 -> 1120 - 18/15 3/1\n1128 -> 1128 - 18/15 11/9*\n1132 -> 1132 - 18/15/13\n1135 -> 1135 - 18/16 18/15\n\nYour choice (ID only):",
+      "raw_model_output": "1..x",
+      "parsed_action_id": 1,
+      "actual_action_id": 66,
+      "legal_actions": [
+        62,
+        66,
+        69,
+        274,
+        277,
+        300,
+        374,
+        381,
+        452,
+        456,
+        459,
+        938,
+        950,
+        953,
+        1002,
+        1042,
+        1050,
+        1057,
+        1083,
+        1120
+      ],
+      "num_legal_actions": 23,
+      "is_valid": false
+    },
+    {
+      "turn_index": 27,
+      "user_prompt": "Current State:\n+------|------+\n|.....o|.xxxx.|\n|.....o|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|oo.xo.|xxxxo6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 46\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n114 -> 114 - 11/5*/1\n192 -> 192 - 11/5* 8/4*\n199 -> 199 - 18/12 8/4*\n267 -> 267 - 11/7 8/2\n277 -> 277 - 18/12 11/7\n293 -> 293 - 12/8/2\n296 -> 296 - 12/8 11/5*\n303 -> 303 - 18/12/8\n449 -> 449 - 18/14 8/2\n452 -> 452 - 18/14 11/5*\n459 -> 459 - 18/14 18/12\n842 -> 842 - 11/7/1\n868 -> 868 - 11/7 8/2\n869 -> 869 - 12/8/2\n875 -> 875 - 18/14 8/2\n943 -> 943 - 11/5* 8/4*\n947 -> 947 - 12/8 11/5*\n953 -> 953 - 18/14 11/5*\n1031 -> 1031 - 18/14/8\n1125 -> 1125 - 18/12 8/4*\n1128 -> 1128 - 18/12 11/7\n1129 -> 1129 - 18/12/8\n1135 -> 1135 - 18/14 18/12\n\nYour choice (ID only):",
+      "raw_model_output": "2..x",
+      "parsed_action_id": 2,
+      "actual_action_id": 875,
+      "legal_actions": [
+        114,
+        192,
+        199,
+        267,
+        277,
+        293,
+        296,
+        303,
+        449,
+        452,
+        459,
+        842,
+        868,
+        869,
+        875,
+        943,
+        947,
+        953,
+        1031,
+        1125
+      ],
+      "num_legal_actions": 23,
+      "is_valid": false
+    },
+    {
+      "turn_index": 28,
+      "user_prompt": "Current State:\n+------|------+\n|.o...o|.xxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|ox.x.x|x..xo6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 36\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n310 -> 310 - Bar/19 12/9*\n362 -> 362 - Bar/19 14/11*\n466 -> 466 - Bar/19 18/15\n492 -> 492 - Bar/19/16\n\nYour choice (ID only):",
+      "raw_model_output": "2.iations",
+      "parsed_action_id": 2,
+      "actual_action_id": 362,
+      "legal_actions": [
+        310,
+        362,
+        466,
+        492
+      ],
+      "num_legal_actions": 4,
+      "is_valid": false
+    },
+    {
+      "turn_index": 29,
+      "user_prompt": "Current State:\n+------|------+\n|.....o|oxxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|oo.x.x|x..xo6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 56\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n296 -> 296 - 12/7* 11/5\n303 -> 303 - 18/12/7*\n304 -> 304 - 19/13 12/7*\n330 -> 330 - 19/13/8\n452 -> 452 - 18/13 11/5\n460 -> 460 - 19/13 18/13\n478 -> 478 - 19/14 11/5\n485 -> 485 - 19/14 18/12\n843 -> 843 - 12/7*/1\n947 -> 947 - 12/7* 11/5\n953 -> 953 - 18/13 11/5\n954 -> 954 - 19/14 11/5\n1005 -> 1005 - 18/13/7*\n1032 -> 1032 - 19/14/8\n1129 -> 1129 - 18/12/7*\n1136 -> 1136 - 19/14 18/12\n1155 -> 1155 - 19/13 12/7*\n1161 -> 1161 - 19/13 18/13\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 452,
+      "legal_actions": [
+        296,
+        303,
+        304,
+        330,
+        452,
+        460,
+        478,
+        485,
+        843,
+        947,
+        953,
+        954,
+        1005,
+        1032,
+        1129,
+        1136,
+        1155,
+        1161
+      ],
+      "num_legal_actions": 18,
+      "is_valid": false
+    },
+    {
+      "turn_index": 30,
+      "user_prompt": "Current State:\n+------|------+\n|o.....|oxxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|o..x.x|xo.xo6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n30 -> 30 - 5/1 2/1\n37 -> 37 - 12/8 2/1\n38 -> 38 - 13/9* 2/1\n44 -> 44 - 19/15 2/1\n115 -> 115 - 12/8 5/4\n116 -> 116 - 13/9* 5/4\n122 -> 122 - 19/15 5/4\n193 -> 193 - 12/8/7*\n220 -> 220 - 13/9*/8\n290 -> 290 - 12/11 5/1\n298 -> 298 - 13/9* 12/11\n304 -> 304 - 19/15 12/11\n316 -> 316 - 13/12 5/1\n323 -> 323 - 13/12/8\n330 -> 330 - 19/15 13/12\n382 -> 382 - 19/15/14\n472 -> 472 - 19/18 5/1\n479 -> 479 - 19/18 12/8\n480 -> 480 - 19/18 13/9*\n781 -> 781 - 5/1 2/1\n791 -> 791 - 12/11 5/1\n792 -> 792 - 13/12 5/1\n798 -> 798 - 19/18 5/1\n947 -> 947 - 12/11/7*\n963 -> 963 - 12/8 2/1\n966 -> 966 - 12/8 5/4\n974 -> 974 - 13/12/8\n980 -> 980 - 19/18 12/8\n989 -> 989 - 13/9* 2/1\n992 -> 992 - 13/9* 5/4\n999 -> 999 - 13/9* 12/11\n1006 -> 1006 - 19/18 13/9*\n1136 -> 1136 - 19/18/14\n1145 -> 1145 - 19/15 2/1\n1148 -> 1148 - 19/15 5/4\n1155 -> 1155 - 19/15 12/11\n1156 -> 1156 - 19/15 13/12\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 791,
+      "legal_actions": [
+        30,
+        37,
+        38,
+        44,
+        115,
+        116,
+        122,
+        193,
+        220,
+        290,
+        298,
+        304,
+        316,
+        323,
+        330,
+        382,
+        472,
+        479,
+        480,
+        781
+      ],
+      "num_legal_actions": 37,
+      "is_valid": false
+    },
+    {
+      "turn_index": 31,
+      "user_prompt": "Current State:\n+------|------+\n|o.....|oxxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|.o.x.x|x..xo7|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 55\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n194 -> 194 - 13/8/3*\n330 -> 330 - 19/14 13/8\n356 -> 356 - 19/14/9*\n480 -> 480 - 19/14 13/8\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 480,
+      "legal_actions": [
+        194,
+        330,
+        356,
+        480
+      ],
+      "num_legal_actions": 4,
+      "is_valid": false
+    },
+    {
+      "turn_index": 32,
+      "user_prompt": "Current State:\n+------|------+\n|.o....|.xxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|.o.xox|x..xo7|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 55\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n195 -> 195 - 14/9* 8/3*\n221 -> 221 - 14/9*/4\n345 -> 345 - 14/9* 8/3*\n\nYour choice (ID only):",
+      "raw_model_output": "1xxi",
+      "parsed_action_id": 1,
+      "actual_action_id": 345,
+      "legal_actions": [
+        195,
+        221,
+        345
+      ],
+      "num_legal_actions": 3,
+      "is_valid": false
+    },
+    {
+      "turn_index": 33,
+      "user_prompt": "Current State:\n+------|------+\n|......|.xxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x...oo|\n|.o.o.x|xxxoo7|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 45\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n268 -> 268 - 11/7* 9/4*\n842 -> 842 - 11/7*/2\n894 -> 894 - 11/7* 9/4*\n\nYour choice (ID only):",
+      "raw_model_output": "1.xx",
+      "parsed_action_id": 1,
+      "actual_action_id": 842,
+      "legal_actions": [
+        268,
+        842,
+        894
+      ],
+      "num_legal_actions": 3,
+      "is_valid": false
+    },
+    {
+      "turn_index": 34,
+      "user_prompt": "Current State:\n+------|------+\n|......|.xxxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x.x.oo|\n|...o..|xxxx67|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 35\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n518 -> 518 - Bar/20*/17\n\nYour choice (ID only):",
+      "raw_model_output": "1.. Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 518,
+      "legal_actions": [
+        518
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    },
+    {
+      "turn_index": 35,
+      "user_prompt": "Current State:\n+------|------+\n|....o.|..xxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|..x.oo|\n|......|x.x.oo|\n|...ox.|xxxx67|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 11\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/1(2)\n34 -> 34 - 9/8* 2/1\n42 -> 42 - 17/16 2/1\n190 -> 190 - 9/8*/7\n209 -> 209 - 9/8* 2/1\n224 -> 224 - 17/16 9/8*\n406 -> 406 - 17/16/15\n417 -> 417 - 17/16 2/1\n424 -> 424 - 17/16 9/8*\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 406,
+      "legal_actions": [
+        27,
+        34,
+        42,
+        190,
+        209,
+        224,
+        406,
+        417,
+        424
+      ],
+      "num_legal_actions": 9,
+      "is_valid": false
+    },
+    {
+      "turn_index": 36,
+      "user_prompt": "Current State:\n+------|------+\n|..o...|..xxx.|\n|......|...xx.|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|..x.oo|\n|......|x.x.oo|\n|...ox.|xxxx67|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 11\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/1(2)\n34 -> 34 - 9/8* 2/1\n40 -> 40 - 15/14 2/1\n190 -> 190 - 9/8*/7\n209 -> 209 - 9/8* 2/1\n222 -> 222 - 15/14 9/8*\n352 -> 352 - 15/14/13\n365 -> 365 - 15/14 2/1\n372 -> 372 - 15/14 9/8*\n\nYour choice (ID only):",
+      "raw_model_output": "2...",
+      "parsed_action_id": 2,
+      "actual_action_id": 352,
+      "legal_actions": [
+        27,
+        34,
+        40,
+        190,
+        209,
+        222,
+        352,
+        365,
+        372
+      ],
+      "num_legal_actions": 9,
+      "is_valid": false
+    },
+    {
+      "turn_index": 37,
+      "user_prompt": "Current State:\n+------|------+\n|o.....|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x.x.oo|\n|...ox.|xxxx67|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 13\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n38 -> 38 - 13/10 2/1\n220 -> 220 - 13/10 9/8*\n246 -> 246 - 13/10/9\n866 -> 866 - 9/8*/5*\n974 -> 974 - 13/12/9\n989 -> 989 - 13/10 2/1\n996 -> 996 - 13/10 9/8*\n\nYour choice (ID only):",
+      "raw_model_output": "2.i Answers",
+      "parsed_action_id": 2,
+      "actual_action_id": 866,
+      "legal_actions": [
+        38,
+        220,
+        246,
+        866,
+        974,
+        989,
+        996
+      ],
+      "num_legal_actions": 7,
+      "is_valid": false
+    },
+    {
+      "turn_index": 38,
+      "user_prompt": "Current State:\n+------|------+\n|o.....|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x...oo|\n|......|x.xxoo|\n|......|xoxx67|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 16\nBar: x\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n38 -> 38 - 13/7 2/1\n989 -> 989 - 13/7 2/1\n\nYour choice (ID only):",
+      "raw_model_output": "1xxx",
+      "parsed_action_id": 1,
+      "actual_action_id": 38,
+      "legal_actions": [
+        38,
+        989
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 39,
+      "user_prompt": "Current State:\n+------|------+\n|......|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x..xoo|\n|......|x..xoo|\n|.....o|xxxxo8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 23\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n1351 -> Pass\n\nYour choice (ID only):",
+      "raw_model_output": "1..x",
+      "parsed_action_id": 1,
+      "actual_action_id": 1351,
+      "legal_actions": [
+        1351
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    },
+    {
+      "turn_index": 40,
+      "user_prompt": "Current State:\n+------|------+\n|......|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|...xoo|\n|......|x..xoo|\n|..x.xo|x.xxo8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 16\nBar: o\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n50 -> 50 - Bar/19 2/1\n492 -> 492 - Bar/19/18\n856 -> 856 - Bar/24* 7/1\n1298 -> 1298 - Bar/24*/18\n\nYour choice (ID only):",
+      "raw_model_output": "2xxx",
+      "parsed_action_id": 2,
+      "actual_action_id": 492,
+      "legal_actions": [
+        50,
+        492,
+        856,
+        1298
+      ],
+      "num_legal_actions": 4,
+      "is_valid": false
+    },
+    {
+      "turn_index": 41,
+      "user_prompt": "Current State:\n+------|------+\n|....xo|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|...xoo|\n|......|x..xoo|\n|..x..o|x.xxo8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n43 -> 43 - 18/14 2/1\n355 -> 355 - 18/14/13\n1109 -> 1109 - 18/17*/13\n1119 -> 1119 - 18/14 2/1\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 1109,
+      "legal_actions": [
+        43,
+        355,
+        1109,
+        1119
+      ],
+      "num_legal_actions": 4,
+      "is_valid": false
+    },
+    {
+      "turn_index": 42,
+      "user_prompt": "Current State:\n+------|------+\n|o.....|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|....oo|\n|......|....oo|\n|......|x..xoo|\n|......|x..xoo|\n|..x..o|x.xxo8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 11\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/1(2)\n38 -> 38 - 13/12 2/1\n298 -> 298 - 13/12/11\n313 -> 313 - 13/12 2/1\n\nYour choice (ID only):",
+      "raw_model_output": "2xi Answers",
+      "parsed_action_id": 2,
+      "actual_action_id": 27,
+      "legal_actions": [
+        27,
+        38,
+        298,
+        313
+      ],
+      "num_legal_actions": 4,
+      "is_valid": false
+    },
+    {
+      "turn_index": 43,
+      "user_prompt": "Current State:\n+------|------+\n|o.....|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|.....o|\n|......|.....o|\n|......|x..xoo|\n|......|x..xo1|\n|..x..o|x.xxo0|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 11\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/1(2)\n38 -> 38 - 13/12 2/1\n298 -> 298 - 13/12/11\n313 -> 313 - 13/12 2/1\n\nYour choice (ID only):",
+      "raw_model_output": "1..x",
+      "parsed_action_id": 1,
+      "actual_action_id": 38,
+      "legal_actions": [
+        27,
+        38,
+        298,
+        313
+      ],
+      "num_legal_actions": 4,
+      "is_valid": false
+    },
+    {
+      "turn_index": 44,
+      "user_prompt": "Current State:\n+------|------+\n|......|...xxx|\n|......|...xx.|\n|......|...x..|\n|......|...x..|\n|......|......|\n|      |      |\n|......|.....o|\n|......|x....o|\n|......|x....o|\n|..x...|x..xo1|\n|o.x..o|x..xo1|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 25\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n167 -> 167 - 12/7/5\n968 -> 968 - 12/7/5\n\nYour choice (ID only):",
+      "raw_model_output": "1.xx",
+      "parsed_action_id": 1,
+      "actual_action_id": 167,
+      "legal_actions": [
+        167,
+        968
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 45,
+      "user_prompt": "Current State:\n+------|------+\n|...x..|...xxx|\n|......|...xxx|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|x....o|\n|......|x....o|\n|......|x..xo1|\n|..x..o|xo.xo1|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 55\nBar:\nScores, X: 0, O: 0\n\n\nYou are Player 1.\nLegal Actions:\n110 -> 110 - 7/2 5/Off\n\nYour choice (ID only):",
+      "raw_model_output": "1...",
+      "parsed_action_id": 1,
+      "actual_action_id": 110,
+      "legal_actions": [
+        110
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    },
+    {
+      "turn_index": 46,
+      "user_prompt": "Current State:\n+------|------+\n|...x..|...xxx|\n|......|...xxx|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|x....o|\n|......|x...oo|\n|......|x..xo1|\n|..x...|x..xo1|\n+------|------+\nTurn: o\nPrevious player: 1\nExtra turn: 1\nDice: 55\nBar:\nScores, X: 0, O: 1\n\n\nYou are Player 1.\nLegal Actions:\n27 -> 27 - 2/Off(2)\n\nYour choice (ID only):",
+      "raw_model_output": "1xxi",
+      "parsed_action_id": 1,
+      "actual_action_id": 27,
+      "legal_actions": [
+        27
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    },
+    {
+      "turn_index": 47,
+      "user_prompt": "Current State:\n+------|------+\n|.x.x..|...xxx|\n|......|...xxx|\n|......|...x..|\n|......|......|\n|......|......|\n|      |      |\n|......|x....o|\n|......|x....o|\n|......|x....o|\n|......|x....1|\n|......|x..xo1|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 15\nBar:\nScores, X: 0, O: 3\n\n\nYou are Player 1.\nLegal Actions:\n1 -> 1 - 2/Off 1/Off\n677 -> 677 - 2/1/Off\n702 -> 702 - 2/Off 1/Off\n\nYour choice (ID only):",
+      "raw_model_output": "1.. Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 1,
+      "legal_actions": [
+        1,
+        677,
+        702
+      ],
+      "num_legal_actions": 3,
+      "is_valid": true
+    },
+    {
+      "turn_index": 48,
+      "user_prompt": "Current State:\n+------|------+\n|...x..|...xxx|\n|......|...xxx|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|x....o|\n|......|x....o|\n|......|x....o|\n|......|x....1|\n|......|6....0|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 14\nBar:\nScores, X: 0, O: 5\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):",
+      "raw_model_output": "1. Answers Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 0,
+      "legal_actions": [
+        0,
+        676
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 49,
+      "user_prompt": "Current State:\n+------|------+\n|......|x..xxx|\n|......|...xxx|\n|......|...xx.|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|.....o|\n|...x..|x....o|\n|...x..|x....o|\n|...x..|x....8|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 46\nBar:\nScores, X: 0, O: 7\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):",
+      "raw_model_output": "2xxi",
+      "parsed_action_id": 2,
+      "actual_action_id": 0,
+      "legal_actions": [
+        0,
+        676
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 50,
+      "user_prompt": "Current State:\n+------|------+\n|.x....|x..xxx|\n|......|...xxx|\n|......|...x.x|\n|......|......|\n|......|......|\n|      |      |\n|......|.....o|\n|......|.....o|\n|......|x....o|\n|...x..|x....o|\n|...x..|x....6|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 23\nBar:\nScores, X: 0, O: 9\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):",
+      "raw_model_output": "1. Answers Answers",
+      "parsed_action_id": 1,
+      "actual_action_id": 676,
+      "legal_actions": [
+        0,
+        676
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 51,
+      "user_prompt": "Current State:\n+------|------+\n|.x....|x..xxx|\n|......|...x.x|\n|......|...x.x|\n|......|.....x|\n|......|......|\n|      |      |\n|......|......|\n|......|.....o|\n|......|.....o|\n|...x..|x....o|\n|..xx..|x....o|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 45\nBar:\nScores, X: 0, O: 11\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):",
+      "raw_model_output": "1..x",
+      "parsed_action_id": 1,
+      "actual_action_id": 676,
+      "legal_actions": [
+        0,
+        676
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 52,
+      "user_prompt": "Current State:\n+------|------+\n|.xx...|x..xxx|\n|......|...xxx|\n|......|.....x|\n|......|.....x|\n|......|......|\n|      |      |\n|......|......|\n|......|......|\n|......|......|\n|...x..|x....o|\n|...x..|x....o|\n+------|------+\nTurn: o\nPrevious player: 0\nExtra turn: 0\nDice: 12\nBar:\nScores, X: 0, O: 13\n\n\nYou are Player 1.\nLegal Actions:\n0 -> 0 - 1/Off(2)\n676 -> 676 - 1/Off(2)\n\nYour choice (ID only):",
+      "raw_model_output": "1.x.",
+      "parsed_action_id": 1,
+      "actual_action_id": 676,
+      "legal_actions": [
+        0,
+        676
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    }
+  ],
+  "total_turns": 53,
+  "valid_turns": 1,
+  "invalid_turns": 52
+}

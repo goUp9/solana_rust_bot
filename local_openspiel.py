@@ -25,6 +25,48 @@ class TurnSample:
     info: Dict[str, Any]
 
 
+@dataclass
+class EpisodeData:
+    """Complete episode data for logging and analysis."""
+    task_id: int
+    seed: int
+    game_name: str
+    opponent: str
+    llm_player_id: int
+    num_players: int
+    # Game outcome
+    final_reward: float
+    llm_return: float
+    all_returns: List[float]
+    # Turn-by-turn data
+    conversation: List[Dict[str, str]]  # Full chat history
+    action_history: List[Dict[str, Any]]  # All actions taken
+    llm_turns: List[Dict[str, Any]]  # Detailed LLM turn info
+    # Statistics
+    total_turns: int
+    valid_turns: int
+    invalid_turns: int
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "task_id": self.task_id,
+            "seed": self.seed,
+            "game_name": self.game_name,
+            "opponent": self.opponent,
+            "llm_player_id": self.llm_player_id,
+            "num_players": self.num_players,
+            "final_reward": self.final_reward,
+            "llm_return": self.llm_return,
+            "all_returns": self.all_returns,
+            "conversation": self.conversation,
+            "action_history": self.action_history,
+            "llm_turns": self.llm_turns,
+            "total_turns": self.total_turns,
+            "valid_turns": self.valid_turns,
+            "invalid_turns": self.invalid_turns,
+        }
+
+
 def _import_openspiel_components():
     # Lazily import to keep module importable even if open_spiel isn't installed.
     import sys
@@ -141,11 +183,16 @@ def run_local_openspiel_episode(
     max_seq_length: int = 1024,
     gamma: float = 0.99,
     device: str = "cuda",
-) -> Tuple[List[TurnSample], Dict[str, Any]]:
+) -> Tuple[List[TurnSample], Dict[str, Any], EpisodeData]:
     """
     Play a full OpenSpiel episode locally and return per-turn samples.
 
     Rewards: final outcome is discounted backwards across turns (Monte-Carlo style).
+    
+    Returns:
+        turn_samples: List of TurnSample for PPO training (only valid responses)
+        episode_info: Dict with summary info for curriculum updates
+        episode_data: EpisodeData with complete episode details for logging
     """
     pyspiel, _, _, create_game, GAME_AGENTS = _import_openspiel_components()
 
@@ -169,6 +216,9 @@ def run_local_openspiel_episode(
     messages: List[Dict[str, str]] = [{"role": "system", "content": agent.generate_system_prompt()}]
     action_history: List[Dict[str, Any]] = []
     turn_samples: List[TurnSample] = []
+    llm_turns: List[Dict[str, Any]] = []  # Detailed LLM turn info for logging
+    valid_count = 0
+    invalid_count = 0
 
     # Local RNG for fallback action selection
     rng = np.random.RandomState(seed + 1)
@@ -247,16 +297,34 @@ def run_local_openspiel_episode(
         action_history.append({"player_id": int(llm_player_id), "action": int(actual_action_id), "is_llm": True, "valid": is_valid_response})
         messages.append({"role": "assistant", "content": str(actual_action_id)})
 
+        # Track valid/invalid counts
+        if is_valid_response:
+            valid_count += 1
+        else:
+            invalid_count += 1
+
+        # Record detailed LLM turn info for logging
+        llm_turns.append({
+            "turn_index": len(llm_turns),
+            "user_prompt": user_prompt,
+            "raw_model_output": response_text,
+            "parsed_action_id": action_id,
+            "actual_action_id": actual_action_id,
+            "legal_actions": legal_actions[:20] if len(legal_actions) > 20 else legal_actions,  # Truncate for readability
+            "num_legal_actions": len(legal_actions),
+            "is_valid": is_valid_response,
+        })
+
         # Only include VALID responses for PPO training
         # Invalid responses cause KL divergence issues (policy ratio explosion)
-        # The response_text must be just the action number for PPO to work correctly
+        # Use the ACTUAL model output (not cleaned) to maintain KL consistency
         if is_valid_response:
-            # Use the actual action ID as response (just the number)
-            # This ensures the response matches what we want the model to learn
+            # Use the actual model output (trimmed) to match what the model generated
+            # This prevents KL divergence issues from mismatched tokens
             turn_samples.append(
                 TurnSample(
                     prompt_text=prompt_text,
-                    response_text=str(actual_action_id),  # Use clean action ID, not raw model output
+                    response_text=response_text.strip(),  # Use actual model output
                     reward=0.0,  # Will be filled with game outcome
                     info={
                         "game_name": game_name,
@@ -298,7 +366,28 @@ def run_local_openspiel_episode(
         "llm_return": float(llm_return),
         "num_turns": len(turn_samples),
         "action_history": action_history,
+        "valid_turns": valid_count,
+        "invalid_turns": invalid_count,
     }
 
-    return turn_samples, episode_info
+    # Create complete episode data for logging
+    episode_data = EpisodeData(
+        task_id=task_id,
+        seed=seed,
+        game_name=game_name,
+        opponent=opponent,
+        llm_player_id=llm_player_id,
+        num_players=num_players,
+        final_reward=float(final_reward),
+        llm_return=float(llm_return),
+        all_returns=[float(r) for r in returns],
+        conversation=messages,
+        action_history=action_history,
+        llm_turns=llm_turns,
+        total_turns=valid_count + invalid_count,
+        valid_turns=valid_count,
+        invalid_turns=invalid_count,
+    )
+
+    return turn_samples, episode_info, episode_data
 

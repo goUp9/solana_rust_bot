@@ -1,0 +1,202 @@
+{
+  "step": 2,
+  "timestamp": "2026-01-10T01:32:55.989824",
+  "num_episodes": 16,
+  "stats": {
+    "skipped": true,
+    "num_samples": 2
+  },
+  "episodes_summary": [
+    {
+      "task_id": 173476275,
+      "game_name": "liars_dice",
+      "seed": 1429152570,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 2,
+      "valid_turns": 1,
+      "invalid_turns": 1,
+      "valid_rate": 0.5
+    },
+    {
+      "task_id": 380958204,
+      "game_name": "gin_rummy",
+      "seed": 1235478542,
+      "opponent": "random",
+      "final_reward": 0.6056910569105691,
+      "total_turns": 74,
+      "valid_turns": 0,
+      "invalid_turns": 74,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 642553307,
+      "game_name": "hex",
+      "seed": 1039842312,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 59,
+      "valid_turns": 0,
+      "invalid_turns": 59,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 191802769,
+      "game_name": "liars_dice",
+      "seed": 813429542,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 3,
+      "valid_turns": 1,
+      "invalid_turns": 2,
+      "valid_rate": 0.3333333333333333
+    },
+    {
+      "task_id": 82245023,
+      "game_name": "goofspiel",
+      "seed": 1116932915,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 0,
+      "valid_turns": 0,
+      "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 191096787,
+      "game_name": "liars_dice",
+      "seed": 559309739,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 2,
+      "valid_turns": 0,
+      "invalid_turns": 2,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 10770746,
+      "game_name": "goofspiel",
+      "seed": 1680603714,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 0,
+      "valid_turns": 0,
+      "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 470033481,
+      "game_name": "othello",
+      "seed": 1011472239,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 30,
+      "valid_turns": 0,
+      "invalid_turns": 30,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 677805347,
+      "game_name": "hex",
+      "seed": 1182021441,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 58,
+      "valid_turns": 0,
+      "invalid_turns": 58,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 511055915,
+      "game_name": "backgammon",
+      "seed": 1392964597,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 36,
+      "valid_turns": 0,
+      "invalid_turns": 36,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 778795832,
+      "game_name": "clobber",
+      "seed": 1439975734,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 13,
+      "valid_turns": 0,
+      "invalid_turns": 13,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 302175538,
+      "game_name": "gin_rummy",
+      "seed": 1164099199,
+      "opponent": "random",
+      "final_reward": 0.5,
+      "total_turns": 67,
+      "valid_turns": 0,
+      "invalid_turns": 67,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 578300211,
+      "game_name": "backgammon",
+      "seed": 946870804,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 90,
+      "valid_turns": 0,
+      "invalid_turns": 90,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 244632246,
+      "game_name": "leduc_poker",
+      "seed": 1830219288,
+      "opponent": "random",
+      "final_reward": 0.5384615384615384,
+      "total_turns": 1,
+      "valid_turns": 0,
+      "invalid_turns": 1,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 119643903,
+      "game_name": "liars_dice",
+      "seed": 939625287,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 2,
+      "valid_turns": 0,
+      "invalid_turns": 2,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 532737163,
+      "game_name": "backgammon",
+      "seed": 317814271,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 28,
+      "valid_turns": 0,
+      "invalid_turns": 28,
+      "valid_rate": 0.0
+    }
+  ],
+  "aggregated": {
+    "total_valid_turns": 2,
+    "total_invalid_turns": 463,
+    "avg_valid_rate": 0.05208333333333333,
+    "games_played": {
+      "hex": 2,
+      "backgammon": 3,
+      "leduc_poker": 1,
+      "gin_rummy": 2,
+      "goofspiel": 2,
+      "othello": 1,
+      "clobber": 1,
+      "liars_dice": 4
+    }
+  }
+}

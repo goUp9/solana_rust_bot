@@ -142,6 +142,22 @@ class CurriculumSampler:
     4. Mixed sampling (curriculum + failures)
     """
     
+    # Game name to index mapping (matches AVAILABLE_GAMES in game_config.py)
+    GAME_NAME_TO_INDEX = {
+        "goofspiel": 0,
+        "liars_dice": 1,
+        "leduc_poker": 2,
+        "gin_rummy": 3,
+        "othello": 4,
+        "backgammon": 5,
+        "hex": 6,
+        "clobber": 7,
+        "hearts": 8,
+        "euchre": 9,
+        "dots_and_boxes": 10,
+        "go": 11,
+    }
+    
     def __init__(
         self,
         env_name: str,
@@ -192,6 +208,17 @@ class CurriculumSampler:
             "failure_replays": 0,
             "curriculum_samples": 0,
         }
+    
+    @property
+    def task_pool(self) -> Dict[str, int]:
+        """Get available games as a dict mapping game_name to game_index"""
+        if self.allowed_game_indices is not None:
+            # Return only allowed games
+            index_to_name = {v: k for k, v in self.GAME_NAME_TO_INDEX.items()}
+            return {index_to_name[idx]: idx for idx in self.allowed_game_indices if idx in index_to_name}
+        else:
+            # Return all games
+            return self.GAME_NAME_TO_INDEX.copy()
     
     @property
     def current_stage(self) -> CurriculumStage:
@@ -273,6 +300,39 @@ class CurriculumSampler:
             opponent=stage.opponent,
             seed=random.randint(0, 2**31 - 1),
             metadata={"source": "curriculum", "stage": stage.name}
+        )
+    
+    def sample_task_for_game(self, game_name: str) -> TaskConfig:
+        """
+        Sample a task specifically for a given game name
+        
+        Args:
+            game_name: Name of the game to sample from (e.g., "liars_dice", "hex")
+        
+        Returns:
+            TaskConfig for the specified game
+        """
+        stage = self.current_stage
+        
+        # Get game index from name
+        game_idx = self.GAME_NAME_TO_INDEX.get(game_name)
+        if game_idx is None:
+            # Fallback to regular sampling if game not found
+            return self._sample_from_curriculum()
+        
+        # Generate task_id for this specific game
+        config_id = random.randint(0, self.game_block_size - 1)
+        task_id = game_idx * self.game_block_size + config_id
+        
+        self.stats["curriculum_samples"] += 1
+        self.stats["total_samples"] += 1
+        
+        return TaskConfig(
+            task_id=task_id,
+            difficulty=stage.name,
+            opponent=stage.opponent,
+            seed=random.randint(0, 2**31 - 1),
+            metadata={"source": "targeted_game", "game_name": game_name, "stage": stage.name}
         )
     
     def update(self, task_id: int, score: float, success: bool):

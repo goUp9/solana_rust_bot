@@ -1,0 +1,201 @@
+{
+  "step": 11,
+  "timestamp": "2026-01-10T02:02:22.397581",
+  "num_episodes": 16,
+  "stats": {
+    "skipped": true,
+    "num_samples": 2
+  },
+  "episodes_summary": [
+    {
+      "task_id": 417469470,
+      "game_name": "othello",
+      "seed": 119985226,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 31,
+      "valid_turns": 0,
+      "invalid_turns": 31,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 544964705,
+      "game_name": "backgammon",
+      "seed": 2033110389,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 42,
+      "valid_turns": 0,
+      "invalid_turns": 42,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 474249853,
+      "game_name": "othello",
+      "seed": 1404386194,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 31,
+      "valid_turns": 1,
+      "invalid_turns": 30,
+      "valid_rate": 0.03225806451612903
+    },
+    {
+      "task_id": 173476275,
+      "game_name": "liars_dice",
+      "seed": 347072070,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 3,
+      "valid_turns": 1,
+      "invalid_turns": 2,
+      "valid_rate": 0.3333333333333333
+    },
+    {
+      "task_id": 70478720,
+      "game_name": "goofspiel",
+      "seed": 1321829887,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 0,
+      "valid_turns": 0,
+      "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 208192977,
+      "game_name": "leduc_poker",
+      "seed": 631046017,
+      "opponent": "random",
+      "final_reward": 0.6923076923076923,
+      "total_turns": 2,
+      "valid_turns": 0,
+      "invalid_turns": 2,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 342398228,
+      "game_name": "gin_rummy",
+      "seed": 1042984254,
+      "opponent": "random",
+      "final_reward": 0.5,
+      "total_turns": 79,
+      "valid_turns": 0,
+      "invalid_turns": 79,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 735166055,
+      "game_name": "clobber",
+      "seed": 790035280,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 12,
+      "valid_turns": 0,
+      "invalid_turns": 12,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 191802769,
+      "game_name": "liars_dice",
+      "seed": 1802964465,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 1,
+      "valid_turns": 0,
+      "invalid_turns": 1,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 280692801,
+      "game_name": "leduc_poker",
+      "seed": 88259957,
+      "opponent": "random",
+      "final_reward": 0.5384615384615384,
+      "total_turns": 2,
+      "valid_turns": 0,
+      "invalid_turns": 2,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 117719461,
+      "game_name": "liars_dice",
+      "seed": 1804881417,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 2,
+      "valid_turns": 0,
+      "invalid_turns": 2,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 250869204,
+      "game_name": "leduc_poker",
+      "seed": 1789924707,
+      "opponent": "random",
+      "final_reward": 0.5384615384615384,
+      "total_turns": 1,
+      "valid_turns": 0,
+      "invalid_turns": 1,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 279332947,
+      "game_name": "leduc_poker",
+      "seed": 1813286854,
+      "opponent": "random",
+      "final_reward": 0.6923076923076923,
+      "total_turns": 3,
+      "valid_turns": 0,
+      "invalid_turns": 3,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 578300211,
+      "game_name": "backgammon",
+      "seed": 1522841287,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 34,
+      "valid_turns": 0,
+      "invalid_turns": 34,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 372854600,
+      "game_name": "gin_rummy",
+      "seed": 1910449369,
+      "opponent": "random",
+      "final_reward": 0.5,
+      "total_turns": 55,
+      "valid_turns": 0,
+      "invalid_turns": 55,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 50523814,
+      "game_name": "goofspiel",
+      "seed": 1755036261,
+      "opponent": "random",
+      "final_reward": 0.5,
+      "total_turns": 0,
+      "valid_turns": 0,
+      "invalid_turns": 0,
+      "valid_rate": 0.0
+    }
+  ],
+  "aggregated": {
+    "total_valid_turns": 2,
+    "total_invalid_turns": 296,
+    "avg_valid_rate": 0.0228494623655914,
+    "games_played": {
+      "backgammon": 2,
+      "leduc_poker": 4,
+      "gin_rummy": 2,
+      "goofspiel": 2,
+      "othello": 2,
+      "clobber": 1,
+      "liars_dice": 3
+    }
+  }
+}

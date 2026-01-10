@@ -14,6 +14,8 @@ import sys
 import json
 import torch
 import asyncio
+import time
+from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 from pathlib import Path
@@ -40,7 +42,7 @@ except ImportError:
     GameEnvironmentWrapper = None
 from game_rl_training.curriculum import CurriculumSampler
 from game_rl_training.utils import setup_logging, save_checkpoint
-from game_rl_training.local_openspiel import run_local_openspiel_episode
+from game_rl_training.local_openspiel import run_local_openspiel_episode, EpisodeData
 
 def _load_json_if_exists(path: Path) -> Dict:
     if path.exists():
@@ -291,10 +293,63 @@ class GamePPOTrainer:
             ,allowed_game_indices=allowed_game_indices
         )
         
+        # Setup episode logging directory
+        self.episode_log_dir = Path(self.ppo_config.output_dir) / "episode_logs"
+        self.episode_log_dir.mkdir(parents=True, exist_ok=True)
+        self.episode_counter = 0
+        
         self.logger.info("Setup complete!")
     
-    async def collect_rollouts(self, batch_size: int) -> Dict:
-        """Collect rollouts from environment"""
+    def _save_episode_data(self, episode_data: EpisodeData, step: int):
+        """Save episode data to JSON file for logging and analysis."""
+        self.episode_counter += 1
+        filename = f"step{step:05d}_ep{self.episode_counter:06d}_{episode_data.game_name}.json"
+        filepath = self.episode_log_dir / filename
+        
+        try:
+            with open(filepath, 'w') as f:
+                json.dump(episode_data.to_dict(), f, indent=2, default=str)
+        except Exception as e:
+            self.logger.warning(f"Failed to save episode data: {e}")
+
+    def _save_step_summary(self, step: int, episodes: List[EpisodeData], stats: Dict):
+        """Save summary of all episodes in a step."""
+        summary = {
+            "step": step,
+            "timestamp": datetime.now().isoformat(),
+            "num_episodes": len(episodes),
+            "stats": stats,
+            "episodes_summary": [
+                {
+                    "task_id": ep.task_id,
+                    "game_name": ep.game_name,
+                    "seed": ep.seed,
+                    "opponent": ep.opponent,
+                    "final_reward": ep.final_reward,
+                    "total_turns": ep.total_turns,
+                    "valid_turns": ep.valid_turns,
+                    "invalid_turns": ep.invalid_turns,
+                    "valid_rate": ep.valid_turns / max(1, ep.total_turns),
+                }
+                for ep in episodes
+            ],
+            "aggregated": {
+                "total_valid_turns": sum(ep.valid_turns for ep in episodes),
+                "total_invalid_turns": sum(ep.invalid_turns for ep in episodes),
+                "avg_valid_rate": sum(ep.valid_turns / max(1, ep.total_turns) for ep in episodes) / max(1, len(episodes)),
+                "games_played": {game: sum(1 for ep in episodes if ep.game_name == game) for game in set(ep.game_name for ep in episodes)},
+            }
+        }
+        
+        filepath = self.episode_log_dir / f"step{step:05d}_summary.json"
+        try:
+            with open(filepath, 'w') as f:
+                json.dump(summary, f, indent=2)
+        except Exception as e:
+            self.logger.warning(f"Failed to save step summary: {e}")
+
+    async def collect_rollouts(self, batch_size: int, step: int = 0) -> Dict:
+        """Collect rollouts from environment, ensuring at least 1 valid sample per game type"""
         rollouts = {
             "queries": [],
             "responses": [],
@@ -302,9 +357,40 @@ class GamePPOTrainer:
             "task_ids": [],
             "metadata": [],
         }
+        episode_data_list: List[EpisodeData] = []
         
-        for _ in range(batch_size):
-            task_config = self.curriculum_sampler.sample_task()
+        # Track which games have valid samples
+        games_with_valid_samples: Dict[str, int] = {}
+        
+        # Get list of available games from curriculum sampler
+        available_games = list(self.curriculum_sampler.task_pool.keys()) if hasattr(self.curriculum_sampler, 'task_pool') else []
+        if not available_games:
+            # Fallback: use known game list
+            available_games = ["goofspiel", "liars_dice", "leduc_poker", "gin_rummy", 
+                            "othello", "backgammon", "hex", "clobber"]
+        
+        # Maximum attempts to prevent infinite loop
+        max_total_attempts = batch_size * 10
+        total_attempts = 0
+        
+        # Keep collecting until we have at least 1 valid sample per game OR hit max attempts
+        while total_attempts < max_total_attempts:
+            total_attempts += 1
+            
+            # Determine which game to sample from
+            # Prioritize games without valid samples yet
+            games_needing_samples = [g for g in available_games if games_with_valid_samples.get(g, 0) == 0]
+            
+            if games_needing_samples:
+                # Force sample from a game that needs valid samples
+                target_game = games_needing_samples[total_attempts % len(games_needing_samples)]
+                task_config = self.curriculum_sampler.sample_task_for_game(target_game) if hasattr(self.curriculum_sampler, 'sample_task_for_game') else self.curriculum_sampler.sample_task()
+            else:
+                # All games have at least 1 valid sample, check if we have enough total
+                if len(rollouts["queries"]) >= batch_size:
+                    break
+                task_config = self.curriculum_sampler.sample_task()
+            
             task_id = task_config.task_id if hasattr(task_config, "task_id") else task_config["task_id"]
 
             if self._execution == "local_openspiel":
@@ -313,7 +399,7 @@ class GamePPOTrainer:
                 seed = getattr(task_config, "seed", None) if not isinstance(task_config, dict) else task_config.get("seed")
                 seed = int(seed) if seed is not None else int(torch.randint(0, 2**31 - 1, (1,)).item())
 
-                turn_samples, episode_info = run_local_openspiel_episode(
+                turn_samples, episode_info, episode_data = run_local_openspiel_episode(
                     model=self.model.pretrained_model if hasattr(self.model, "pretrained_model") else self.model,
                     tokenizer=self.tokenizer,
                     task_id=int(task_id),
@@ -327,10 +413,20 @@ class GamePPOTrainer:
                     device=str(self.device),
                 )
 
+                # Save episode data for logging
+                episode_data_list.append(episode_data)
+                self._save_episode_data(episode_data, step)
+
                 # Use final_reward as score proxy for curriculum progression
                 score = float(episode_info.get("final_reward", 0.0))
                 success = bool(score > 0.5)
+                game_name = episode_info.get("game_name", "unknown")
                 self.curriculum_sampler.update(task_id=task_id, score=score, success=success)
+
+                # Track valid samples per game
+                valid_turns_this_episode = episode_info.get("valid_turns", 0)
+                if valid_turns_this_episode > 0:
+                    games_with_valid_samples[game_name] = games_with_valid_samples.get(game_name, 0) + valid_turns_this_episode
 
                 # Add each LLM decision turn as a PPO sample
                 for ts in turn_samples:
@@ -354,9 +450,13 @@ class GamePPOTrainer:
                             "score": score,
                             "success": success,
                             "task_config": task_config,
-                            "episode": {k: episode_info.get(k) for k in ("game_name", "num_turns", "final_reward", "opponent")},
+                            "episode": {k: episode_info.get(k) for k in ("game_name", "num_turns", "final_reward", "opponent", "valid_turns", "invalid_turns")},
                         }
                     )
+        
+        # Log collection summary
+        self.logger.info(f"Collected {len(rollouts['queries'])} valid samples from {total_attempts} episodes. "
+                        f"Games with valid samples: {games_with_valid_samples}")
             else:
                 # Legacy server-based flow (docker/basilica env server + HTTP LLM)
                 state_dict = await self.env_wrapper.reset(task_id=task_id)
@@ -395,6 +495,9 @@ class GamePPOTrainer:
                 rollouts["rewards"].append(torch.tensor(result["reward"]))
                 rollouts["task_ids"].append(task_id)
                 rollouts["metadata"].append({"score": result["score"], "success": result["success"], "task_config": task_config})
+        
+        # Store episode data list in rollouts for step summary
+        rollouts["episode_data_list"] = episode_data_list
         
         return rollouts
     
@@ -470,25 +573,43 @@ class GamePPOTrainer:
             # Untrained models have low valid response rate, so we need many episodes
             num_episodes = max(16, self.ppo_config.batch_size * 4)  # Collect 16+ episodes per step
             self.logger.info(f"Step {step + 1}/{self.ppo_config.num_train_steps}: Collecting rollouts from {num_episodes} episodes...")
-            rollouts = await self.collect_rollouts(num_episodes)
+            rollouts = await self.collect_rollouts(num_episodes, step=step + 1)
+            
+            # Get episode data for logging
+            episode_data_list = rollouts.pop("episode_data_list", [])
             
             # Check if we have enough samples for training
             num_samples = len(rollouts["queries"])
             if num_samples < self.ppo_config.batch_size:
                 self.logger.warning(f"Step {step + 1}: Only {num_samples} valid samples collected (need {self.ppo_config.batch_size}). Skipping training step.")
+                # Still save step summary even if skipping
+                if episode_data_list:
+                    self._save_step_summary(step + 1, episode_data_list, {"skipped": True, "num_samples": num_samples})
                 continue
             
             # Train
             self.logger.info(f"Training with {num_samples} samples...")
             stats = self.train_step(rollouts)
             
+            # Add episode statistics to stats
+            if episode_data_list:
+                stats["total_valid_turns"] = sum(ep.valid_turns for ep in episode_data_list)
+                stats["total_invalid_turns"] = sum(ep.invalid_turns for ep in episode_data_list)
+                stats["avg_valid_rate"] = sum(ep.valid_turns / max(1, ep.total_turns) for ep in episode_data_list) / max(1, len(episode_data_list))
+            
+            # Save step summary with episode data
+            if episode_data_list:
+                self._save_step_summary(step + 1, episode_data_list, stats)
+            
             # Log
             if (step + 1) % self.ppo_config.log_freq == 0:
+                valid_rate = stats.get('avg_valid_rate', 0)
                 self.logger.info(
                     f"Step {step + 1} | "
                     f"Reward: {stats['mean_reward']:.4f} | "
                     f"Score: {stats['mean_score']:.4f} | "
-                    f"Success: {stats['success_rate']:.2%}"
+                    f"Success: {stats['success_rate']:.2%} | "
+                    f"ValidRate: {valid_rate:.2%}"
                 )
                 
                 if self.ppo_config.use_wandb:
