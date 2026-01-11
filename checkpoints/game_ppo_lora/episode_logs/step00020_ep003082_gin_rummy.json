@@ -1,0 +1,1534 @@
+{
+  "task_id": 305723999,
+  "seed": 2127962069,
+  "game_name": "gin_rummy",
+  "opponent": "random",
+  "llm_player_id": 1,
+  "num_players": 2,
+  "final_reward": 0.5,
+  "llm_return": 0.0,
+  "all_returns": [
+    0.0,
+    0.0
+  ],
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are playing gin_rummy.\n\n# Game Rules\nGIN RUMMY RULES:\n\nSETUP:\n- 52-card deck, each player receives 7-10 cards (variant dependent)\n- Goal: Form MELDS to minimize DEADWOOD (unmelded cards)\n\nMELDS (Valid Combinations):\n1. SET: 3+ cards of SAME RANK (e.g., 7\u2660 7\u2665 7\u2663)\n2. RUN: 3+ CONSECUTIVE cards of SAME SUIT (e.g., 5\u2666 6\u2666 7\u2666)\nExamples:\n- Valid runs: A\u2660-2\u2660-3\u2660, 9\u2665-10\u2665-J\u2665-Q\u2665, 10\u2663-J\u2663-Q\u2663-K\u2663\n- Invalid: K\u2660-A\u2660-2\u2660 (Ace is LOW only, not wraparound)\n\nCARD NOTATION:\n- Ranks: A(Ace), 2-9, T(10), J(Jack), Q(Queen), K(King)\n- Suits: s(spades\u2660), h(hearts\u2665), d(diamonds\u2666), c(clubs\u2663)\n- Example: 7c = 7 of clubs, Th = 10 of hearts, As = Ace of spades\n\nGAME PHASES:\n1. FirstUpcard: Choose to draw first upcard or pass (action IDs: 52=Draw upcard, 54=Pass)\n2. Draw: Choose to draw from upcard or stock pile (action IDs: 52=Draw upcard, 53=Draw stock)\n3. Discard: Choose which card to discard (action ID = card's index number, shown in Legal Actions)\n4. Layoff: After opponent knocks, add cards to their melds or pass (action IDs: card indices or 54=Pass)\n5. Knock: Declare end of hand when deadwood \u2264 knock_card value\n\nEACH TURN:\n1. DRAW phase: Pick from stock pile (53) OR discard pile upcard (52)\n2. DISCARD phase: Choose ONE card from hand to discard (use card's action ID from Legal Actions)\n\nKNOCKING:\n- When deadwood \u2264 knock_card value (8-10), you MAY knock to end hand\n- Gin: ALL cards form melds (0 deadwood) = 25-point bonus\n\nSCORING: Winner scores difference in deadwood point values.\nCard Values: A=1, 2-10=face value, J=11, Q=12, K=13\n\nIMPORTANT: Always respond with the action ID number ONLY, never card names.\n\n\n# Output Format\nYou must respond with ONLY the action ID (a single number).\nDo NOT include descriptions or explanations.\n\nExamples:\n- For action \"0 -> roll\": respond \"0\"\n- For action \"89 -> a3\": respond \"89\""
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: XX\nRepeated move: 0\nCurrent player: 1\nPhase: FirstUpcard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 33  Upcard: Jc\nDiscard pile: \n\nPlayer1: Deadwood=52\n+--------------------------+\n|As2s3s    6s      Ts      |\n|                  Tc  Qc  |\n|          6d              |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n54 -> Player: 1 Action: Pass\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Jc\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 33  Upcard: XX\nDiscard pile: \n\nPlayer1: Deadwood=22\n+--------------------------+\n|As2s3s    6s      Ts      |\n|                  TcJcQc  |\n|          6d              |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n2 -> Player: 1 Action: 3s\n5 -> Player: 1 Action: 6s\n9 -> Player: 1 Action: Ts\n22 -> Player: 1 Action: Tc\n23 -> Player: 1 Action: Jc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "5"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 6s\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: Td\nDiscard pile: 6s\n\nPlayer1: Deadwood=26\n+--------------------------+\n|As2s3s            Ts      |\n|                  TcJcQc  |\n|          6d              |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Td\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=26\n+--------------------------+\n|As2s3s            Ts      |\n|                  TcJcQc  |\n|          6d      Td      |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n2 -> Player: 1 Action: 3s\n9 -> Player: 1 Action: Ts\n22 -> Player: 1 Action: Tc\n23 -> Player: 1 Action: Jc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "9"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Ts\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: 3h\nDiscard pile: 6s\n\nPlayer1: Deadwood=26\n+--------------------------+\n|As2s3s                    |\n|                  TcJcQc  |\n|          6d      Td      |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 3h\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=19\n+--------------------------+\n|As2s3s                    |\n|                  TcJcQc  |\n|          6d      Td      |\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n2 -> Player: 1 Action: 3s\n22 -> Player: 1 Action: Tc\n23 -> Player: 1 Action: Jc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "2"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 3s\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: Js\nDiscard pile: 6s\n\nPlayer1: Deadwood=32\n+--------------------------+\n|As2s                      |\n|                  TcJcQc  |\n|          6d      Td      |\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Js\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=32\n+--------------------------+\n|As2s                Js    |\n|                  TcJcQc  |\n|          6d      Td      |\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n10 -> Player: 1 Action: Js\n22 -> Player: 1 Action: Tc\n23 -> Player: 1 Action: Jc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "23"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Jc\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: Kd\nDiscard pile: 6s\n\nPlayer1: Deadwood=62\n+--------------------------+\n|As2s                Js    |\n|                  Tc  Qc  |\n|          6d      Td      |\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Kd\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=62\n+--------------------------+\n|As2s                Js    |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n10 -> Player: 1 Action: Js\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n38 -> Player: 1 Action: Kd\n41 -> Player: 1 Action: 3h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "10"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Js\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: 4h\nDiscard pile: 6s\n\nPlayer1: Deadwood=62\n+--------------------------+\n|As2s                      |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 4h\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=56\n+--------------------------+\n|As2s                      |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n38 -> Player: 1 Action: Kd\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "0"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: As\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 31  Upcard: 8s\nDiscard pile: 6sAs\n\nPlayer1: Deadwood=65\n+--------------------------+\n|  2s                      |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "53"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 8s\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 30  Upcard: XX\nDiscard pile: 6sAs8s\n\nPlayer1: Deadwood=61\n+--------------------------+\n|  2s                      |\n|          6c      Tc  Qc  |\n|          6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n1 -> Player: 1 Action: 2s\n18 -> Player: 1 Action: 6c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n38 -> Player: 1 Action: Kd\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "18"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 6c\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 30  Upcard: 4d\nDiscard pile: 6sAs8s\n\nPlayer1: Deadwood=65\n+--------------------------+\n|  2s                      |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 4d\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 30  Upcard: XX\nDiscard pile: 6sAs8s\n\nPlayer1: Deadwood=59\n+--------------------------+\n|  2s                      |\n|                  Tc  Qc  |\n|      4d  6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n1 -> Player: 1 Action: 2s\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n38 -> Player: 1 Action: Kd\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "38"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Kd\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 30  Upcard: 5h\nDiscard pile: 6sAs8s\n\nPlayer1: Deadwood=59\n+--------------------------+\n|  2s                      |\n|                  Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "53"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 5h\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 29  Upcard: XX\nDiscard pile: 6sAs8s5h\n\nPlayer1: Deadwood=54\n+--------------------------+\n|  2s                      |\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n1 -> Player: 1 Action: 2s\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "1"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 2s\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 29  Upcard: Ks\nDiscard pile: 6sAs8s5h\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                          |\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Ks\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 29  Upcard: XX\nDiscard pile: 6sAs8s5h\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "50"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Qh\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 28  Upcard: Js\nDiscard pile: 6sAs8s5hQh\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Js\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 28  Upcard: XX\nDiscard pile: 6sAs8s5hQh\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                    Js  Ks|\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n10 -> Player: 1 Action: Js\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "10"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Js\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 27  Upcard: 5d\nDiscard pile: 6sAs8s5hQhJs\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 5d\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 27  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs\n\nPlayer1: Deadwood=42\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d      Td      |\n|    3h4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "41"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 3h\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 26  Upcard: Ah\nDiscard pile: 6sAs8s5hQhJs3h\n\nPlayer1: Deadwood=49\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d      Td      |\n|      4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Ah\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 26  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h\n\nPlayer1: Deadwood=40\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d      Td      |\n|Ah    4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n39 -> Player: 1 Action: Ah\n42 -> Player: 1 Action: 4h\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "35"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Td\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 26  Upcard: Kd\nDiscard pile: 6sAs8s5hQhJs3h\n\nPlayer1: Deadwood=40\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d              |\n|Ah    4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Kd\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 26  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h\n\nPlayer1: Deadwood=40\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|Ah    4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n38 -> Player: 1 Action: Kd\n39 -> Player: 1 Action: Ah\n42 -> Player: 1 Action: 4h\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "42"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 4h\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 25  Upcard: Ts\nDiscard pile: 6sAs8s5hQhJs3h4h\n\nPlayer1: Deadwood=46\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|Ah                        |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "53"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Ts\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 24  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTs\n\nPlayer1: Deadwood=46\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|Ah                        |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n38 -> Player: 1 Action: Kd\n39 -> Player: 1 Action: Ah\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "30"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 5d\nRepeated move: 1\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 24  Upcard: 5d\nDiscard pile: 6sAs8s5hQhJs3h4hTs\n\nPlayer1: Deadwood=66\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d  6d            Kd|\n|Ah                        |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 5d\nRepeated move: 1\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 24  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTs\n\nPlayer1: Deadwood=46\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|Ah                        |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n38 -> Player: 1 Action: Kd\n39 -> Player: 1 Action: Ah\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "39"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Ah\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 23  Upcard: 6c\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh\n\nPlayer1: Deadwood=55\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|                          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "53"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 6c\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 22  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c\n\nPlayer1: Deadwood=53\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d5d6d  8d        Kd|\n|                          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n33 -> Player: 1 Action: 8d\n38 -> Player: 1 Action: Kd\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "30"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 5d\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 21  Upcard: 8h\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d\n\nPlayer1: Deadwood=73\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d  6d  8d        Kd|\n|                          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 8h\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 21  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d\n\nPlayer1: Deadwood=71\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d  6d  8d        Kd|\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n33 -> Player: 1 Action: 8d\n38 -> Player: 1 Action: Kd\n46 -> Player: 1 Action: 8h\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "33"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 8d\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 20  Upcard: 8c\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8d\n\nPlayer1: Deadwood=73\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d  6d            Kd|\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: 8c\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 20  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8d\n\nPlayer1: Deadwood=71\n+--------------------------+\n|                      QsKs|\n|        5c    8c  Tc  Qc  |\n|      4d  6d            Kd|\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n20 -> Player: 1 Action: 8c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n38 -> Player: 1 Action: Kd\n46 -> Player: 1 Action: 8h\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "38"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Kd\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 20  Upcard: Jc\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8d\n\nPlayer1: Deadwood=71\n+--------------------------+\n|                      QsKs|\n|        5c    8c  Tc  Qc  |\n|      4d  6d              |\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "53"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Jc\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 19  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8dJc\n\nPlayer1: Deadwood=68\n+--------------------------+\n|                      QsKs|\n|        5c    8c  Tc  Qc  |\n|      4d  6d7d            |\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n20 -> Player: 1 Action: 8c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n32 -> Player: 1 Action: 7d\n46 -> Player: 1 Action: 8h\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "22"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Tc\nRepeated move: 1\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 19  Upcard: Tc\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8dJc\n\nPlayer1: Deadwood=68\n+--------------------------+\n|                      QsKs|\n|        5c    8c      Qc  |\n|      4d  6d7d            |\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "52"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n\nKnock card: 8\nPrev upcard: Tc\nRepeated move: 1\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 19  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8dJc\n\nPlayer1: Deadwood=68\n+--------------------------+\n|                      QsKs|\n|        5c    8c  Tc  Qc  |\n|      4d  6d7d            |\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n20 -> Player: 1 Action: 8c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n32 -> Player: 1 Action: 7d\n46 -> Player: 1 Action: 8h\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "22"
+    }
+  ],
+  "action_history": [
+    {
+      "player_id": 0,
+      "action": 54,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 5,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 35,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 9,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 41,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 2,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 10,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 23,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 38,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 10,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 42,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 0,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 7,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 53,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 18,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 29,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 38,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 43,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 53,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 1,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 12,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 50,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 10,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 10,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 30,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 41,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 39,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 35,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 38,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 42,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 9,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 53,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 30,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 30,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 39,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 18,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 53,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 30,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 46,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 33,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 20,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 38,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 23,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 53,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 22,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 0,
+      "action": 52,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 22,
+      "is_llm": false
+    },
+    {
+      "player_id": 1,
+      "action": 52,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 22,
+      "is_llm": true,
+      "valid": false
+    }
+  ],
+  "llm_turns": [
+    {
+      "turn_index": 0,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: XX\nRepeated move: 0\nCurrent player: 1\nPhase: FirstUpcard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 33  Upcard: Jc\nDiscard pile: \n\nPlayer1: Deadwood=52\n+--------------------------+\n|As2s3s    6s      Ts      |\n|                  Tc  Qc  |\n|          6d              |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n54 -> Player: 1 Action: Pass\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answers Answersations",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        54
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 1,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Jc\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 33  Upcard: XX\nDiscard pile: \n\nPlayer1: Deadwood=22\n+--------------------------+\n|As2s3s    6s      Ts      |\n|                  TcJcQc  |\n|          6d              |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n2 -> Player: 1 Action: 3s\n5 -> Player: 1 Action: 6s\n9 -> Player: 1 Action: Ts\n22 -> Player: 1 Action: Tc\n23 -> Player: 1 Action: Jc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708ationss",
+      "parsed_action_id": null,
+      "actual_action_id": 5,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        5,
+        9,
+        22,
+        23,
+        24,
+        31,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 2,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 6s\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: Td\nDiscard pile: 6s\n\nPlayer1: Deadwood=26\n+--------------------------+\n|As2s3s            Ts      |\n|                  TcJcQc  |\n|          6d              |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708ations Answers",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 3,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Td\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=26\n+--------------------------+\n|As2s3s            Ts      |\n|                  TcJcQc  |\n|          6d      Td      |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n2 -> Player: 1 Action: 3s\n9 -> Player: 1 Action: Ts\n22 -> Player: 1 Action: Tc\n23 -> Player: 1 Action: Jc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonusationsations Answers",
+      "parsed_action_id": null,
+      "actual_action_id": 9,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        9,
+        22,
+        23,
+        24,
+        31,
+        35,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 4,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Ts\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: 3h\nDiscard pile: 6s\n\nPlayer1: Deadwood=26\n+--------------------------+\n|As2s3s                    |\n|                  TcJcQc  |\n|          6d      Td      |\n|                      Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonusationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 5,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 3h\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=19\n+--------------------------+\n|As2s3s                    |\n|                  TcJcQc  |\n|          6d      Td      |\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n2 -> Player: 1 Action: 3s\n22 -> Player: 1 Action: Tc\n23 -> Player: 1 Action: Jc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonusiii",
+      "parsed_action_id": null,
+      "actual_action_id": 2,
+      "legal_actions": [
+        0,
+        1,
+        2,
+        22,
+        23,
+        24,
+        31,
+        35,
+        41,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 6,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 3s\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: Js\nDiscard pile: 6s\n\nPlayer1: Deadwood=32\n+--------------------------+\n|As2s                      |\n|                  TcJcQc  |\n|          6d      Td      |\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonussix",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 7,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Js\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=32\n+--------------------------+\n|As2s                Js    |\n|                  TcJcQc  |\n|          6d      Td      |\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n10 -> Player: 1 Action: Js\n22 -> Player: 1 Action: Tc\n23 -> Player: 1 Action: Jc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonuss. Answers",
+      "parsed_action_id": null,
+      "actual_action_id": 23,
+      "legal_actions": [
+        0,
+        1,
+        10,
+        22,
+        23,
+        24,
+        31,
+        35,
+        41,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 8,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Jc\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: Kd\nDiscard pile: 6s\n\nPlayer1: Deadwood=62\n+--------------------------+\n|As2s                Js    |\n|                  Tc  Qc  |\n|          6d      Td      |\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708\u6708\u6708",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 9,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Kd\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=62\n+--------------------------+\n|As2s                Js    |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n10 -> Player: 1 Action: Js\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n38 -> Player: 1 Action: Kd\n41 -> Player: 1 Action: 3h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708ationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 10,
+      "legal_actions": [
+        0,
+        1,
+        10,
+        22,
+        24,
+        31,
+        35,
+        38,
+        41,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 10,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Js\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: 4h\nDiscard pile: 6s\n\nPlayer1: Deadwood=62\n+--------------------------+\n|As2s                      |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h                Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answers Answersations",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 11,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 4h\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 32  Upcard: XX\nDiscard pile: 6s\n\nPlayer1: Deadwood=56\n+--------------------------+\n|As2s                      |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n0 -> Player: 1 Action: As\n1 -> Player: 1 Action: 2s\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n38 -> Player: 1 Action: Kd\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answersationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 0,
+      "legal_actions": [
+        0,
+        1,
+        22,
+        24,
+        31,
+        35,
+        38,
+        41,
+        42,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 12,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: As\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 31  Upcard: 8s\nDiscard pile: 6sAs\n\nPlayer1: Deadwood=65\n+--------------------------+\n|  2s                      |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus.xx",
+      "parsed_action_id": null,
+      "actual_action_id": 53,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 13,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 8s\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 30  Upcard: XX\nDiscard pile: 6sAs8s\n\nPlayer1: Deadwood=61\n+--------------------------+\n|  2s                      |\n|          6c      Tc  Qc  |\n|          6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n1 -> Player: 1 Action: 2s\n18 -> Player: 1 Action: 6c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n38 -> Player: 1 Action: Kd\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answersationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 18,
+      "legal_actions": [
+        1,
+        18,
+        22,
+        24,
+        31,
+        35,
+        38,
+        41,
+        42,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 14,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 6c\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 30  Upcard: 4d\nDiscard pile: 6sAs8s\n\nPlayer1: Deadwood=65\n+--------------------------+\n|  2s                      |\n|                  Tc  Qc  |\n|          6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answers Answersations",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 15,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 4d\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 30  Upcard: XX\nDiscard pile: 6sAs8s\n\nPlayer1: Deadwood=59\n+--------------------------+\n|  2s                      |\n|                  Tc  Qc  |\n|      4d  6d      Td    Kd|\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n1 -> Player: 1 Action: 2s\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n38 -> Player: 1 Action: Kd\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonusationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 38,
+      "legal_actions": [
+        1,
+        22,
+        24,
+        29,
+        31,
+        35,
+        38,
+        41,
+        42,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 16,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Kd\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 30  Upcard: 5h\nDiscard pile: 6sAs8s\n\nPlayer1: Deadwood=59\n+--------------------------+\n|  2s                      |\n|                  Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonusations Answersations",
+      "parsed_action_id": null,
+      "actual_action_id": 53,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 17,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 5h\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 29  Upcard: XX\nDiscard pile: 6sAs8s5h\n\nPlayer1: Deadwood=54\n+--------------------------+\n|  2s                      |\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n1 -> Player: 1 Action: 2s\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answers Answersations",
+      "parsed_action_id": null,
+      "actual_action_id": 1,
+      "legal_actions": [
+        1,
+        17,
+        22,
+        24,
+        29,
+        31,
+        35,
+        41,
+        42,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 18,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 2s\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 29  Upcard: Ks\nDiscard pile: 6sAs8s5h\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                          |\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answers Answers Answers",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 19,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Ks\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 29  Upcard: XX\nDiscard pile: 6sAs8s5h\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h              Qh  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n50 -> Player: 1 Action: Qh\n\nYour choice (ID only):",
+      "raw_model_output": " bonusiiations",
+      "parsed_action_id": null,
+      "actual_action_id": 50,
+      "legal_actions": [
+        12,
+        17,
+        22,
+        24,
+        29,
+        31,
+        35,
+        41,
+        42,
+        50
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 20,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Qh\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 28  Upcard: Js\nDiscard pile: 6sAs8s5hQh\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answers Answersations",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 21,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Js\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 28  Upcard: XX\nDiscard pile: 6sAs8s5hQh\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                    Js  Ks|\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n10 -> Player: 1 Action: Js\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answerssi",
+      "parsed_action_id": null,
+      "actual_action_id": 10,
+      "legal_actions": [
+        10,
+        12,
+        17,
+        22,
+        24,
+        29,
+        31,
+        35,
+        41,
+        42
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 22,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Js\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 27  Upcard: 5d\nDiscard pile: 6sAs8s5hQhJs\n\nPlayer1: Deadwood=62\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d  6d      Td      |\n|    3h4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708\u6708ations",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 23,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 5d\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 27  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs\n\nPlayer1: Deadwood=42\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d      Td      |\n|    3h4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n41 -> Player: 1 Action: 3h\n42 -> Player: 1 Action: 4h\n\nYour choice (ID only):",
+      "raw_model_output": " bonussix",
+      "parsed_action_id": null,
+      "actual_action_id": 41,
+      "legal_actions": [
+        12,
+        17,
+        22,
+        24,
+        29,
+        30,
+        31,
+        35,
+        41,
+        42
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 24,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 3h\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 26  Upcard: Ah\nDiscard pile: 6sAs8s5hQhJs3h\n\nPlayer1: Deadwood=49\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d      Td      |\n|      4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonusi\u6708\u6708",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 25,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Ah\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 26  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h\n\nPlayer1: Deadwood=40\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d      Td      |\n|Ah    4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n35 -> Player: 1 Action: Td\n39 -> Player: 1 Action: Ah\n42 -> Player: 1 Action: 4h\n\nYour choice (ID only):",
+      "raw_model_output": " bonusationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 35,
+      "legal_actions": [
+        12,
+        17,
+        22,
+        24,
+        29,
+        30,
+        31,
+        35,
+        39,
+        42
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 26,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Td\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 26  Upcard: Kd\nDiscard pile: 6sAs8s5hQhJs3h\n\nPlayer1: Deadwood=40\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d              |\n|Ah    4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus.iations",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 27,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Kd\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 26  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h\n\nPlayer1: Deadwood=40\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|Ah    4h                  |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n38 -> Player: 1 Action: Kd\n39 -> Player: 1 Action: Ah\n42 -> Player: 1 Action: 4h\n\nYour choice (ID only):",
+      "raw_model_output": " bonusationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 42,
+      "legal_actions": [
+        12,
+        17,
+        22,
+        24,
+        29,
+        30,
+        31,
+        38,
+        39,
+        42
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 28,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 4h\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 25  Upcard: Ts\nDiscard pile: 6sAs8s5hQhJs3h4h\n\nPlayer1: Deadwood=46\n+--------------------------+\n|                        Ks|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|Ah                        |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708ations Answers",
+      "parsed_action_id": null,
+      "actual_action_id": 53,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 29,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Ts\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 24  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTs\n\nPlayer1: Deadwood=46\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|Ah                        |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n38 -> Player: 1 Action: Kd\n39 -> Player: 1 Action: Ah\n\nYour choice (ID only):",
+      "raw_model_output": " bonusationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 30,
+      "legal_actions": [
+        11,
+        12,
+        17,
+        22,
+        24,
+        29,
+        30,
+        31,
+        38,
+        39
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 30,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 5d\nRepeated move: 1\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 24  Upcard: 5d\nDiscard pile: 6sAs8s5hQhJs3h4hTs\n\nPlayer1: Deadwood=66\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d  6d            Kd|\n|Ah                        |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonusationssx",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 31,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 5d\nRepeated move: 1\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 24  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTs\n\nPlayer1: Deadwood=46\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|Ah                        |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n38 -> Player: 1 Action: Kd\n39 -> Player: 1 Action: Ah\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708\u6708ations",
+      "parsed_action_id": null,
+      "actual_action_id": 39,
+      "legal_actions": [
+        11,
+        12,
+        17,
+        22,
+        24,
+        29,
+        30,
+        31,
+        38,
+        39
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 32,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Ah\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 23  Upcard: 6c\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh\n\nPlayer1: Deadwood=55\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d5d6d            Kd|\n|                          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708si",
+      "parsed_action_id": null,
+      "actual_action_id": 53,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 33,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 6c\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 22  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c\n\nPlayer1: Deadwood=53\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d5d6d  8d        Kd|\n|                          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n30 -> Player: 1 Action: 5d\n31 -> Player: 1 Action: 6d\n33 -> Player: 1 Action: 8d\n38 -> Player: 1 Action: Kd\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708ationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 30,
+      "legal_actions": [
+        11,
+        12,
+        17,
+        22,
+        24,
+        29,
+        30,
+        31,
+        33,
+        38
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 34,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 5d\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 21  Upcard: 8h\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d\n\nPlayer1: Deadwood=73\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d  6d  8d        Kd|\n|                          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonusationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 35,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 8h\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 21  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d\n\nPlayer1: Deadwood=71\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d  6d  8d        Kd|\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n33 -> Player: 1 Action: 8d\n38 -> Player: 1 Action: Kd\n46 -> Player: 1 Action: 8h\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answers Answers Answers",
+      "parsed_action_id": null,
+      "actual_action_id": 33,
+      "legal_actions": [
+        11,
+        12,
+        17,
+        22,
+        24,
+        29,
+        31,
+        33,
+        38,
+        46
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 36,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 8d\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 20  Upcard: 8c\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8d\n\nPlayer1: Deadwood=73\n+--------------------------+\n|                      QsKs|\n|        5c        Tc  Qc  |\n|      4d  6d            Kd|\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answersations Answers",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 37,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: 8c\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 20  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8d\n\nPlayer1: Deadwood=71\n+--------------------------+\n|                      QsKs|\n|        5c    8c  Tc  Qc  |\n|      4d  6d            Kd|\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n20 -> Player: 1 Action: 8c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n38 -> Player: 1 Action: Kd\n46 -> Player: 1 Action: 8h\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answersationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 38,
+      "legal_actions": [
+        11,
+        12,
+        17,
+        20,
+        22,
+        24,
+        29,
+        31,
+        38,
+        46
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 38,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Kd\nRepeated move: 0\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 20  Upcard: Jc\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8d\n\nPlayer1: Deadwood=71\n+--------------------------+\n|                      QsKs|\n|        5c    8c  Tc  Qc  |\n|      4d  6d              |\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708\u6708ations",
+      "parsed_action_id": null,
+      "actual_action_id": 53,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 39,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Jc\nRepeated move: 0\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 19  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8dJc\n\nPlayer1: Deadwood=68\n+--------------------------+\n|                      QsKs|\n|        5c    8c  Tc  Qc  |\n|      4d  6d7d            |\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n20 -> Player: 1 Action: 8c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n32 -> Player: 1 Action: 7d\n46 -> Player: 1 Action: 8h\n\nYour choice (ID only):",
+      "raw_model_output": " bonus Answers Answersations",
+      "parsed_action_id": null,
+      "actual_action_id": 22,
+      "legal_actions": [
+        11,
+        12,
+        17,
+        20,
+        22,
+        24,
+        29,
+        31,
+        32,
+        46
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    },
+    {
+      "turn_index": 40,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Tc\nRepeated move: 1\nCurrent player: 1\nPhase: Draw\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 19  Upcard: Tc\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8dJc\n\nPlayer1: Deadwood=68\n+--------------------------+\n|                      QsKs|\n|        5c    8c      Qc  |\n|      4d  6d7d            |\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n52 -> Player: 1 Action: Draw upcard\n53 -> Player: 1 Action: Draw stock\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708s.",
+      "parsed_action_id": null,
+      "actual_action_id": 52,
+      "legal_actions": [
+        52,
+        53
+      ],
+      "num_legal_actions": 2,
+      "is_valid": false
+    },
+    {
+      "turn_index": 41,
+      "user_prompt": "Current State:\n\nKnock card: 8\nPrev upcard: Tc\nRepeated move: 1\nCurrent player: 1\nPhase: Discard\n\nPlayer0:\n+--------------------------+\n|                          |\n|                          |\n|                          |\n|                          |\n+--------------------------+\n\nStock size: 19  Upcard: XX\nDiscard pile: 6sAs8s5hQhJs3h4hTsAh6c5d8dJc\n\nPlayer1: Deadwood=68\n+--------------------------+\n|                      QsKs|\n|        5c    8c  Tc  Qc  |\n|      4d  6d7d            |\n|              8h          |\n+--------------------------+\n\n\nYou are Player 1.\nLegal Actions:\n11 -> Player: 1 Action: Qs\n12 -> Player: 1 Action: Ks\n17 -> Player: 1 Action: 5c\n20 -> Player: 1 Action: 8c\n22 -> Player: 1 Action: Tc\n24 -> Player: 1 Action: Qc\n29 -> Player: 1 Action: 4d\n31 -> Player: 1 Action: 6d\n32 -> Player: 1 Action: 7d\n46 -> Player: 1 Action: 8h\n\nYour choice (ID only):",
+      "raw_model_output": " bonus\u6708\u6708\u6708",
+      "parsed_action_id": null,
+      "actual_action_id": 22,
+      "legal_actions": [
+        11,
+        12,
+        17,
+        20,
+        22,
+        24,
+        29,
+        31,
+        32,
+        46
+      ],
+      "num_legal_actions": 10,
+      "is_valid": false
+    }
+  ],
+  "total_turns": 42,
+  "valid_turns": 0,
+  "invalid_turns": 42
+}

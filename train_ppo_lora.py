@@ -41,7 +41,7 @@ except ImportError:
     create_environment = None
     GameEnvironmentWrapper = None
 from game_rl_training.curriculum import CurriculumSampler
-from game_rl_training.utils import setup_logging, save_checkpoint
+from game_rl_training.utils import setup_logging, save_checkpoint, load_checkpoint
 from game_rl_training.local_openspiel import run_local_openspiel_episode, EpisodeData
 
 def _load_json_if_exists(path: Path) -> Dict:
@@ -110,7 +110,7 @@ class PPOTrainingConfig:
     
     # Paths
     output_dir: str = "./checkpoints/game_ppo_lora"
-    resume_from: Optional[str] = None
+    resume_from: Optional[str] = None  # Path to checkpoint directory to resume from
     
     # Wandb
     use_wandb: bool = True
@@ -298,7 +298,72 @@ class GamePPOTrainer:
         self.episode_log_dir.mkdir(parents=True, exist_ok=True)
         self.episode_counter = 0
         
+        # Track resume state
+        self.start_step = 0
+        self.resumed_from = None
+        
+        # Resume from checkpoint if specified
+        if self.ppo_config.resume_from:
+            self._resume_from_checkpoint(self.ppo_config.resume_from)
+        
         self.logger.info("Setup complete!")
+    
+    def _resume_from_checkpoint(self, checkpoint_path: str):
+        """Resume training from a checkpoint"""
+        checkpoint_path = Path(checkpoint_path)
+        
+        if not checkpoint_path.exists():
+            self.logger.error(f"Checkpoint path does not exist: {checkpoint_path}")
+            raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
+        
+        self.logger.info(f"Resuming from checkpoint: {checkpoint_path}")
+        
+        # Load checkpoint metadata and model weights
+        try:
+            metadata = load_checkpoint(
+                model=self.model,
+                tokenizer=self.tokenizer,
+                load_path=checkpoint_path,
+            )
+            
+            # Restore curriculum state if available
+            if "curriculum_state" in metadata:
+                self.curriculum_sampler.load_state(metadata["curriculum_state"])
+                self.logger.info("Restored curriculum sampler state")
+            
+            # Extract step number from checkpoint name (e.g., "checkpoint-500" -> 500)
+            checkpoint_name = checkpoint_path.name
+            if checkpoint_name.startswith("checkpoint-"):
+                try:
+                    self.start_step = int(checkpoint_name.split("-")[1])
+                    self.logger.info(f"Resuming from step {self.start_step}")
+                except (IndexError, ValueError):
+                    self.logger.warning(f"Could not parse step from checkpoint name: {checkpoint_name}")
+            elif checkpoint_name == "final":
+                # If resuming from final checkpoint, we need to read the step from metadata
+                self.start_step = metadata.get("training_args", {}).get("step", 0)
+                self.logger.info(f"Resuming from final checkpoint at step {self.start_step}")
+            
+            # Update episode counter based on existing logs
+            existing_logs = list(self.episode_log_dir.glob("step*_ep*.json"))
+            if existing_logs:
+                # Extract max episode number from existing logs
+                max_ep = 0
+                for log_file in existing_logs:
+                    try:
+                        ep_num = int(log_file.stem.split("_ep")[1].split("_")[0])
+                        max_ep = max(max_ep, ep_num)
+                    except (IndexError, ValueError):
+                        pass
+                self.episode_counter = max_ep
+                self.logger.info(f"Resuming episode counter from {self.episode_counter}")
+            
+            self.resumed_from = str(checkpoint_path)
+            self.logger.info(f"Successfully resumed from checkpoint: {checkpoint_path}")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to load checkpoint: {e}")
+            raise
     
     def _save_episode_data(self, episode_data: EpisodeData, step: int):
         """Save episode data to JSON file for logging and analysis."""
@@ -453,10 +518,6 @@ class GamePPOTrainer:
                             "episode": {k: episode_info.get(k) for k in ("game_name", "num_turns", "final_reward", "opponent", "valid_turns", "invalid_turns")},
                         }
                     )
-        
-        # Log collection summary
-        self.logger.info(f"Collected {len(rollouts['queries'])} valid samples from {total_attempts} episodes. "
-                        f"Games with valid samples: {games_with_valid_samples}")
             else:
                 # Legacy server-based flow (docker/basilica env server + HTTP LLM)
                 state_dict = await self.env_wrapper.reset(task_id=task_id)
@@ -495,6 +556,10 @@ class GamePPOTrainer:
                 rollouts["rewards"].append(torch.tensor(result["reward"]))
                 rollouts["task_ids"].append(task_id)
                 rollouts["metadata"].append({"score": result["score"], "success": result["success"], "task_config": task_config})
+        
+        # Log collection summary
+        self.logger.info(f"Collected {len(rollouts['queries'])} valid samples from {total_attempts} episodes. "
+                        f"Games with valid samples: {games_with_valid_samples}")
         
         # Store episode data list in rollouts for step summary
         rollouts["episode_data_list"] = episode_data_list
@@ -563,11 +628,14 @@ class GamePPOTrainer:
     
     async def train(self):
         """Main training loop"""
-        self.logger.info("Starting training...")
+        if self.resumed_from:
+            self.logger.info(f"Resuming training from step {self.start_step}...")
+        else:
+            self.logger.info("Starting training...")
         
-        global_step = 0
+        global_step = self.start_step
         
-        for step in range(self.ppo_config.num_train_steps):
+        for step in range(self.start_step, self.ppo_config.num_train_steps):
             # Collect rollouts - collect many episodes to ensure enough VALID samples
             # Only valid responses are used for training (to avoid KL divergence issues)
             # Untrained models have low valid response rate, so we need many episodes
@@ -624,6 +692,7 @@ class GamePPOTrainer:
                     tokenizer=self.tokenizer,
                     save_path=save_path,
                     curriculum_state=self.curriculum_sampler.get_state(),
+                    training_args={"step": step + 1, "global_step": global_step + 1},
                 )
             
             # Evaluate
@@ -645,6 +714,7 @@ class GamePPOTrainer:
             tokenizer=self.tokenizer,
             save_path=final_path,
             curriculum_state=self.curriculum_sampler.get_state(),
+            training_args={"step": self.ppo_config.num_train_steps, "global_step": global_step},
         )
         
         self.logger.info("Training complete!")

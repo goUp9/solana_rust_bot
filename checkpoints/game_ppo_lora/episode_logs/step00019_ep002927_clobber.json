@@ -1,0 +1,534 @@
+{
+  "task_id": 714016541,
+  "seed": 1134667038,
+  "game_name": "clobber",
+  "opponent": "random",
+  "llm_player_id": 0,
+  "num_players": 2,
+  "final_reward": 1.0,
+  "llm_return": 1.0,
+  "all_returns": [
+    1.0,
+    -1.0
+  ],
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are playing clobber.\n\n# Game Rules\nCLOBBER RULES:\nBoard: Rectangular grid (5\u00d75, 6\u00d76, or 7\u00d77) filled with alternating black and white pieces.\nGoal: Be the last player able to move.\n\nMovement: On your turn, move one of your pieces orthogonally (horizontally or vertically) to capture an adjacent opponent piece. The captured piece is removed and replaced by your piece.\nMust capture: Every move must capture an opponent piece. No non-capturing moves allowed.\n\nMove Format: Moves are specified as \"row col\" (e.g., \"2 3\" means row 2, column 3).\nImportant: You can ONLY move to a position occupied by an opponent piece that is directly adjacent (up/down/left/right) to one of your pieces.\n\nLosing: If you have no legal moves (no adjacent opponent pieces to capture), you lose.\n\n\n# Output Format\nYou must respond with ONLY the action ID (a single number).\nDo NOT include descriptions or explanations.\n\nExamples:\n- For action \"0 -> roll\": respond \"0\"\n- For action \"89 -> a3\": respond \"89\""
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xoxoxo\n5oxoxox\n4xoxoxo\n3oxoxox\n2xoxoxo\n1oxoxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n6 -> b6b5\n7 -> b6a6\n13 -> d6e6\n14 -> d6d5\n15 -> d6c6\n22 -> f6f5\n23 -> f6e6\n24 -> a5a6\n25 -> a5b5\n26 -> a5a4\n32 -> c5c6\n33 -> c5d5\n34 -> c5c4\n35 -> c5b5\n40 -> e5e6\n41 -> e5f5\n42 -> e5e4\n43 -> e5d5\n52 -> b4b5\n53 -> b4c4\n54 -> b4b3\n55 -> b4a4\n60 -> d4d5\n61 -> d4e4\n62 -> d4d3\n63 -> d4c4\n68 -> f4f5\n70 -> f4f3\n71 -> f4e4\n72 -> a3a4\n73 -> a3b3\n74 -> a3a2\n80 -> c3c4\n81 -> c3d3\n82 -> c3c2\n83 -> c3b3\n88 -> e3e4\n89 -> e3f3\n90 -> e3e2\n91 -> e3d3\n100 -> b2b3\n101 -> b2c2\n102 -> b2b1\n103 -> b2a2\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n116 -> f2f3\n118 -> f2f1\n119 -> f2e2\n120 -> a1a2\n121 -> a1b1\n128 -> c1c2\n129 -> c1d1\n131 -> c1b1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "83"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xoxoxo\n5oxoxxx\n4xoxo.o\n3oo.xox\n2xoxoxo\n1oxoxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n6 -> b6b5\n7 -> b6a6\n13 -> d6e6\n14 -> d6d5\n15 -> d6c6\n22 -> f6f5\n23 -> f6e6\n24 -> a5a6\n25 -> a5b5\n26 -> a5a4\n32 -> c5c6\n33 -> c5d5\n34 -> c5c4\n35 -> c5b5\n52 -> b4b5\n53 -> b4c4\n55 -> b4a4\n60 -> d4d5\n62 -> d4d3\n63 -> d4c4\n68 -> f4f5\n70 -> f4f3\n72 -> a3a4\n74 -> a3a2\n89 -> e3f3\n90 -> e3e2\n91 -> e3d3\n101 -> b2c2\n102 -> b2b1\n103 -> b2a2\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n116 -> f2f3\n118 -> f2f1\n119 -> f2e2\n120 -> a1a2\n121 -> a1b1\n128 -> c1c2\n129 -> c1d1\n131 -> c1b1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "22"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xoxox.\n5oxoxxo\n4xoxo.o\n3oo.xox\n2xxxoxo\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n6 -> b6b5\n7 -> b6a6\n13 -> d6e6\n14 -> d6d5\n15 -> d6c6\n24 -> a5a6\n25 -> a5b5\n26 -> a5a4\n32 -> c5c6\n33 -> c5d5\n34 -> c5c4\n35 -> c5b5\n47 -> f5e5\n52 -> b4b5\n53 -> b4c4\n55 -> b4a4\n60 -> d4d5\n62 -> d4d3\n63 -> d4c4\n70 -> f4f3\n72 -> a3a4\n74 -> a3a2\n78 -> b3b2\n89 -> e3f3\n90 -> e3e2\n91 -> e3d3\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n116 -> f2f3\n118 -> f2f1\n119 -> f2e2\n120 -> a1a2\n128 -> c1c2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "25"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xoxox.\n5.ox.xo\n4xoxo.o\n3oo.xox\n2xxxoxo\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n7 -> b6a6\n13 -> d6e6\n15 -> d6c6\n29 -> b5c5\n47 -> f5e5\n53 -> b4c4\n55 -> b4a4\n62 -> d4d3\n63 -> d4c4\n70 -> f4f3\n72 -> a3a4\n74 -> a3a2\n78 -> b3b2\n89 -> e3f3\n90 -> e3e2\n91 -> e3d3\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n116 -> f2f3\n118 -> f2f1\n119 -> f2e2\n120 -> a1a2\n128 -> c1c2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "116"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xoxox.\n5.ox.xo\n4.xxo.o\n3oo.xoo\n2xxxox.\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n7 -> b6a6\n13 -> d6e6\n15 -> d6c6\n29 -> b5c5\n30 -> b5b4\n47 -> f5e5\n62 -> d4d3\n63 -> d4c4\n74 -> a3a2\n76 -> b3b4\n78 -> b3b2\n90 -> e3e2\n91 -> e3d3\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n120 -> a1a2\n128 -> c1c2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "76"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xoxox.\n5.ox.xo\n4.oxx.o\n3o...oo\n2xxxox.\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n7 -> b6a6\n13 -> d6e6\n15 -> d6c6\n29 -> b5c5\n47 -> f5e5\n53 -> b4c4\n74 -> a3a2\n90 -> e3e2\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n120 -> a1a2\n128 -> c1c2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "111"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xo.xx.\n5.ox.xo\n4.oxx.o\n3o...oo\n2xxo.x.\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n7 -> b6a6\n29 -> b5c5\n47 -> f5e5\n53 -> b4c4\n74 -> a3a2\n90 -> e3e2\n107 -> c2b2\n120 -> a1a2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "120"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xo.xx.\n5.ox.xo\n4.oxx.o\n3o...oo\n2oxo.x.\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n7 -> b6a6\n29 -> b5c5\n47 -> f5e5\n53 -> b4c4\n90 -> e3e2\n97 -> a2b2\n107 -> c2b2\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "97"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xo.xx.\n5.x..xo\n4.oxx.o\n3o...oo\n2.oo.x.\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n6 -> b6b5\n7 -> b6a6\n47 -> f5e5\n52 -> b4b5\n53 -> b4c4\n90 -> e3e2\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "53"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6xo.xx.\n5.x...x\n4..ox.o\n3o...oo\n2.oo.x.\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n6 -> b6b5\n7 -> b6a6\n57 -> c4d4\n68 -> f4f5\n90 -> e3e2\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "7"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6o..xx.\n5.x...x\n4..ox.o\n3o...xo\n2.oo...\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n57 -> c4d4\n68 -> f4f5\n95 -> f3e3\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "95"
+    },
+    {
+      "role": "user",
+      "content": "Current State:\n6o..xx.\n5.x...x\n4..x..o\n3o...o.\n2.oo...\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n68 -> f4f5\n\nYour choice (ID only):"
+    },
+    {
+      "role": "assistant",
+      "content": "68"
+    }
+  ],
+  "action_history": [
+    {
+      "player_id": 0,
+      "action": 83,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 64,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 22,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 124,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 25,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 39,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 116,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 49,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 76,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 84,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 111,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 9,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 120,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 133,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 97,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 35,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 53,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 41,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 7,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 112,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 95,
+      "is_llm": true,
+      "valid": false
+    },
+    {
+      "player_id": 1,
+      "action": 63,
+      "is_llm": false
+    },
+    {
+      "player_id": 0,
+      "action": 68,
+      "is_llm": true,
+      "valid": false
+    }
+  ],
+  "llm_turns": [
+    {
+      "turn_index": 0,
+      "user_prompt": "Current State:\n6xoxoxo\n5oxoxox\n4xoxoxo\n3oxoxox\n2xoxoxo\n1oxoxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n6 -> b6b5\n7 -> b6a6\n13 -> d6e6\n14 -> d6d5\n15 -> d6c6\n22 -> f6f5\n23 -> f6e6\n24 -> a5a6\n25 -> a5b5\n26 -> a5a4\n32 -> c5c6\n33 -> c5d5\n34 -> c5c4\n35 -> c5b5\n40 -> e5e6\n41 -> e5f5\n42 -> e5e4\n43 -> e5d5\n52 -> b4b5\n53 -> b4c4\n54 -> b4b3\n55 -> b4a4\n60 -> d4d5\n61 -> d4e4\n62 -> d4d3\n63 -> d4c4\n68 -> f4f5\n70 -> f4f3\n71 -> f4e4\n72 -> a3a4\n73 -> a3b3\n74 -> a3a2\n80 -> c3c4\n81 -> c3d3\n82 -> c3c2\n83 -> c3b3\n88 -> e3e4\n89 -> e3f3\n90 -> e3e2\n91 -> e3d3\n100 -> b2b3\n101 -> b2c2\n102 -> b2b1\n103 -> b2a2\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n116 -> f2f3\n118 -> f2f1\n119 -> f2e2\n120 -> a1a2\n121 -> a1b1\n128 -> c1c2\n129 -> c1d1\n131 -> c1b1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):",
+      "raw_model_output": " ->ationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 83,
+      "legal_actions": [
+        5,
+        6,
+        7,
+        13,
+        14,
+        15,
+        22,
+        23,
+        24,
+        25,
+        26,
+        32,
+        33,
+        34,
+        35,
+        40,
+        41,
+        42,
+        43,
+        52
+      ],
+      "num_legal_actions": 60,
+      "is_valid": false
+    },
+    {
+      "turn_index": 1,
+      "user_prompt": "Current State:\n6xoxoxo\n5oxoxxx\n4xoxo.o\n3oo.xox\n2xoxoxo\n1oxoxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n6 -> b6b5\n7 -> b6a6\n13 -> d6e6\n14 -> d6d5\n15 -> d6c6\n22 -> f6f5\n23 -> f6e6\n24 -> a5a6\n25 -> a5b5\n26 -> a5a4\n32 -> c5c6\n33 -> c5d5\n34 -> c5c4\n35 -> c5b5\n52 -> b4b5\n53 -> b4c4\n55 -> b4a4\n60 -> d4d5\n62 -> d4d3\n63 -> d4c4\n68 -> f4f5\n70 -> f4f3\n72 -> a3a4\n74 -> a3a2\n89 -> e3f3\n90 -> e3e2\n91 -> e3d3\n101 -> b2c2\n102 -> b2b1\n103 -> b2a2\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n116 -> f2f3\n118 -> f2f1\n119 -> f2e2\n120 -> a1a2\n121 -> a1b1\n128 -> c1c2\n129 -> c1d1\n131 -> c1b1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):",
+      "raw_model_output": " ->ationsationss",
+      "parsed_action_id": null,
+      "actual_action_id": 22,
+      "legal_actions": [
+        5,
+        6,
+        7,
+        13,
+        14,
+        15,
+        22,
+        23,
+        24,
+        25,
+        26,
+        32,
+        33,
+        34,
+        35,
+        52,
+        53,
+        55,
+        60,
+        62
+      ],
+      "num_legal_actions": 46,
+      "is_valid": false
+    },
+    {
+      "turn_index": 2,
+      "user_prompt": "Current State:\n6xoxox.\n5oxoxxo\n4xoxo.o\n3oo.xox\n2xxxoxo\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n6 -> b6b5\n7 -> b6a6\n13 -> d6e6\n14 -> d6d5\n15 -> d6c6\n24 -> a5a6\n25 -> a5b5\n26 -> a5a4\n32 -> c5c6\n33 -> c5d5\n34 -> c5c4\n35 -> c5b5\n47 -> f5e5\n52 -> b4b5\n53 -> b4c4\n55 -> b4a4\n60 -> d4d5\n62 -> d4d3\n63 -> d4c4\n70 -> f4f3\n72 -> a3a4\n74 -> a3a2\n78 -> b3b2\n89 -> e3f3\n90 -> e3e2\n91 -> e3d3\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n116 -> f2f3\n118 -> f2f1\n119 -> f2e2\n120 -> a1a2\n128 -> c1c2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):",
+      "raw_model_output": " -> Answersationsi",
+      "parsed_action_id": null,
+      "actual_action_id": 25,
+      "legal_actions": [
+        5,
+        6,
+        7,
+        13,
+        14,
+        15,
+        24,
+        25,
+        26,
+        32,
+        33,
+        34,
+        35,
+        47,
+        52,
+        53,
+        55,
+        60,
+        62,
+        63
+      ],
+      "num_legal_actions": 40,
+      "is_valid": false
+    },
+    {
+      "turn_index": 3,
+      "user_prompt": "Current State:\n6xoxox.\n5.ox.xo\n4xoxo.o\n3oo.xox\n2xxxoxo\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n7 -> b6a6\n13 -> d6e6\n15 -> d6c6\n29 -> b5c5\n47 -> f5e5\n53 -> b4c4\n55 -> b4a4\n62 -> d4d3\n63 -> d4c4\n70 -> f4f3\n72 -> a3a4\n74 -> a3a2\n78 -> b3b2\n89 -> e3f3\n90 -> e3e2\n91 -> e3d3\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n116 -> f2f3\n118 -> f2f1\n119 -> f2e2\n120 -> a1a2\n128 -> c1c2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):",
+      "raw_model_output": " ->ations Answers Answers",
+      "parsed_action_id": null,
+      "actual_action_id": 116,
+      "legal_actions": [
+        5,
+        7,
+        13,
+        15,
+        29,
+        47,
+        53,
+        55,
+        62,
+        63,
+        70,
+        72,
+        74,
+        78,
+        89,
+        90,
+        91,
+        108,
+        109,
+        110
+      ],
+      "num_legal_actions": 30,
+      "is_valid": false
+    },
+    {
+      "turn_index": 4,
+      "user_prompt": "Current State:\n6xoxox.\n5.ox.xo\n4.xxo.o\n3oo.xoo\n2xxxox.\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n7 -> b6a6\n13 -> d6e6\n15 -> d6c6\n29 -> b5c5\n30 -> b5b4\n47 -> f5e5\n62 -> d4d3\n63 -> d4c4\n74 -> a3a2\n76 -> b3b4\n78 -> b3b2\n90 -> e3e2\n91 -> e3d3\n108 -> d2d3\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n120 -> a1a2\n128 -> c1c2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):",
+      "raw_model_output": " ->ationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 76,
+      "legal_actions": [
+        5,
+        7,
+        13,
+        15,
+        29,
+        30,
+        47,
+        62,
+        63,
+        74,
+        76,
+        78,
+        90,
+        91,
+        108,
+        109,
+        110,
+        111,
+        120,
+        128
+      ],
+      "num_legal_actions": 24,
+      "is_valid": false
+    },
+    {
+      "turn_index": 5,
+      "user_prompt": "Current State:\n6xoxox.\n5.ox.xo\n4.oxx.o\n3o...oo\n2xxxox.\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n5 -> b6c6\n7 -> b6a6\n13 -> d6e6\n15 -> d6c6\n29 -> b5c5\n47 -> f5e5\n53 -> b4c4\n74 -> a3a2\n90 -> e3e2\n109 -> d2e2\n110 -> d2d1\n111 -> d2c2\n120 -> a1a2\n128 -> c1c2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):",
+      "raw_model_output": " -> Answers Answersations",
+      "parsed_action_id": null,
+      "actual_action_id": 111,
+      "legal_actions": [
+        5,
+        7,
+        13,
+        15,
+        29,
+        47,
+        53,
+        74,
+        90,
+        109,
+        110,
+        111,
+        120,
+        128,
+        129,
+        136,
+        137,
+        139
+      ],
+      "num_legal_actions": 18,
+      "is_valid": false
+    },
+    {
+      "turn_index": 6,
+      "user_prompt": "Current State:\n6xo.xx.\n5.ox.xo\n4.oxx.o\n3o...oo\n2xxo.x.\n1o.oxox\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n7 -> b6a6\n29 -> b5c5\n47 -> f5e5\n53 -> b4c4\n74 -> a3a2\n90 -> e3e2\n107 -> c2b2\n120 -> a1a2\n129 -> c1d1\n136 -> e1e2\n137 -> e1f1\n139 -> e1d1\n\nYour choice (ID only):",
+      "raw_model_output": " -> Answers Answersations",
+      "parsed_action_id": null,
+      "actual_action_id": 120,
+      "legal_actions": [
+        7,
+        29,
+        47,
+        53,
+        74,
+        90,
+        107,
+        120,
+        129,
+        136,
+        137,
+        139
+      ],
+      "num_legal_actions": 12,
+      "is_valid": false
+    },
+    {
+      "turn_index": 7,
+      "user_prompt": "Current State:\n6xo.xx.\n5.ox.xo\n4.oxx.o\n3o...oo\n2oxo.x.\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n7 -> b6a6\n29 -> b5c5\n47 -> f5e5\n53 -> b4c4\n90 -> e3e2\n97 -> a2b2\n107 -> c2b2\n\nYour choice (ID only):",
+      "raw_model_output": " ->ationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 97,
+      "legal_actions": [
+        7,
+        29,
+        47,
+        53,
+        90,
+        97,
+        107
+      ],
+      "num_legal_actions": 7,
+      "is_valid": false
+    },
+    {
+      "turn_index": 8,
+      "user_prompt": "Current State:\n6xo.xx.\n5.x..xo\n4.oxx.o\n3o...oo\n2.oo.x.\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n6 -> b6b5\n7 -> b6a6\n47 -> f5e5\n52 -> b4b5\n53 -> b4c4\n90 -> e3e2\n\nYour choice (ID only):",
+      "raw_model_output": " -> Answers\u6708ations",
+      "parsed_action_id": null,
+      "actual_action_id": 53,
+      "legal_actions": [
+        6,
+        7,
+        47,
+        52,
+        53,
+        90
+      ],
+      "num_legal_actions": 6,
+      "is_valid": false
+    },
+    {
+      "turn_index": 9,
+      "user_prompt": "Current State:\n6xo.xx.\n5.x...x\n4..ox.o\n3o...oo\n2.oo.x.\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n6 -> b6b5\n7 -> b6a6\n57 -> c4d4\n68 -> f4f5\n90 -> e3e2\n\nYour choice (ID only):",
+      "raw_model_output": " -> Answers Answers Answers",
+      "parsed_action_id": null,
+      "actual_action_id": 7,
+      "legal_actions": [
+        6,
+        7,
+        57,
+        68,
+        90
+      ],
+      "num_legal_actions": 5,
+      "is_valid": false
+    },
+    {
+      "turn_index": 10,
+      "user_prompt": "Current State:\n6o..xx.\n5.x...x\n4..ox.o\n3o...xo\n2.oo...\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n57 -> c4d4\n68 -> f4f5\n95 -> f3e3\n\nYour choice (ID only):",
+      "raw_model_output": " ->ationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 95,
+      "legal_actions": [
+        57,
+        68,
+        95
+      ],
+      "num_legal_actions": 3,
+      "is_valid": false
+    },
+    {
+      "turn_index": 11,
+      "user_prompt": "Current State:\n6o..xx.\n5.x...x\n4..x..o\n3o...o.\n2.oo...\n1..o.xx\n abcdef\n\n\nYou are Player 0.\nLegal Actions:\n68 -> f4f5\n\nYour choice (ID only):",
+      "raw_model_output": " ->ationsationsations",
+      "parsed_action_id": null,
+      "actual_action_id": 68,
+      "legal_actions": [
+        68
+      ],
+      "num_legal_actions": 1,
+      "is_valid": false
+    }
+  ],
+  "total_turns": 12,
+  "valid_turns": 0,
+  "invalid_turns": 12
+}
