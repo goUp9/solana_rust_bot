@@ -66,8 +66,8 @@
     {
       "turn_index": 0,
       "user_prompt": "Current State:\nYour dice: [2, 2, 4, 4, 6] (showing: 2, 2, 4, 4, 6)\nNumber of dice per player: 5\nTotal dice in game: 10\nNumber of players: 2\nCurrent player to act: Player 1\n\nCurrent bid: \"6-6\" (claiming at least 6 dice showing 6 across all players)\nYou can either: (1) Make a higher bid, or (2) Call 'Liar'\n\nYou are Player 1.\nLegal Actions:\n36 -> 7-1\n37 -> 7-2\n38 -> 7-3\n39 -> 7-4\n40 -> 7-5\n41 -> 7-6\n42 -> 8-1\n43 -> 8-2\n44 -> 8-3\n45 -> 8-4\n46 -> 8-5\n47 -> 8-6\n48 -> 9-1\n49 -> 9-2\n50 -> 9-3\n51 -> 9-4\n52 -> 9-5\n53 -> 9-6\n54 -> 10-1\n55 -> 10-2\n56 -> 10-3\n57 -> 10-4\n58 -> 10-5\n59 -> 10-6\n60 -> Liar\n\nYour choice (ID only):",
-      "raw_model_output": "4xx.",
-      "parsed_action_id": 4,
+      "raw_model_output": " ->tionx\u6708ationsations\u6708ations",
+      "parsed_action_id": null,
       "actual_action_id": 48,
       "legal_actions": [
         36,
@@ -97,8 +97,8 @@
     {
       "turn_index": 1,
       "user_prompt": "Current State:\nYour dice: [2, 2, 4, 4, 6] (showing: 2, 2, 4, 4, 6)\nNumber of dice per player: 5\nTotal dice in game: 10\nNumber of players: 2\nCurrent player to act: Player 1\n\nCurrent bid: \"9-6\" (claiming at least 9 dice showing 6 across all players)\nYou can either: (1) Make a higher bid, or (2) Call 'Liar'\n\nYou are Player 1.\nLegal Actions:\n54 -> 10-1\n55 -> 10-2\n56 -> 10-3\n57 -> 10-4\n58 -> 10-5\n59 -> 10-6\n60 -> Liar\n\nYour choice (ID only):",
-      "raw_model_output": "4. Answersations",
-      "parsed_action_id": 4,
+      "raw_model_output": " ->tion Answers Answers Answers\u6708\u6708 Answers",
+      "parsed_action_id": null,
       "actual_action_id": 59,
       "legal_actions": [
         54,

@@ -1,12 +1,12 @@
 {
-  "task_id": 57349920,
-  "seed": 2112945771,
+  "task_id": 69409291,
+  "seed": 717085228,
   "game_name": "goofspiel",
   "opponent": "random",
-  "llm_player_id": 1,
+  "llm_player_id": 0,
   "num_players": 2,
-  "final_reward": 1.0,
-  "llm_return": 1.0,
+  "final_reward": 0.0,
+  "llm_return": -1.0,
   "all_returns": [
     -1.0,
     1.0

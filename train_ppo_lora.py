@@ -42,7 +42,12 @@ except ImportError:
     GameEnvironmentWrapper = None
 from game_rl_training.curriculum import CurriculumSampler
 from game_rl_training.utils import setup_logging, save_checkpoint, load_checkpoint
-from game_rl_training.local_openspiel import run_local_openspiel_episode, EpisodeData
+from game_rl_training.local_openspiel import (
+    run_local_openspiel_episode, 
+    run_vllm_openspiel_episode,
+    run_parallel_episodes,
+    EpisodeData,
+)
 
 def _load_json_if_exists(path: Path) -> Dict:
     if path.exists():
@@ -116,6 +121,13 @@ class PPOTrainingConfig:
     use_wandb: bool = True
     wandb_project: str = "game-rl-training"
     wandb_run_name: Optional[str] = None
+    
+    # Invalid sample handling
+    include_invalid_samples: bool = True  # Include invalid responses with penalty
+    invalid_penalty: float = -0.5  # Penalty for invalid responses
+    
+    # SFT warmup
+    sft_warmup_steps: int = 0  # Number of SFT warmup steps before PPO
 
 
 class GamePPOTrainer:
@@ -275,12 +287,16 @@ class GamePPOTrainer:
         
         # Initialize curriculum sampler
         self.logger.info("Initializing curriculum sampler...")
-        # Restrict PPO training to OpenSpiel Tier1+Tier2 games:
-        # idx 0..7 in `affinetes/environments/openspiel/game_config.py::AVAILABLE_GAMES`
-        # 0 goofspiel, 1 liars_dice, 2 leduc_poker, 3 gin_rummy,
-        # 4 othello, 5 backgammon, 6 hex, 7 clobber
-        allowed_game_indices = list(range(8))
-        max_task_id = (max(allowed_game_indices) + 1) * 100_000_000 - 1  # 799,999,999
+        # Game indices from `affinetes/environments/openspiel/game_config.py::AVAILABLE_GAMES`:
+        # 0 goofspiel (7.8k tokens), 1 liars_dice (1.1k), 2 leduc_poker (1.3k), 3 gin_rummy (167k - SLOW)
+        # 4 othello (105k - SLOW), 5 backgammon (347k - VERY SLOW), 6 hex (13.9k), 7 clobber (16.9k)
+        # 
+        # For faster training, focus on quick games first:
+        # Fast: liars_dice, leduc_poker, goofspiel, hex, clobber
+        # Slow: gin_rummy, othello, backgammon (skip initially)
+        fast_game_indices = [0, 1, 2, 6, 7]  # goofspiel, liars_dice, leduc_poker, hex, clobber
+        allowed_game_indices = self.env_config.get("allowed_game_indices", fast_game_indices)
+        max_task_id = (max(allowed_game_indices) + 1) * 100_000_000 - 1
         self.curriculum_sampler = CurriculumSampler(
             env_name=self.env_name,
             failure_buffer_size=1000,
@@ -293,9 +309,16 @@ class GamePPOTrainer:
             ,allowed_game_indices=allowed_game_indices
         )
         
-        # Setup episode logging directory
+        # Setup episode logging directories (separate for success/failure)
         self.episode_log_dir = Path(self.ppo_config.output_dir) / "episode_logs"
         self.episode_log_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create separate directories for successful and unsuccessful episodes
+        self.success_log_dir = Path(self.ppo_config.output_dir) / "episode_logs_success"
+        self.failure_log_dir = Path(self.ppo_config.output_dir) / "episode_logs_failure"
+        self.success_log_dir.mkdir(parents=True, exist_ok=True)
+        self.failure_log_dir.mkdir(parents=True, exist_ok=True)
+        
         self.episode_counter = 0
         
         # Track resume state
@@ -366,14 +389,34 @@ class GamePPOTrainer:
             raise
     
     def _save_episode_data(self, episode_data: EpisodeData, step: int):
-        """Save episode data to JSON file for logging and analysis."""
+        """Save episode data to JSON file for logging and analysis.
+        
+        Episodes are saved to separate directories based on success:
+        - episode_logs_success/: Episodes where final_reward > 0.5 (win)
+        - episode_logs_failure/: Episodes where final_reward <= 0.5 (loss/draw)
+        - episode_logs/: All episodes (for backward compatibility)
+        """
         self.episode_counter += 1
         filename = f"step{step:05d}_ep{self.episode_counter:06d}_{episode_data.game_name}.json"
-        filepath = self.episode_log_dir / filename
+        
+        # Determine if this episode was successful (win = reward > 0.5)
+        is_success = episode_data.final_reward > 0.5
+        
+        # Choose directory based on success
+        if is_success:
+            target_dir = self.success_log_dir
+        else:
+            target_dir = self.failure_log_dir
+        
+        filepath = target_dir / filename
         
         try:
+            episode_dict = episode_data.to_dict()
+            # Add success flag to the data
+            episode_dict["is_success"] = is_success
+            
             with open(filepath, 'w') as f:
-                json.dump(episode_data.to_dict(), f, indent=2, default=str)
+                json.dump(episode_dict, f, indent=2, default=str)
         except Exception as e:
             self.logger.warning(f"Failed to save episode data: {e}")
 
@@ -403,6 +446,9 @@ class GamePPOTrainer:
                 "total_invalid_turns": sum(ep.invalid_turns for ep in episodes),
                 "avg_valid_rate": sum(ep.valid_turns / max(1, ep.total_turns) for ep in episodes) / max(1, len(episodes)),
                 "games_played": {game: sum(1 for ep in episodes if ep.game_name == game) for game in set(ep.game_name for ep in episodes)},
+                "success_count": sum(1 for ep in episodes if ep.final_reward > 0.5),
+                "failure_count": sum(1 for ep in episodes if ep.final_reward <= 0.5),
+                "success_rate": sum(1 for ep in episodes if ep.final_reward > 0.5) / max(1, len(episodes)),
             }
         }
         
@@ -423,6 +469,14 @@ class GamePPOTrainer:
             "metadata": [],
         }
         episode_data_list: List[EpisodeData] = []
+        
+        # Check if we should use vLLM for parallel collection
+        use_vllm = self.env_config.get("use_vllm", False)
+        vllm_base_url = str(self.env_config.get("vllm_base_url", "http://localhost:8000"))
+        max_concurrent = int(self.env_config.get("max_concurrent_episodes", 8))
+        
+        if use_vllm and self._execution == "local_openspiel":
+            return await self._collect_rollouts_vllm(batch_size, step, vllm_base_url, max_concurrent)
         
         # Track which games have valid samples
         games_with_valid_samples: Dict[str, int] = {}
@@ -476,6 +530,8 @@ class GamePPOTrainer:
                     max_seq_length=int(self.ppo_config.max_seq_length),
                     gamma=float(self.env_config.get("gamma", 0.99)),
                     device=str(self.device),
+                    include_invalid=bool(self.ppo_config.include_invalid_samples),
+                    invalid_penalty=float(self.ppo_config.invalid_penalty),
                 )
 
                 # Save episode data for logging
@@ -566,6 +622,121 @@ class GamePPOTrainer:
         
         return rollouts
     
+    async def _collect_rollouts_vllm(self, batch_size: int, step: int, vllm_base_url: str, max_concurrent: int) -> Dict:
+        """Collect rollouts using vLLM API for parallel episode collection (FAST)"""
+        rollouts = {
+            "queries": [],
+            "responses": [],
+            "rewards": [],
+            "task_ids": [],
+            "metadata": [],
+        }
+        episode_data_list: List[EpisodeData] = []
+        games_with_valid_samples: Dict[str, int] = {}
+        
+        # Get available games
+        available_games = list(self.curriculum_sampler.task_pool.keys()) if hasattr(self.curriculum_sampler, 'task_pool') else []
+        if not available_games:
+            available_games = ["goofspiel", "liars_dice", "leduc_poker", "hex", "clobber"]
+        
+        opponent = str(self.env_config.get("opponent", "random"))
+        model_name = self.model_config.model_name
+        
+        # Collect episodes in batches until we have enough samples
+        max_rounds = 10
+        round_num = 0
+        
+        while len(rollouts["queries"]) < batch_size and round_num < max_rounds:
+            round_num += 1
+            
+            # Generate task configs for parallel episodes
+            num_episodes = max(max_concurrent, batch_size // 2)
+            task_configs = []
+            
+            for i in range(num_episodes):
+                # Prioritize games without samples
+                games_needing = [g for g in available_games if games_with_valid_samples.get(g, 0) == 0]
+                if games_needing:
+                    target_game = games_needing[i % len(games_needing)]
+                    task_config = self.curriculum_sampler.sample_task_for_game(target_game) if hasattr(self.curriculum_sampler, 'sample_task_for_game') else self.curriculum_sampler.sample_task()
+                else:
+                    task_config = self.curriculum_sampler.sample_task()
+                
+                task_id = task_config.task_id if hasattr(task_config, "task_id") else task_config["task_id"]
+                seed = int(torch.randint(0, 2**31 - 1, (1,)).item())
+                
+                task_configs.append({
+                    "task_id": int(task_id),
+                    "seed": seed,
+                    "task_config": task_config,
+                })
+            
+            self.logger.info(f"Round {round_num}: Running {len(task_configs)} parallel episodes via vLLM...")
+            
+            # Run episodes in parallel
+            results = await run_parallel_episodes(
+                tokenizer=self.tokenizer,
+                task_configs=task_configs,
+                vllm_base_url=vllm_base_url,
+                model_name=model_name,
+                opponent=opponent,
+                temperature=float(self.ppo_config.temperature),
+                top_p=float(self.ppo_config.top_p),
+                max_new_tokens=int(self.ppo_config.max_new_tokens),
+                max_seq_length=int(self.ppo_config.max_seq_length),
+                gamma=float(self.env_config.get("gamma", 0.99)),
+                max_concurrent=max_concurrent,
+            )
+            
+            # Process results
+            for idx, (turn_samples, episode_info, episode_data) in enumerate(results):
+                task_config = task_configs[idx]["task_config"]
+                task_id = task_configs[idx]["task_id"]
+                
+                # Save episode data
+                episode_data_list.append(episode_data)
+                self._save_episode_data(episode_data, step)
+                
+                # Update curriculum
+                score = float(episode_info.get("final_reward", 0.0))
+                success = bool(score > 0.5)
+                game_name = episode_info.get("game_name", "unknown")
+                self.curriculum_sampler.update(task_id=task_id, score=score, success=success)
+                
+                # Track valid samples
+                valid_turns = episode_info.get("valid_turns", 0)
+                if valid_turns > 0:
+                    games_with_valid_samples[game_name] = games_with_valid_samples.get(game_name, 0) + valid_turns
+                
+                # Add turn samples to rollouts
+                for ts in turn_samples:
+                    q = self.tokenizer.encode(
+                        ts.prompt_text,
+                        return_tensors="pt",
+                        max_length=max(32, self.ppo_config.max_seq_length - self.ppo_config.max_new_tokens),
+                        truncation=True,
+                    ).to(self.device)
+                    r = self.tokenizer.encode(ts.response_text, return_tensors="pt", truncation=True).to(self.device)
+                    
+                    rollouts["queries"].append(q.squeeze(0))
+                    rollouts["responses"].append(r.squeeze(0))
+                    rollouts["rewards"].append(torch.tensor(ts.reward))
+                    rollouts["task_ids"].append(task_id)
+                    rollouts["metadata"].append({
+                        "score": score,
+                        "success": success,
+                        "task_config": task_config,
+                        "episode": {k: episode_info.get(k) for k in ("game_name", "num_turns", "final_reward", "opponent", "valid_turns", "invalid_turns")},
+                    })
+            
+            self.logger.info(f"Round {round_num}: Collected {len(rollouts['queries'])} total samples so far")
+        
+        self.logger.info(f"vLLM collection complete: {len(rollouts['queries'])} samples from {len(episode_data_list)} episodes. "
+                        f"Games: {games_with_valid_samples}")
+        
+        rollouts["episode_data_list"] = episode_data_list
+        return rollouts
+    
     def train_step(self, rollouts: Dict) -> Dict:
         """Single PPO training step"""
         # Prepare data for PPO
@@ -626,12 +797,149 @@ class GamePPOTrainer:
         
         return stats
     
+    def sft_warmup(self, num_steps: int = 50):
+        """
+        Run SFT warmup to teach the model the output format.
+        Creates synthetic examples with correct action ID format.
+        """
+        if num_steps <= 0:
+            return
+        
+        self.logger.info(f"Running SFT warmup for {num_steps} steps...")
+        
+        from torch.optim import AdamW
+        
+        # Get trainable parameters (LoRA)
+        trainable_params = [p for p in self.model.parameters() if p.requires_grad]
+        optimizer = AdamW(trainable_params, lr=self.ppo_config.learning_rate * 5)  # Higher LR for SFT
+        
+        # Import game components
+        pyspiel, _, _, create_game, GAME_AGENTS = None, None, None, None, None
+        try:
+            import sys
+            affinetes_path = "/root/workplace/affinetes/environments/openspiel"
+            if affinetes_path not in sys.path:
+                sys.path.insert(0, affinetes_path)
+            from game_config import create_game, AVAILABLE_GAMES
+            from agents import GAME_AGENTS
+        except ImportError as e:
+            self.logger.warning(f"Could not import game components for SFT: {e}")
+            return
+        
+        # Get available games from config
+        allowed_indices = self.env_config.get("allowed_game_indices", [0, 1, 2])
+        
+        self.model.train()
+        total_loss = 0.0
+        
+        for step in range(num_steps):
+            # Generate synthetic training example
+            game_idx = allowed_indices[step % len(allowed_indices)]
+            task_id = game_idx * 100_000_000 + (step * 7919) % 1000  # Varied config
+            
+            try:
+                game, game_cfg = create_game(task_id)
+                game_name = game_cfg["game_name"]
+                agent_class = GAME_AGENTS.get(game_name)
+                if not agent_class:
+                    continue
+                agent = agent_class()
+                
+                # Create a game state and get legal actions
+                state = game.new_initial_state()
+                
+                # Apply some random actions to get to a non-trivial state
+                import numpy as np
+                rng = np.random.RandomState(step)
+                for _ in range(rng.randint(1, 5)):
+                    if state.is_terminal():
+                        break
+                    cur_player = state.current_player()
+                    if cur_player < 0:  # Chance node
+                        outcomes = state.chance_outcomes()
+                        actions, probs = zip(*outcomes)
+                        state.apply_action(rng.choice(actions, p=probs))
+                    else:
+                        legal = state.legal_actions(cur_player)
+                        if legal:
+                            state.apply_action(rng.choice(legal))
+                
+                if state.is_terminal():
+                    continue
+                
+                # Get legal actions for current player
+                player_id = state.current_player()
+                if player_id < 0:
+                    continue
+                legal_actions = state.legal_actions(player_id)
+                if not legal_actions:
+                    continue
+                
+                # Create prompt and target
+                system_prompt = agent.generate_system_prompt()
+                user_prompt = agent.generate_user_prompt(state=state, player_id=player_id, legal_actions=legal_actions)
+                
+                # Target is just a valid action ID
+                target_action = str(rng.choice(legal_actions))
+                
+                # Build chat format
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ]
+                
+                prompt_text = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                full_text = prompt_text + target_action
+                
+                # Tokenize
+                inputs = self.tokenizer(
+                    full_text,
+                    return_tensors="pt",
+                    truncation=True,
+                    max_length=self.ppo_config.max_seq_length,
+                ).to(self.device)
+                
+                # Create labels (mask prompt, only compute loss on target)
+                prompt_len = len(self.tokenizer.encode(prompt_text, add_special_tokens=False))
+                labels = inputs["input_ids"].clone()
+                labels[0, :prompt_len] = -100  # Mask prompt tokens
+                
+                # Forward pass
+                outputs = self.model(
+                    input_ids=inputs["input_ids"],
+                    attention_mask=inputs["attention_mask"],
+                    labels=labels,
+                )
+                
+                loss = outputs.loss if hasattr(outputs, 'loss') else outputs[0]
+                
+                # Backward pass
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                
+                total_loss += loss.item()
+                
+                if (step + 1) % 10 == 0:
+                    avg_loss = total_loss / (step + 1)
+                    self.logger.info(f"SFT step {step + 1}/{num_steps} | Loss: {avg_loss:.4f}")
+                    
+            except Exception as e:
+                self.logger.warning(f"SFT step {step} failed: {e}")
+                continue
+        
+        self.logger.info(f"SFT warmup complete. Avg loss: {total_loss / max(1, num_steps):.4f}")
+    
     async def train(self):
         """Main training loop"""
+        # Run SFT warmup if configured and not resuming
+        if not self.resumed_from and self.ppo_config.sft_warmup_steps > 0:
+            self.sft_warmup(self.ppo_config.sft_warmup_steps)
+        
         if self.resumed_from:
             self.logger.info(f"Resuming training from step {self.start_step}...")
         else:
-            self.logger.info("Starting training...")
+            self.logger.info("Starting PPO training...")
         
         global_step = self.start_step
         

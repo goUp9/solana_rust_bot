@@ -42,7 +42,7 @@
     {
       "turn_index": 0,
       "user_prompt": "Current State:\nYour card: K\u2660\nCurrent round: 1/2\nPot size: 2 chips\nYour chips: 99\nOpponent chips: 99\nYour turn to act\n\nYou are Player 0.\nLegal Actions:\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think> Answers Answers Answers",
+      "raw_model_output": "<think>\u5f0fsiations\n\nsx",
       "parsed_action_id": null,
       "actual_action_id": 2,
       "legal_actions": [

@@ -66,7 +66,7 @@
     {
       "turn_index": 0,
       "user_prompt": "Current State:\nYour card: J\u2665\nCurrent round: 1/2\nPot size: 2 chips\nYour chips: 99\nOpponent chips: 99\nRound 1 betting: Call\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think> Answerss.",
+      "raw_model_output": "<think> edition\u6708si.ssin",
       "parsed_action_id": null,
       "actual_action_id": 1,
       "legal_actions": [
@@ -79,7 +79,7 @@
     {
       "turn_index": 1,
       "user_prompt": "Current State:\nYour card: J\u2665\nPublic card: K\u2665\nCurrent round: 2/2\nPot size: 2 chips\nYour chips: 99\nOpponent chips: 99\nRound 1 betting: Call, Call\nRound 2 betting: Call\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think>\ufe0fationsations",
+      "raw_model_output": "<think>ationsationsrations answersi answers",
       "parsed_action_id": null,
       "actual_action_id": 2,
       "legal_actions": [

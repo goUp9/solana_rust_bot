@@ -5,11 +5,17 @@ Local (in-process) OpenSpiel rollout runner.
 This bypasses the docker/basilica environment server and calls the model directly,
 so PPO rollouts always use the *current* policy weights.
 
+Supports two inference modes:
+1. Direct model inference (slower, uses training model)
+2. vLLM API inference (faster, uses separate vLLM server)
+
 Requires: open_spiel / pyspiel to be installed in the training environment.
 """
 
 from __future__ import annotations
 
+import asyncio
+import aiohttp
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -183,14 +189,20 @@ def run_local_openspiel_episode(
     max_seq_length: int = 1024,
     gamma: float = 0.99,
     device: str = "cuda",
+    include_invalid: bool = False,
+    invalid_penalty: float = -0.5,
 ) -> Tuple[List[TurnSample], Dict[str, Any], EpisodeData]:
     """
     Play a full OpenSpiel episode locally and return per-turn samples.
 
     Rewards: final outcome is discounted backwards across turns (Monte-Carlo style).
     
+    Args:
+        include_invalid: If True, include invalid responses with penalty reward
+        invalid_penalty: Reward to assign to invalid responses (default -0.5)
+    
     Returns:
-        turn_samples: List of TurnSample for PPO training (only valid responses)
+        turn_samples: List of TurnSample for PPO training
         episode_info: Dict with summary info for curriculum updates
         episode_data: EpisodeData with complete episode details for logging
     """
@@ -271,15 +283,18 @@ def run_local_openspiel_episode(
             max_length=max(32, max_seq_length - max_new_tokens),
         ).to(device)
 
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            top_p=top_p,
-            do_sample=True,
-            pad_token_id=tokenizer.pad_token_id,
-            eos_token_id=tokenizer.eos_token_id,
-        )
+        # Use inference_mode for faster generation (no gradient tracking)
+        import torch
+        with torch.inference_mode():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                do_sample=True,
+                pad_token_id=tokenizer.pad_token_id,
+                eos_token_id=tokenizer.eos_token_id,
+            )
 
         # Get the actual generated tokens (not decoded text) for PPO
         response_ids = outputs[0][inputs["input_ids"].shape[1]:]
@@ -315,24 +330,22 @@ def run_local_openspiel_episode(
             "is_valid": is_valid_response,
         })
 
-        # Only include VALID responses for PPO training
-        # Invalid responses cause KL divergence issues (policy ratio explosion)
-        # Use the ACTUAL model output (not cleaned) to maintain KL consistency
-        if is_valid_response:
-            # Use the actual model output (trimmed) to match what the model generated
-            # This prevents KL divergence issues from mismatched tokens
+        # Include responses for PPO training based on validity
+        # Valid responses: reward will be filled with game outcome
+        # Invalid responses: immediate penalty reward (if include_invalid=True)
+        if is_valid_response or include_invalid:
             turn_samples.append(
                 TurnSample(
                     prompt_text=prompt_text,
                     response_text=response_text.strip(),  # Use actual model output
-                    reward=0.0,  # Will be filled with game outcome
+                    reward=0.0 if is_valid_response else invalid_penalty,  # Invalid gets immediate penalty
                     info={
                         "game_name": game_name,
                         "task_id": task_id,
                         "seed": seed,
                         "opponent": opponent,
                         "llm_player_id": llm_player_id,
-                        "valid_response": True,
+                        "valid_response": is_valid_response,
                     },
                 )
             )
@@ -353,8 +366,11 @@ def run_local_openspiel_episode(
         final_reward = llm_return
 
     # Assign rewards to each turn sample (discounted game outcome, Monte-Carlo style)
+    # Only update rewards for valid responses; invalid responses keep their penalty
     for i in range(len(turn_samples) - 1, -1, -1):
-        turn_samples[i].reward = float((gamma ** (len(turn_samples) - 1 - i)) * final_reward)
+        if turn_samples[i].info.get("valid_response", True):
+            turn_samples[i].reward = float((gamma ** (len(turn_samples) - 1 - i)) * final_reward)
+        # Invalid responses keep their penalty reward (already set)
 
     episode_info = {
         "game_name": game_name,
@@ -390,4 +406,315 @@ def run_local_openspiel_episode(
     )
 
     return turn_samples, episode_info, episode_data
+
+
+async def _vllm_generate(
+    session: aiohttp.ClientSession,
+    messages: List[Dict[str, str]],
+    vllm_base_url: str,
+    model_name: str,
+    temperature: float,
+    top_p: float,
+    max_tokens: int,
+) -> str:
+    """Call vLLM OpenAI-compatible API for text generation."""
+    url = f"{vllm_base_url}/v1/chat/completions"
+    payload = {
+        "model": model_name,
+        "messages": messages,
+        "temperature": temperature,
+        "top_p": top_p,
+        "max_tokens": max_tokens,
+        "stream": False,
+    }
+    
+    try:
+        async with session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+            if resp.status != 200:
+                text = await resp.text()
+                raise RuntimeError(f"vLLM API error {resp.status}: {text}")
+            data = await resp.json()
+            return data["choices"][0]["message"]["content"]
+    except asyncio.TimeoutError:
+        raise RuntimeError("vLLM API timeout")
+
+
+async def run_vllm_openspiel_episode(
+    *,
+    tokenizer,  # Still needed for prompt formatting
+    task_id: int,
+    seed: int,
+    vllm_base_url: str = "http://localhost:8000",
+    model_name: str = "Qwen/Qwen3-4B",
+    opponent: str = "random",
+    temperature: float = 0.8,
+    top_p: float = 0.95,
+    max_new_tokens: int = 8,
+    max_seq_length: int = 1024,
+    gamma: float = 0.99,
+    session: Optional[aiohttp.ClientSession] = None,
+) -> Tuple[List[TurnSample], Dict[str, Any], EpisodeData]:
+    """
+    Play a full OpenSpiel episode using vLLM API for inference.
+    
+    This is much faster than direct model inference because:
+    1. vLLM uses continuous batching
+    2. vLLM uses PagedAttention for efficient memory
+    3. Multiple episodes can run in parallel
+    
+    Returns:
+        turn_samples: List of TurnSample for PPO training (only valid responses)
+        episode_info: Dict with summary info for curriculum updates
+        episode_data: EpisodeData with complete episode details for logging
+    """
+    pyspiel, _, _, create_game, GAME_AGENTS = _import_openspiel_components()
+
+    game, game_cfg = create_game(task_id)
+    game_name = game_cfg["game_name"]
+    num_players = game.num_players()
+    llm_player_id = (seed % num_players)
+
+    agent_class = GAME_AGENTS.get(game_name)
+    if not agent_class:
+        raise ValueError(f"No agent found for game: {game_name}")
+    agent = agent_class()
+
+    # Build bots: model plays one seat, opponents fill the rest.
+    bots = [None] * num_players
+    for pid in range(num_players):
+        if pid != llm_player_id:
+            bots[pid] = _create_opponent_bot(opponent, pid, seed + 2 + pid, game, agent)
+
+    state = game.new_initial_state()
+    messages: List[Dict[str, str]] = [{"role": "system", "content": agent.generate_system_prompt()}]
+    action_history: List[Dict[str, Any]] = []
+    turn_samples: List[TurnSample] = []
+    llm_turns: List[Dict[str, Any]] = []
+    valid_count = 0
+    invalid_count = 0
+
+    # Local RNG for fallback action selection
+    rng = np.random.RandomState(seed + 1)
+    
+    # Create session if not provided
+    own_session = session is None
+    if own_session:
+        session = aiohttp.ClientSession()
+
+    try:
+        while not state.is_terminal():
+            cur_player = state.current_player()
+
+            # Chance nodes (dice / cards dealt etc.)
+            if cur_player == pyspiel.PlayerId.CHANCE:
+                outcomes = state.chance_outcomes()
+                actions, probs = zip(*outcomes)
+                a = rng.choice(actions, p=probs)
+                state.apply_action(a)
+                continue
+
+            # Non-LLM players use opponent bots
+            if cur_player != llm_player_id:
+                if cur_player < 0 or cur_player >= num_players:
+                    legal_actions = state.legal_actions()
+                    if legal_actions:
+                        a = int(rng.choice(legal_actions))
+                        state.apply_action(a)
+                    continue
+                
+                if bots[cur_player] is None:
+                    legal_actions = state.legal_actions(cur_player)
+                    a = int(rng.choice(legal_actions)) if legal_actions else 0
+                else:
+                    a = bots[cur_player].step(state)
+                state.apply_action(a)
+                action_history.append({"player_id": int(cur_player), "action": int(a), "is_llm": False})
+                continue
+
+            # LLM turn - use vLLM API
+            legal_actions = state.legal_actions(llm_player_id)
+            user_prompt = agent.generate_user_prompt(state=state, player_id=llm_player_id, legal_actions=legal_actions)
+            messages.append({"role": "user", "content": user_prompt})
+
+            # Call vLLM API
+            response_text = await _vllm_generate(
+                session=session,
+                messages=messages,
+                vllm_base_url=vllm_base_url,
+                model_name=model_name,
+                temperature=temperature,
+                top_p=top_p,
+                max_tokens=max_new_tokens,
+            )
+            
+            action_id = _parse_action_id(response_text)
+
+            # Track if this was a valid model response or a fallback
+            is_valid_response = action_id is not None and action_id in legal_actions
+
+            # Enforce validity; fallback to random legal action if invalid
+            actual_action_id = action_id if is_valid_response else (int(rng.choice(legal_actions)) if legal_actions else 0)
+
+            # Apply action
+            state.apply_action(actual_action_id)
+            action_history.append({"player_id": int(llm_player_id), "action": int(actual_action_id), "is_llm": True, "valid": is_valid_response})
+            messages.append({"role": "assistant", "content": str(actual_action_id)})
+
+            # Track valid/invalid counts
+            if is_valid_response:
+                valid_count += 1
+            else:
+                invalid_count += 1
+
+            # Record detailed LLM turn info for logging
+            llm_turns.append({
+                "turn_index": len(llm_turns),
+                "user_prompt": user_prompt,
+                "raw_model_output": response_text,
+                "parsed_action_id": action_id,
+                "actual_action_id": actual_action_id,
+                "legal_actions": legal_actions[:20] if len(legal_actions) > 20 else legal_actions,
+                "num_legal_actions": len(legal_actions),
+                "is_valid": is_valid_response,
+            })
+
+            # Build prompt text for PPO (needed for tokenization later)
+            prompt_text = _build_chat_prompt(tokenizer, messages[:-1])  # Exclude assistant response
+            
+            # Only include VALID responses for PPO training
+            if is_valid_response:
+                turn_samples.append(
+                    TurnSample(
+                        prompt_text=prompt_text,
+                        response_text=response_text.strip(),
+                        reward=0.0,
+                        info={
+                            "game_name": game_name,
+                            "task_id": task_id,
+                            "seed": seed,
+                            "opponent": opponent,
+                            "llm_player_id": llm_player_id,
+                            "valid_response": True,
+                        },
+                    )
+                )
+
+    finally:
+        if own_session:
+            await session.close()
+
+    returns = state.returns()
+    llm_return = float(returns[llm_player_id])
+
+    # Convert to score-like reward in [0,1]
+    try:
+        min_u = game.min_utility()
+        max_u = game.max_utility()
+        if max_u > min_u:
+            final_reward = (llm_return - min_u) / (max_u - min_u)
+        else:
+            final_reward = 0.0
+    except Exception:
+        final_reward = llm_return
+
+    # Assign rewards to each turn sample (discounted game outcome)
+    for i in range(len(turn_samples) - 1, -1, -1):
+        turn_samples[i].reward = float((gamma ** (len(turn_samples) - 1 - i)) * final_reward)
+
+    episode_info = {
+        "game_name": game_name,
+        "task_id": task_id,
+        "seed": seed,
+        "opponent": opponent,
+        "llm_player_id": llm_player_id,
+        "final_reward": float(final_reward),
+        "llm_return": float(llm_return),
+        "num_turns": len(turn_samples),
+        "action_history": action_history,
+        "valid_turns": valid_count,
+        "invalid_turns": invalid_count,
+    }
+
+    episode_data = EpisodeData(
+        task_id=task_id,
+        seed=seed,
+        game_name=game_name,
+        opponent=opponent,
+        llm_player_id=llm_player_id,
+        num_players=num_players,
+        final_reward=float(final_reward),
+        llm_return=float(llm_return),
+        all_returns=[float(r) for r in returns],
+        conversation=messages,
+        action_history=action_history,
+        llm_turns=llm_turns,
+        total_turns=valid_count + invalid_count,
+        valid_turns=valid_count,
+        invalid_turns=invalid_count,
+    )
+
+    return turn_samples, episode_info, episode_data
+
+
+async def run_parallel_episodes(
+    *,
+    tokenizer,
+    task_configs: List[Dict[str, Any]],
+    vllm_base_url: str = "http://localhost:8000",
+    model_name: str = "Qwen/Qwen3-4B",
+    opponent: str = "random",
+    temperature: float = 0.8,
+    top_p: float = 0.95,
+    max_new_tokens: int = 8,
+    max_seq_length: int = 1024,
+    gamma: float = 0.99,
+    max_concurrent: int = 8,
+) -> List[Tuple[List[TurnSample], Dict[str, Any], EpisodeData]]:
+    """
+    Run multiple episodes in parallel using vLLM API.
+    
+    This provides significant speedup by:
+    1. Running multiple games concurrently
+    2. vLLM batches the inference requests automatically
+    
+    Args:
+        task_configs: List of dicts with 'task_id' and 'seed' keys
+        max_concurrent: Maximum number of concurrent episodes
+        
+    Returns:
+        List of (turn_samples, episode_info, episode_data) tuples
+    """
+    semaphore = asyncio.Semaphore(max_concurrent)
+    
+    async def run_with_semaphore(task_config):
+        async with semaphore:
+            return await run_vllm_openspiel_episode(
+                tokenizer=tokenizer,
+                task_id=task_config["task_id"],
+                seed=task_config["seed"],
+                vllm_base_url=vllm_base_url,
+                model_name=model_name,
+                opponent=opponent,
+                temperature=temperature,
+                top_p=top_p,
+                max_new_tokens=max_new_tokens,
+                max_seq_length=max_seq_length,
+                gamma=gamma,
+            )
+    
+    # Create shared session for connection pooling
+    connector = aiohttp.TCPConnector(limit=max_concurrent * 2)
+    async with aiohttp.ClientSession(connector=connector) as session:
+        tasks = [run_with_semaphore(cfg) for cfg in task_configs]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    # Filter out exceptions and log them
+    valid_results = []
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            print(f"Episode {i} failed: {result}")
+        else:
+            valid_results.append(result)
+    
+    return valid_results
 

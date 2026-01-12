@@ -1,49 +1,49 @@
 {
   "step": 2,
-  "timestamp": "2026-01-10T09:54:55.837219",
+  "timestamp": "2026-01-12T02:04:05.380797",
   "num_episodes": 160,
   "stats": {
-    "objective/kl": 0.13964521884918213,
-    "objective/kl_coef": 0.001,
-    "objective/entropy": 35.811561584472656,
-    "ppo/mean_non_score_reward": -6.206454418133944e-05,
-    "ppo/mean_scores": 0.241522878408432,
-    "ppo/std_scores": 0.9660914540290833,
-    "tokens/queries_len_mean": 508.0,
-    "tokens/queries_len_std": 0.0,
-    "tokens/responses_len_mean": 2.25,
-    "tokens/responses_len_std": 0.5,
-    "ppo/loss/policy": -3.973643103449831e-08,
-    "ppo/loss/value": 1.2148841619491577,
-    "ppo/loss/total": 0.12148837745189667,
-    "ppo/policy/entropy": 0.7393027544021606,
-    "ppo/policy/approxkl": 0.0,
-    "ppo/policy/policykl": 0.0,
-    "ppo/policy/clipfrac": 0.0,
-    "ppo/policy/advantages_mean": 3.973643103449831e-08,
-    "ppo/returns/mean": 0.036090534180402756,
-    "ppo/returns/var": 0.9088736176490784,
-    "ppo/val/vpred": -0.9871294498443604,
-    "ppo/val/error": 2.4297683238983154,
-    "ppo/val/clipfrac": 0.0,
-    "ppo/val/mean": -0.9871294498443604,
-    "ppo/val/var": 1.6173731088638306,
-    "ppo/val/var_explained": -1.673384189605713,
-    "ppo/learning_rate": 5e-06,
-    "time/ppo/forward_pass": 0.6476528644561768,
-    "time/ppo/compute_rewards": 0.0007426738739013672,
-    "time/ppo/compute_advantages": 0.035465240478515625,
-    "time/ppo/optimize_step": 0.7316606044769287,
-    "time/ppo/calc_stats": 0.038486480712890625,
-    "time/ppo/total": 1.454059362411499,
-    "mean_reward": 0.6410256028175354,
-    "mean_score": 0.6410256410256411,
-    "success_rate": 0.6666666666666666,
-    "num_samples": 6,
-    "num_batches": 1,
-    "total_valid_turns": 6,
-    "total_invalid_turns": 3851,
-    "avg_valid_rate": 0.005079656862745098
+    "objective/kl": -38.679066601921534,
+    "objective/kl_coef": 0.009964067817610852,
+    "objective/entropy": 164.70379683550667,
+    "ppo/mean_non_score_reward": 0.058033501838936526,
+    "ppo/mean_scores": -0.04969242521945168,
+    "ppo/std_scores": 0.11384390382205739,
+    "tokens/queries_len_mean": 434.3970588235294,
+    "tokens/queries_len_std": 80.32090377807617,
+    "tokens/responses_len_mean": 6.632352941176471,
+    "tokens/responses_len_std": 0.9554630658205818,
+    "ppo/loss/policy": -0.04011016643011622,
+    "ppo/loss/value": 0.4861852517899345,
+    "ppo/loss/total": 0.1057454163537306,
+    "ppo/policy/entropy": 0.34679049472598467,
+    "ppo/policy/approxkl": 0.12023279396817088,
+    "ppo/policy/policykl": 0.03725035776219824,
+    "ppo/policy/clipfrac": 0.17705395313746788,
+    "ppo/policy/advantages_mean": -3.424593915635863e-09,
+    "ppo/returns/mean": 0.18215500981793464,
+    "ppo/returns/var": 0.19182375073432922,
+    "ppo/val/vpred": 0.0586017149993602,
+    "ppo/val/error": 0.9881757602972143,
+    "ppo/val/clipfrac": 0.0010893246268524842,
+    "ppo/val/mean": 0.055738960337989474,
+    "ppo/val/var": 0.8398269064286176,
+    "ppo/val/var_explained": -26.460395820000592,
+    "ppo/learning_rate": 1e-05,
+    "time/ppo/forward_pass": 0.6349117615643669,
+    "time/ppo/compute_rewards": 0.0007508502287023208,
+    "time/ppo/compute_advantages": 0.03398757822373334,
+    "time/ppo/optimize_step": 1.5019232525545008,
+    "time/ppo/calc_stats": 0.03517798816456514,
+    "time/ppo/total": 2.20684850917143,
+    "mean_reward": -0.4754738211631775,
+    "mean_score": 0.5440356744704571,
+    "success_rate": 0.5507246376811594,
+    "num_samples": 69,
+    "num_batches": 17,
+    "total_valid_turns": 2,
+    "total_invalid_turns": 67,
+    "avg_valid_rate": 0.005208333333333333
   },
   "episodes_summary": [
     {
@@ -52,108 +52,108 @@
       "seed": 402470710,
       "opponent": "random",
       "final_reward": 1.0,
-      "total_turns": 3,
-      "valid_turns": 1,
-      "invalid_turns": 2,
-      "valid_rate": 0.3333333333333333
-    },
-    {
-      "task_id": 345399947,
-      "game_name": "gin_rummy",
-      "seed": 153182031,
-      "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 84,
-      "valid_turns": 0,
-      "invalid_turns": 84,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 405530166,
-      "game_name": "othello",
-      "seed": 1158018294,
-      "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 30,
-      "valid_turns": 1,
-      "invalid_turns": 29,
-      "valid_rate": 0.03333333333333333
-    },
-    {
-      "task_id": 621992990,
-      "game_name": "hex",
-      "seed": 641736990,
-      "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 34,
-      "valid_turns": 1,
-      "invalid_turns": 33,
-      "valid_rate": 0.029411764705882353
-    },
-    {
-      "task_id": 78309491,
-      "game_name": "goofspiel",
-      "seed": 1243525559,
-      "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 0,
-      "valid_turns": 0,
-      "invalid_turns": 0,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 248440065,
-      "game_name": "leduc_poker",
-      "seed": 1695618646,
-      "opponent": "random",
-      "final_reward": 0.46153846153846156,
       "total_turns": 2,
       "valid_turns": 0,
       "invalid_turns": 2,
       "valid_rate": 0.0
     },
     {
-      "task_id": 373616316,
-      "game_name": "gin_rummy",
-      "seed": 556803596,
+      "task_id": 245399947,
+      "game_name": "leduc_poker",
+      "seed": 153182031,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 64,
+      "final_reward": 0.38461538461538464,
+      "total_turns": 2,
       "valid_turns": 0,
-      "invalid_turns": 64,
+      "invalid_turns": 2,
       "valid_rate": 0.0
     },
     {
-      "task_id": 539380421,
-      "game_name": "backgammon",
-      "seed": 493476348,
-      "opponent": "random",
-      "final_reward": 0.0,
-      "total_turns": 66,
-      "valid_turns": 0,
-      "invalid_turns": 66,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 764164753,
-      "game_name": "clobber",
-      "seed": 1029529788,
-      "opponent": "random",
-      "final_reward": 0.0,
-      "total_turns": 9,
-      "valid_turns": 0,
-      "invalid_turns": 9,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 6476859,
+      "task_id": 5530166,
       "game_name": "goofspiel",
-      "seed": 1322333523,
+      "seed": 1158018294,
       "opponent": "random",
       "final_reward": 0.0,
       "total_turns": 0,
       "valid_turns": 0,
       "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 121992990,
+      "game_name": "liars_dice",
+      "seed": 641736990,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 2,
+      "valid_turns": 0,
+      "invalid_turns": 2,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 278309491,
+      "game_name": "leduc_poker",
+      "seed": 1243525559,
+      "opponent": "random",
+      "final_reward": 0.46153846153846156,
+      "total_turns": 1,
+      "valid_turns": 0,
+      "invalid_turns": 1,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 48440065,
+      "game_name": "goofspiel",
+      "seed": 1695618646,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 0,
+      "valid_turns": 0,
+      "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 173616316,
+      "game_name": "liars_dice",
+      "seed": 556803596,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 3,
+      "valid_turns": 0,
+      "invalid_turns": 3,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 239380421,
+      "game_name": "leduc_poker",
+      "seed": 493476348,
+      "opponent": "random",
+      "final_reward": 0.6153846153846154,
+      "total_turns": 3,
+      "valid_turns": 0,
+      "invalid_turns": 3,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 64164753,
+      "game_name": "goofspiel",
+      "seed": 1029529788,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 0,
+      "valid_turns": 0,
+      "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 106476859,
+      "game_name": "liars_dice",
+      "seed": 1322333523,
+      "opponent": "random",
+      "final_reward": 0.0,
+      "total_turns": 3,
+      "valid_turns": 0,
+      "invalid_turns": 3,
       "valid_rate": 0.0
     },
     {
@@ -168,36 +168,36 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 340623768,
-      "game_name": "gin_rummy",
+      "task_id": 40623768,
+      "game_name": "goofspiel",
       "seed": 1731598297,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 40,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 40,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 544093303,
-      "game_name": "backgammon",
+      "task_id": 144093303,
+      "game_name": "liars_dice",
       "seed": 1285163745,
       "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 37,
+      "final_reward": 0.0,
+      "total_turns": 2,
       "valid_turns": 0,
-      "invalid_turns": 37,
+      "invalid_turns": 2,
       "valid_rate": 0.0
     },
     {
-      "task_id": 755662992,
-      "game_name": "clobber",
+      "task_id": 255662992,
+      "game_name": "leduc_poker",
       "seed": 466654280,
       "opponent": "random",
-      "final_reward": 0.0,
-      "total_turns": 17,
+      "final_reward": 0.38461538461538464,
+      "total_turns": 2,
       "valid_turns": 0,
-      "invalid_turns": 17,
+      "invalid_turns": 2,
       "valid_rate": 0.0
     },
     {
@@ -212,53 +212,31 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 263619827,
-      "game_name": "leduc_poker",
+      "task_id": 163619827,
+      "game_name": "liars_dice",
       "seed": 1447749897,
       "opponent": "random",
-      "final_reward": 0.46153846153846156,
+      "final_reward": 1.0,
+      "total_turns": 2,
+      "valid_turns": 0,
+      "invalid_turns": 2,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 246124136,
+      "game_name": "leduc_poker",
+      "seed": 533970967,
+      "opponent": "random",
+      "final_reward": 0.6153846153846154,
       "total_turns": 1,
       "valid_turns": 0,
       "invalid_turns": 1,
       "valid_rate": 0.0
     },
     {
-      "task_id": 346124136,
-      "game_name": "gin_rummy",
-      "seed": 533970967,
-      "opponent": "random",
-      "final_reward": 0.3170731707317073,
-      "total_turns": 46,
-      "valid_turns": 0,
-      "invalid_turns": 46,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 564301904,
-      "game_name": "backgammon",
-      "seed": 498250834,
-      "opponent": "random",
-      "final_reward": 0.0,
-      "total_turns": 60,
-      "valid_turns": 1,
-      "invalid_turns": 59,
-      "valid_rate": 0.016666666666666666
-    },
-    {
-      "task_id": 793898090,
-      "game_name": "clobber",
-      "seed": 2137753491,
-      "opponent": "random",
-      "final_reward": 0.0,
-      "total_turns": 10,
-      "valid_turns": 0,
-      "invalid_turns": 10,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 57248602,
+      "task_id": 64301904,
       "game_name": "goofspiel",
-      "seed": 162454480,
+      "seed": 498250834,
       "opponent": "random",
       "final_reward": 0.0,
       "total_turns": 0,
@@ -267,36 +245,58 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 240520750,
+      "task_id": 193898090,
+      "game_name": "liars_dice",
+      "seed": 2137753491,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 1,
+      "valid_turns": 0,
+      "invalid_turns": 1,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 257248602,
       "game_name": "leduc_poker",
+      "seed": 162454480,
+      "opponent": "random",
+      "final_reward": 0.23076923076923078,
+      "total_turns": 3,
+      "valid_turns": 0,
+      "invalid_turns": 3,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 40520750,
+      "game_name": "goofspiel",
       "seed": 1439165853,
       "opponent": "random",
-      "final_reward": 0.46153846153846156,
+      "final_reward": 1.0,
+      "total_turns": 0,
+      "valid_turns": 0,
+      "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 198616608,
+      "game_name": "liars_dice",
+      "seed": 668572195,
+      "opponent": "random",
+      "final_reward": 1.0,
       "total_turns": 2,
       "valid_turns": 0,
       "invalid_turns": 2,
       "valid_rate": 0.0
     },
     {
-      "task_id": 398616608,
-      "game_name": "gin_rummy",
-      "seed": 668572195,
-      "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 55,
-      "valid_turns": 0,
-      "invalid_turns": 55,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 722354791,
-      "game_name": "clobber",
+      "task_id": 222354791,
+      "game_name": "leduc_poker",
       "seed": 1613066649,
       "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 8,
+      "final_reward": 0.5384615384615384,
+      "total_turns": 1,
       "valid_turns": 0,
-      "invalid_turns": 8,
+      "invalid_turns": 1,
       "valid_rate": 0.0
     },
     {
@@ -311,47 +311,47 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 208836180,
-      "game_name": "leduc_poker",
+      "task_id": 108836180,
+      "game_name": "liars_dice",
       "seed": 363653025,
       "opponent": "random",
-      "final_reward": 0.38461538461538464,
+      "final_reward": 0.0,
       "total_turns": 2,
       "valid_turns": 0,
       "invalid_turns": 2,
       "valid_rate": 0.0
     },
     {
-      "task_id": 326580516,
-      "game_name": "gin_rummy",
+      "task_id": 226580516,
+      "game_name": "leduc_poker",
       "seed": 949439989,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 53,
+      "final_reward": 0.7692307692307693,
+      "total_turns": 2,
       "valid_turns": 0,
-      "invalid_turns": 53,
+      "invalid_turns": 2,
       "valid_rate": 0.0
     },
     {
-      "task_id": 708208240,
-      "game_name": "clobber",
-      "seed": 1652754537,
-      "opponent": "random",
-      "final_reward": 0.0,
-      "total_turns": 8,
-      "valid_turns": 0,
-      "invalid_turns": 8,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 1053744,
+      "task_id": 8208240,
       "game_name": "goofspiel",
-      "seed": 421235423,
+      "seed": 1652754537,
       "opponent": "random",
       "final_reward": 1.0,
       "total_turns": 0,
       "valid_turns": 0,
       "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 101053744,
+      "game_name": "liars_dice",
+      "seed": 421235423,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 3,
+      "valid_turns": 0,
+      "invalid_turns": 3,
       "valid_rate": 0.0
     },
     {
@@ -366,31 +366,9 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 360202594,
-      "game_name": "gin_rummy",
-      "seed": 2098601769,
-      "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 64,
-      "valid_turns": 0,
-      "invalid_turns": 64,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 778502432,
-      "game_name": "clobber",
-      "seed": 933096865,
-      "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 10,
-      "valid_turns": 0,
-      "invalid_turns": 10,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 56779209,
+      "task_id": 60202594,
       "game_name": "goofspiel",
-      "seed": 359330904,
+      "seed": 2098601769,
       "opponent": "random",
       "final_reward": 1.0,
       "total_turns": 0,
@@ -399,36 +377,58 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 249436611,
-      "game_name": "leduc_poker",
-      "seed": 945484899,
+      "task_id": 178502432,
+      "game_name": "liars_dice",
+      "seed": 933096865,
       "opponent": "random",
-      "final_reward": 0.6153846153846154,
+      "final_reward": 0.0,
       "total_turns": 1,
       "valid_turns": 0,
       "invalid_turns": 1,
       "valid_rate": 0.0
     },
     {
-      "task_id": 335019624,
-      "game_name": "gin_rummy",
-      "seed": 715460430,
+      "task_id": 256779209,
+      "game_name": "leduc_poker",
+      "seed": 359330904,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 66,
+      "final_reward": 0.5384615384615384,
+      "total_turns": 1,
       "valid_turns": 0,
-      "invalid_turns": 66,
+      "invalid_turns": 1,
       "valid_rate": 0.0
     },
     {
-      "task_id": 757877506,
-      "game_name": "clobber",
-      "seed": 824397566,
+      "task_id": 49436611,
+      "game_name": "goofspiel",
+      "seed": 945484899,
       "opponent": "random",
       "final_reward": 1.0,
-      "total_turns": 7,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 7,
+      "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 135019624,
+      "game_name": "liars_dice",
+      "seed": 715460430,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 3,
+      "valid_turns": 0,
+      "invalid_turns": 3,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 257877506,
+      "game_name": "leduc_poker",
+      "seed": 824397566,
+      "opponent": "random",
+      "final_reward": 0.5384615384615384,
+      "total_turns": 1,
+      "valid_turns": 0,
+      "invalid_turns": 1,
       "valid_rate": 0.0
     },
     {
@@ -443,47 +443,47 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 208570868,
-      "game_name": "leduc_poker",
+      "task_id": 108570868,
+      "game_name": "liars_dice",
       "seed": 118622481,
       "opponent": "random",
-      "final_reward": 0.46153846153846156,
-      "total_turns": 1,
+      "final_reward": 0.0,
+      "total_turns": 2,
       "valid_turns": 0,
-      "invalid_turns": 1,
+      "invalid_turns": 2,
       "valid_rate": 0.0
     },
     {
-      "task_id": 370573790,
-      "game_name": "gin_rummy",
+      "task_id": 270573790,
+      "game_name": "leduc_poker",
       "seed": 1939657864,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 85,
+      "final_reward": 0.38461538461538464,
+      "total_turns": 3,
       "valid_turns": 0,
-      "invalid_turns": 85,
+      "invalid_turns": 3,
       "valid_rate": 0.0
     },
     {
-      "task_id": 790854794,
-      "game_name": "clobber",
+      "task_id": 90854794,
+      "game_name": "goofspiel",
       "seed": 866243010,
       "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 13,
-      "valid_turns": 0,
-      "invalid_turns": 13,
-      "valid_rate": 0.0
-    },
-    {
-      "task_id": 15959868,
-      "game_name": "goofspiel",
-      "seed": 2134974445,
-      "opponent": "random",
-      "final_reward": 1.0,
+      "final_reward": 0.0,
       "total_turns": 0,
       "valid_turns": 0,
       "invalid_turns": 0,
+      "valid_rate": 0.0
+    },
+    {
+      "task_id": 115959868,
+      "game_name": "liars_dice",
+      "seed": 2134974445,
+      "opponent": "random",
+      "final_reward": 1.0,
+      "total_turns": 1,
+      "valid_turns": 0,
+      "invalid_turns": 1,
       "valid_rate": 0.0
     },
     {
@@ -498,26 +498,26 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 327814204,
-      "game_name": "gin_rummy",
+      "task_id": 27814204,
+      "game_name": "goofspiel",
       "seed": 180824244,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 64,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 64,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 728976851,
-      "game_name": "clobber",
+      "task_id": 128976851,
+      "game_name": "liars_dice",
       "seed": 628587760,
       "opponent": "random",
       "final_reward": 0.0,
-      "total_turns": 11,
-      "valid_turns": 0,
-      "invalid_turns": 11,
-      "valid_rate": 0.0
+      "total_turns": 2,
+      "valid_turns": 1,
+      "invalid_turns": 1,
+      "valid_rate": 0.5
     },
     {
       "task_id": 14043159,
@@ -542,25 +542,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 348538780,
-      "game_name": "gin_rummy",
+      "task_id": 48538780,
+      "game_name": "goofspiel",
       "seed": 649976180,
       "opponent": "random",
-      "final_reward": 0.2764227642276423,
-      "total_turns": 5,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 5,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 714058807,
-      "game_name": "clobber",
+      "task_id": 214058807,
+      "game_name": "leduc_poker",
       "seed": 2095520584,
       "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 9,
+      "final_reward": 0.8461538461538461,
+      "total_turns": 3,
       "valid_turns": 0,
-      "invalid_turns": 9,
+      "invalid_turns": 3,
       "valid_rate": 0.0
     },
     {
@@ -586,25 +586,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 369958124,
-      "game_name": "gin_rummy",
+      "task_id": 69958124,
+      "game_name": "goofspiel",
       "seed": 2127752239,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 20,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 20,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 791176567,
-      "game_name": "clobber",
+      "task_id": 291176567,
+      "game_name": "leduc_poker",
       "seed": 1384956481,
       "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 7,
+      "final_reward": 0.6923076923076923,
+      "total_turns": 2,
       "valid_turns": 0,
-      "invalid_turns": 7,
+      "invalid_turns": 2,
       "valid_rate": 0.0
     },
     {
@@ -623,7 +623,7 @@
       "game_name": "leduc_poker",
       "seed": 867546062,
       "opponent": "random",
-      "final_reward": 0.8461538461538461,
+      "final_reward": 0.6923076923076923,
       "total_turns": 3,
       "valid_turns": 1,
       "invalid_turns": 2,
@@ -641,25 +641,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 301302537,
-      "game_name": "gin_rummy",
+      "task_id": 1302537,
+      "game_name": "goofspiel",
       "seed": 1461235106,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 72,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 72,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 794703187,
-      "game_name": "clobber",
+      "task_id": 94703187,
+      "game_name": "goofspiel",
       "seed": 1366913872,
       "opponent": "random",
-      "final_reward": 0.0,
-      "total_turns": 7,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 7,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -674,25 +674,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 370478720,
-      "game_name": "gin_rummy",
+      "task_id": 70478720,
+      "game_name": "goofspiel",
       "seed": 637230909,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 56,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 56,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 734478106,
-      "game_name": "clobber",
+      "task_id": 34478106,
+      "game_name": "goofspiel",
       "seed": 669608418,
       "opponent": "random",
-      "final_reward": 0.0,
-      "total_turns": 9,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 9,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -707,25 +707,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 396385998,
-      "game_name": "gin_rummy",
+      "task_id": 96385998,
+      "game_name": "goofspiel",
       "seed": 2020487407,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 68,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 68,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 708906571,
-      "game_name": "clobber",
+      "task_id": 8906571,
+      "game_name": "goofspiel",
       "seed": 363539489,
       "opponent": "random",
       "final_reward": 0.0,
-      "total_turns": 8,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 8,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -740,25 +740,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 308905975,
-      "game_name": "gin_rummy",
+      "task_id": 8905975,
+      "game_name": "goofspiel",
       "seed": 966757007,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 56,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 56,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 717514628,
-      "game_name": "clobber",
+      "task_id": 17514628,
+      "game_name": "goofspiel",
       "seed": 174513230,
       "opponent": "random",
       "final_reward": 1.0,
-      "total_turns": 13,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 13,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -773,25 +773,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 360208609,
-      "game_name": "gin_rummy",
+      "task_id": 60208609,
+      "game_name": "goofspiel",
       "seed": 1419891973,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 56,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 56,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 721567454,
-      "game_name": "clobber",
+      "task_id": 21567454,
+      "game_name": "goofspiel",
       "seed": 639174841,
       "opponent": "random",
-      "final_reward": 1.0,
-      "total_turns": 11,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 11,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -806,25 +806,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 349837977,
-      "game_name": "gin_rummy",
+      "task_id": 49837977,
+      "game_name": "goofspiel",
       "seed": 1641676345,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 72,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 72,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 771109580,
-      "game_name": "clobber",
+      "task_id": 71109580,
+      "game_name": "goofspiel",
       "seed": 144388256,
       "opponent": "random",
-      "final_reward": 0.0,
-      "total_turns": 12,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 12,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -839,25 +839,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 391076305,
-      "game_name": "gin_rummy",
+      "task_id": 91076305,
+      "game_name": "goofspiel",
       "seed": 327955552,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 64,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 64,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 757225966,
-      "game_name": "clobber",
+      "task_id": 57225966,
+      "game_name": "goofspiel",
       "seed": 885213514,
       "opponent": "random",
       "final_reward": 0.0,
-      "total_turns": 8,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 8,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -872,25 +872,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 364721608,
-      "game_name": "gin_rummy",
+      "task_id": 64721608,
+      "game_name": "goofspiel",
       "seed": 1668890677,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 6,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 6,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 781527862,
-      "game_name": "clobber",
+      "task_id": 81527862,
+      "game_name": "goofspiel",
       "seed": 1003180211,
       "opponent": "random",
       "final_reward": 1.0,
-      "total_turns": 7,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 7,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -905,25 +905,25 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 399421165,
-      "game_name": "gin_rummy",
+      "task_id": 99421165,
+      "game_name": "goofspiel",
       "seed": 781550570,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 74,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 74,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 740593084,
-      "game_name": "clobber",
+      "task_id": 40593084,
+      "game_name": "goofspiel",
       "seed": 1092894811,
       "opponent": "random",
       "final_reward": 0.0,
-      "total_turns": 8,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 8,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -938,26 +938,26 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 366237793,
-      "game_name": "gin_rummy",
+      "task_id": 66237793,
+      "game_name": "goofspiel",
       "seed": 1125313762,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 64,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 64,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
-      "task_id": 740641782,
-      "game_name": "clobber",
+      "task_id": 40641782,
+      "game_name": "goofspiel",
       "seed": 1752660907,
       "opponent": "random",
       "final_reward": 0.0,
-      "total_turns": 15,
-      "valid_turns": 1,
-      "invalid_turns": 14,
-      "valid_rate": 0.06666666666666667
+      "total_turns": 0,
+      "valid_turns": 0,
+      "invalid_turns": 0,
+      "valid_rate": 0.0
     },
     {
       "task_id": 51561045,
@@ -971,14 +971,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 308356229,
-      "game_name": "gin_rummy",
+      "task_id": 8356229,
+      "game_name": "goofspiel",
       "seed": 703495997,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 67,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 67,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -993,14 +993,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 332071554,
-      "game_name": "gin_rummy",
+      "task_id": 32071554,
+      "game_name": "goofspiel",
       "seed": 1233035034,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 65,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 65,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1015,14 +1015,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 307452713,
-      "game_name": "gin_rummy",
+      "task_id": 7452713,
+      "game_name": "goofspiel",
       "seed": 154334646,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 56,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 56,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1037,14 +1037,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 318911932,
-      "game_name": "gin_rummy",
+      "task_id": 18911932,
+      "game_name": "goofspiel",
       "seed": 2112397876,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 67,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 67,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1059,14 +1059,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 390401519,
-      "game_name": "gin_rummy",
+      "task_id": 90401519,
+      "game_name": "goofspiel",
       "seed": 650145383,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 44,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 44,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1081,14 +1081,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 304721751,
-      "game_name": "gin_rummy",
+      "task_id": 4721751,
+      "game_name": "goofspiel",
       "seed": 2002652867,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 10,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 10,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1103,14 +1103,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 306312651,
-      "game_name": "gin_rummy",
+      "task_id": 6312651,
+      "game_name": "goofspiel",
       "seed": 435855470,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 68,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 68,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1125,14 +1125,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 302714966,
-      "game_name": "gin_rummy",
+      "task_id": 2714966,
+      "game_name": "goofspiel",
       "seed": 139438105,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 12,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 12,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1147,14 +1147,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 384552644,
-      "game_name": "gin_rummy",
+      "task_id": 84552644,
+      "game_name": "goofspiel",
       "seed": 1391188677,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 16,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 16,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1169,14 +1169,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 326168916,
-      "game_name": "gin_rummy",
+      "task_id": 26168916,
+      "game_name": "goofspiel",
       "seed": 1646750908,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 67,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 67,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1191,14 +1191,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 308074649,
-      "game_name": "gin_rummy",
+      "task_id": 8074649,
+      "game_name": "goofspiel",
       "seed": 2006558946,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 67,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 67,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1213,14 +1213,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 387304898,
-      "game_name": "gin_rummy",
+      "task_id": 87304898,
+      "game_name": "goofspiel",
       "seed": 533966599,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 62,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 62,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1235,14 +1235,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 317060297,
-      "game_name": "gin_rummy",
+      "task_id": 17060297,
+      "game_name": "goofspiel",
       "seed": 1664925561,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 65,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 65,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1257,14 +1257,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 369659981,
-      "game_name": "gin_rummy",
+      "task_id": 69659981,
+      "game_name": "goofspiel",
       "seed": 812296305,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 60,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 60,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1279,14 +1279,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 359670464,
-      "game_name": "gin_rummy",
+      "task_id": 59670464,
+      "game_name": "goofspiel",
       "seed": 1595931004,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 72,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 72,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1301,14 +1301,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 347855842,
-      "game_name": "gin_rummy",
+      "task_id": 47855842,
+      "game_name": "goofspiel",
       "seed": 323581050,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 62,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 62,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1323,14 +1323,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 365251975,
-      "game_name": "gin_rummy",
+      "task_id": 65251975,
+      "game_name": "goofspiel",
       "seed": 1096875922,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 65,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 65,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1345,14 +1345,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 330823804,
-      "game_name": "gin_rummy",
+      "task_id": 30823804,
+      "game_name": "goofspiel",
       "seed": 401477296,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 22,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 22,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1367,14 +1367,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 368062712,
-      "game_name": "gin_rummy",
+      "task_id": 68062712,
+      "game_name": "goofspiel",
       "seed": 1311303284,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 70,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 70,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1389,14 +1389,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 357172758,
-      "game_name": "gin_rummy",
+      "task_id": 57172758,
+      "game_name": "goofspiel",
       "seed": 1812718940,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 4,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 4,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1411,14 +1411,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 355786417,
-      "game_name": "gin_rummy",
+      "task_id": 55786417,
+      "game_name": "goofspiel",
       "seed": 270251514,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 15,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 15,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1433,14 +1433,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 320959033,
-      "game_name": "gin_rummy",
+      "task_id": 20959033,
+      "game_name": "goofspiel",
       "seed": 131859121,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 68,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 68,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1455,14 +1455,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 392129478,
-      "game_name": "gin_rummy",
+      "task_id": 92129478,
+      "game_name": "goofspiel",
       "seed": 1791085173,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 63,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 63,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1477,14 +1477,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 343553535,
-      "game_name": "gin_rummy",
+      "task_id": 43553535,
+      "game_name": "goofspiel",
       "seed": 1084848319,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 66,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 66,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1499,14 +1499,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 309439461,
-      "game_name": "gin_rummy",
+      "task_id": 9439461,
+      "game_name": "goofspiel",
       "seed": 521314537,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 68,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 68,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1521,14 +1521,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 346364857,
-      "game_name": "gin_rummy",
+      "task_id": 46364857,
+      "game_name": "goofspiel",
       "seed": 1494123482,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 52,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 52,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1543,14 +1543,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 330936318,
-      "game_name": "gin_rummy",
+      "task_id": 30936318,
+      "game_name": "goofspiel",
       "seed": 1571109688,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 79,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 79,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1565,14 +1565,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 327914340,
-      "game_name": "gin_rummy",
+      "task_id": 27914340,
+      "game_name": "goofspiel",
       "seed": 13881775,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 62,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 62,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1587,14 +1587,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 300964296,
-      "game_name": "gin_rummy",
+      "task_id": 964296,
+      "game_name": "goofspiel",
       "seed": 1259554806,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 72,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 72,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1609,14 +1609,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 381181356,
-      "game_name": "gin_rummy",
+      "task_id": 81181356,
+      "game_name": "goofspiel",
       "seed": 1000139413,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 61,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 61,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1631,14 +1631,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 360941300,
-      "game_name": "gin_rummy",
+      "task_id": 60941300,
+      "game_name": "goofspiel",
       "seed": 482715808,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 50,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 50,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1653,14 +1653,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 394956422,
-      "game_name": "gin_rummy",
+      "task_id": 94956422,
+      "game_name": "goofspiel",
       "seed": 1109041502,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 62,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 62,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1675,14 +1675,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 327933410,
-      "game_name": "gin_rummy",
+      "task_id": 27933410,
+      "game_name": "goofspiel",
       "seed": 1555808384,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 86,
+      "final_reward": 1.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 86,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1697,14 +1697,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 339276400,
-      "game_name": "gin_rummy",
+      "task_id": 39276400,
+      "game_name": "goofspiel",
       "seed": 1272799129,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 72,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 72,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1719,14 +1719,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 324702175,
-      "game_name": "gin_rummy",
+      "task_id": 24702175,
+      "game_name": "goofspiel",
       "seed": 347072070,
       "opponent": "random",
-      "final_reward": 0.6097560975609756,
-      "total_turns": 73,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 73,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1741,14 +1741,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 320992063,
-      "game_name": "gin_rummy",
+      "task_id": 20992063,
+      "game_name": "goofspiel",
       "seed": 1617437142,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 61,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 61,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1763,14 +1763,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 329906048,
-      "game_name": "gin_rummy",
+      "task_id": 29906048,
+      "game_name": "goofspiel",
       "seed": 1356743314,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 54,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 54,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1785,14 +1785,14 @@
       "valid_rate": 0.0
     },
     {
-      "task_id": 331763590,
-      "game_name": "gin_rummy",
+      "task_id": 31763590,
+      "game_name": "goofspiel",
       "seed": 790035280,
       "opponent": "random",
-      "final_reward": 0.5,
-      "total_turns": 79,
+      "final_reward": 0.0,
+      "total_turns": 0,
       "valid_turns": 0,
-      "invalid_turns": 79,
+      "invalid_turns": 0,
       "valid_rate": 0.0
     },
     {
@@ -1808,18 +1808,13 @@
     }
   ],
   "aggregated": {
-    "total_valid_turns": 6,
-    "total_invalid_turns": 3851,
-    "avg_valid_rate": 0.005079656862745098,
+    "total_valid_turns": 2,
+    "total_invalid_turns": 67,
+    "avg_valid_rate": 0.005208333333333333,
     "games_played": {
-      "hex": 1,
-      "goofspiel": 61,
-      "othello": 1,
-      "liars_dice": 1,
-      "clobber": 21,
-      "leduc_poker": 12,
-      "backgammon": 3,
-      "gin_rummy": 60
+      "liars_dice": 15,
+      "leduc_poker": 19,
+      "goofspiel": 126
     }
   }
 }

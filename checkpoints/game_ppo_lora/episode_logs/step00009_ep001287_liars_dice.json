@@ -47,7 +47,7 @@
     {
       "turn_index": 0,
       "user_prompt": "Current State:\nYour dice: [1, 1, 2, 3, 6] (showing: 1, 1, 2, 3, 6)\nNumber of dice per player: 5\nTotal dice in game: 10\nNumber of players: 2\nCurrent player to act: Player 1\n\nCurrent bid: \"10-1\" (claiming at least 10 dice showing 1 across all players)\nYou can either: (1) Make a higher bid, or (2) Call 'Liar'\n\nYou are Player 1.\nLegal Actions:\n55 -> 10-2\n56 -> 10-3\n57 -> 10-4\n58 -> 10-5\n59 -> 10-6\n60 -> Liar\n\nYour choice (ID only):",
-      "raw_model_output": "<think> Answersations Answers",
+      "raw_model_output": "<think>ationsations\n\n Answerssii",
       "parsed_action_id": null,
       "actual_action_id": 59,
       "legal_actions": [

@@ -82,7 +82,7 @@
       "player_id": 0,
       "action": 2,
       "is_llm": true,
-      "valid": false
+      "valid": true
     },
     {
       "player_id": 1,
@@ -94,7 +94,7 @@
     {
       "turn_index": 0,
       "user_prompt": "Current State:\nYour card: Q\u2660\nCurrent round: 1/2\nPot size: 2 chips\nYour chips: 99\nOpponent chips: 99\nYour turn to act\n\nYou are Player 0.\nLegal Actions:\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think>\nOkay,",
+      "raw_model_output": "<think>\nOkay, let's see.",
       "parsed_action_id": null,
       "actual_action_id": 1,
       "legal_actions": [
@@ -107,7 +107,7 @@
     {
       "turn_index": 1,
       "user_prompt": "Current State:\nYour card: Q\u2660\nCurrent round: 1/2\nPot size: 4 chips\nYour chips: 99\nOpponent chips: 97\nRound 1 betting: Call, Raise\nYour turn to act\n\nYou are Player 0.\nLegal Actions:\n0 -> Fold\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think>\nOkay,",
+      "raw_model_output": "<think>\nOkay, let me try to",
       "parsed_action_id": null,
       "actual_action_id": 1,
       "legal_actions": [
@@ -121,7 +121,7 @@
     {
       "turn_index": 2,
       "user_prompt": "Current State:\nYour card: Q\u2660\nPublic card: K\u2665\nCurrent round: 2/2\nPot size: 6 chips\nYour chips: 97\nOpponent chips: 97\nRound 1 betting: Call, Raise, Call\nYour turn to act\n\nYou are Player 0.\nLegal Actions:\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think>\nOkay,",
+      "raw_model_output": "<think>\nOkay, let's see.",
       "parsed_action_id": null,
       "actual_action_id": 1,
       "legal_actions": [
@@ -134,8 +134,8 @@
     {
       "turn_index": 3,
       "user_prompt": "Current State:\nYour card: Q\u2660\nPublic card: K\u2665\nCurrent round: 2/2\nPot size: 10 chips\nYour chips: 97\nOpponent chips: 93\nRound 1 betting: Call, Raise, Call\nRound 2 betting: Call, Raise\nYour turn to act\n\nYou are Player 0.\nLegal Actions:\n0 -> Fold\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "Current State:\nYour",
-      "parsed_action_id": null,
+      "raw_model_output": "\n\n\n</think>\n\n2",
+      "parsed_action_id": 2,
       "actual_action_id": 2,
       "legal_actions": [
         0,
@@ -143,10 +143,10 @@
         2
       ],
       "num_legal_actions": 3,
-      "is_valid": false
+      "is_valid": true
     }
   ],
   "total_turns": 4,
-  "valid_turns": 0,
-  "invalid_turns": 4
+  "valid_turns": 1,
+  "invalid_turns": 3
 }

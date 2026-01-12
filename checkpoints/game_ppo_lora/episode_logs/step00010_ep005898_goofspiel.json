@@ -1,0 +1,25 @@
+{
+  "task_id": 97028534,
+  "seed": 86523536,
+  "game_name": "goofspiel",
+  "opponent": "random",
+  "llm_player_id": 0,
+  "num_players": 2,
+  "final_reward": 0.0,
+  "llm_return": -1.0,
+  "all_returns": [
+    -1.0,
+    1.0
+  ],
+  "conversation": [
+    {
+      "role": "system",
+      "content": "You are playing goofspiel.\n\n# Game Rules\nGOOFSPIEL RULES:\nSetup: Each player has bid cards numbered 1 to N. A prize deck with cards 1 to N is shuffled.\nGoal: Win the most points by bidding on prize cards.\n\nEach turn:\n1. Reveal top prize card (worth its face value in points)\n2. Players simultaneously play one bid card from their hand\n3. Highest bidder wins the prize card (adds its value to score)\n4. If bids tie, prize card is discarded (no one gets points)\n\nWinning: Player with most points after all rounds wins.\n\n\n# Output Format\nYou must respond with ONLY the action ID (a single number).\nDo NOT include descriptions or explanations.\n\nExamples:\n- For action \"0 -> roll\": respond \"0\"\n- For action \"89 -> a3\": respond \"89\""
+    }
+  ],
+  "action_history": [],
+  "llm_turns": [],
+  "total_turns": 0,
+  "valid_turns": 0,
+  "invalid_turns": 0
+}

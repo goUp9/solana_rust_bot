@@ -47,8 +47,8 @@
     {
       "turn_index": 0,
       "user_prompt": "Current State:\nYour dice: [1, 3, 4, 5, 6] (showing: 1, 3, 4, 5, 6)\nNumber of dice per player: 5\nTotal dice in game: 10\nNumber of players: 2\nCurrent player to act: Player 1\n\nCurrent bid: \"8-4\" (claiming at least 8 dice showing 4 across all players)\nYou can either: (1) Make a higher bid, or (2) Call 'Liar'\n\nYou are Player 1.\nLegal Actions:\n46 -> 8-5\n47 -> 8-6\n48 -> 9-1\n49 -> 9-2\n50 -> 9-3\n51 -> 9-4\n52 -> 9-5\n53 -> 9-6\n54 -> 10-1\n55 -> 10-2\n56 -> 10-3\n57 -> 10-4\n58 -> 10-5\n59 -> 10-6\n60 -> Liar\n\nYour choice (ID only):",
-      "raw_model_output": "0. Answers Answers",
-      "parsed_action_id": 0,
+      "raw_model_output": "5iiiations\n\n.x",
+      "parsed_action_id": 5,
       "actual_action_id": 50,
       "legal_actions": [
         46,

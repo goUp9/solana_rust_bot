@@ -1,6 +1,6 @@
 {
-  "task_id": 267086464,
-  "seed": 1209852921,
+  "task_id": 259793512,
+  "seed": 1889568955,
   "game_name": "leduc_poker",
   "opponent": "random",
   "llm_player_id": 1,
@@ -18,7 +18,7 @@
     },
     {
       "role": "user",
-      "content": "Current State:\nYour card: K\u2660\nCurrent round: 1/2\nPot size: 4 chips\nYour chips: 99\nOpponent chips: 97\nRound 1 betting: Raise\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n0 -> Fold\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):"
+      "content": "Current State:\nYour card: J\u2665\nCurrent round: 1/2\nPot size: 4 chips\nYour chips: 99\nOpponent chips: 97\nRound 1 betting: Raise\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n0 -> Fold\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):"
     },
     {
       "role": "assistant",
@@ -46,8 +46,8 @@
   "llm_turns": [
     {
       "turn_index": 0,
-      "user_prompt": "Current State:\nYour card: K\u2660\nCurrent round: 1/2\nPot size: 4 chips\nYour chips: 99\nOpponent chips: 97\nRound 1 betting: Raise\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n0 -> Fold\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think> Answersationsi",
+      "user_prompt": "Current State:\nYour card: J\u2665\nCurrent round: 1/2\nPot size: 4 chips\nYour chips: 99\nOpponent chips: 97\nRound 1 betting: Raise\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n0 -> Fold\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
+      "raw_model_output": "<think>\nOkay, let's see.",
       "parsed_action_id": null,
       "actual_action_id": 2,
       "legal_actions": [

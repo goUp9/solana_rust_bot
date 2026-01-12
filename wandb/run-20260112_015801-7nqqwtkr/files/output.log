@@ -1,0 +1,684 @@
+2026-01-12 01:58:02 | INFO | game_rl_training | Loading tokenizer: Qwen/Qwen3-4B
+2026-01-12 01:58:04 | INFO | game_rl_training | Loading base model: Qwen/Qwen3-4B
+`torch_dtype` is deprecated! Use `dtype` instead!
+2026-01-12 01:58:06 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards: 100%|██████████| 3/3 [00:07<00:00,  2.35s/it]
+2026-01-12 01:58:14 | INFO | game_rl_training | Applying LoRA configuration...
+2026-01-12 01:58:14 | WARNING | root | The `device_map` argument is not provided. We will override the device_map argument. to set the entire model on the current device. If you want to set the model on multiple devices, please provide a custom `device_map` argument.
+2026-01-12 01:58:14 | INFO | root | peft adapter initialised
+2026-01-12 01:58:14 | INFO | game_rl_training | Creating reference model...
+2026-01-12 01:58:15 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards: 100%|██████████| 3/3 [00:07<00:00,  2.34s/it]
+2026-01-12 01:58:23 | WARNING | root | A <class 'transformers.models.qwen3.modeling_qwen3.Qwen3ForCausalLM'> model is loaded from 'Qwen/Qwen3-4B', and no v_head weight is found. This IS expected if you are not resuming PPO training.
+2026-01-12 01:58:23 | INFO | game_rl_training | Initializing PPO trainer...
+wandb: wandb.init() called while a run is active and reinit is set to 'default', so returning the previous run.
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:262: UserWarning: No dataset is provided. Make sure to set config.batch_size to the correct value before training.
+  warnings.warn(
+2026-01-12 01:58:23 | INFO | game_rl_training | Using local OpenSpiel execution (in-process inference, no env server, no vLLM).
+2026-01-12 01:58:23 | INFO | game_rl_training | Initializing curriculum sampler...
+2026-01-12 01:58:23 | INFO | game_rl_training | Setup complete!
+2026-01-12 01:58:23 | INFO | game_rl_training | Running SFT warmup for 50 steps...
+2026-01-12 01:58:23 | WARNING | game_rl_training | SFT step 3 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:23 | WARNING | game_rl_training | SFT step 6 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:23 | WARNING | game_rl_training | SFT step 9 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+2026-01-12 01:58:24 | WARNING | game_rl_training | SFT step 11 failed: grad can be implicitly created only for scalar outputs
+2026-01-12 01:58:24 | WARNING | game_rl_training | SFT step 12 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:24 | WARNING | game_rl_training | SFT step 14 failed: grad can be implicitly created only for scalar outputs
+2026-01-12 01:58:24 | WARNING | game_rl_training | SFT step 18 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:24 | WARNING | game_rl_training | SFT step 20 failed: grad can be implicitly created only for scalar outputs
+2026-01-12 01:58:24 | WARNING | game_rl_training | SFT step 21 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:24 | WARNING | game_rl_training | SFT step 23 failed: grad can be implicitly created only for scalar outputs
+2026-01-12 01:58:24 | WARNING | game_rl_training | SFT step 24 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 26 failed: grad can be implicitly created only for scalar outputs
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 27 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 29 failed: grad can be implicitly created only for scalar outputs
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 30 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 35 failed: grad can be implicitly created only for scalar outputs
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 36 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 38 failed: grad can be implicitly created only for scalar outputs
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 39 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 42 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:25 | WARNING | game_rl_training | SFT step 45 failed: /project/open_spiel/games/goofspiel/goofspiel.cc:521 CHECK_TRUE(IsChanceNode())
+2026-01-12 01:58:25 | INFO | game_rl_training | SFT warmup complete. Avg loss: 0.0000
+2026-01-12 01:58:25 | INFO | game_rl_training | Starting PPO training...
+2026-01-12 01:58:25 | INFO | game_rl_training | Step 1/200: Collecting rollouts from 16 episodes...
+Caching is incompatible with gradient checkpointing in Qwen3DecoderLayer. Setting `past_key_values=None`.
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/torch/utils/checkpoint.py:85: UserWarning: None of the inputs have requires_grad=True. Gradients will be None
+  warnings.warn(
+2026-01-12 02:00:53 | INFO | game_rl_training | Collected 148 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:00:53 | INFO | game_rl_training | Training with 148 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -3.26 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -4.38 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -10.17 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -3.49 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -6.45 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -10.05 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -15.88 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -18.34 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -19.83 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -19.20 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -18.79 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -28.68 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -19.44 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -15.43 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -20.88 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -20.74 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -17.82 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -18.21 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -37.49 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -34.28 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -30.97 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -18.36 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -10.73 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -37.25 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -22.02 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -24.64 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -17.04 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -26.09 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -43.96 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -30.42 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -22.24 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -20.77 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -16.19 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:02:17 | INFO | game_rl_training | Step 1 | Reward: -0.4833 | Score: 0.4358 | Success: 40.54% | ValidRate: 0.42%
+2026-01-12 02:02:17 | INFO | game_rl_training | Step 2/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:03:27 | INFO | game_rl_training | Collected 69 valid samples from 160 episodes. Games with valid samples: {'liars_dice': 1, 'leduc_poker': 1}
+2026-01-12 02:03:27 | INFO | game_rl_training | Training with 69 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -21.82 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (10408.16) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -22.87 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -35.82 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -47.04 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -40.29 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -27.41 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -23.85 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -51.36 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -65.04 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -67.67 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -23.04 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -64.93 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -41.20 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -28.59 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -24.15 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -35.44 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -37.02 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:04:05 | INFO | game_rl_training | Step 2 | Reward: -0.4755 | Score: 0.5440 | Success: 55.07% | ValidRate: 0.52%
+2026-01-12 02:04:05 | INFO | game_rl_training | Step 3/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:06:14 | INFO | game_rl_training | Collected 126 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:06:14 | INFO | game_rl_training | Training with 126 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -60.23 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (12874.29) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -44.31 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -54.48 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -33.91 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -32.27 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -44.90 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -26.53 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -22.78 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -37.09 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -40.77 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -19.26 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -28.31 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -39.41 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -70.60 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -66.25 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -43.75 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -61.14 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -69.11 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -85.17 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -104.85 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -93.17 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -67.68 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -52.10 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -28.70 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -18.89 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -28.56 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -47.67 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -77.31 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -90.57 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -95.71 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -39.85 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:07:23 | INFO | game_rl_training | Step 3 | Reward: -0.4824 | Score: 0.6038 | Success: 59.52% | ValidRate: 0.52%
+2026-01-12 02:07:23 | INFO | game_rl_training | Step 4/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:08:02 | INFO | game_rl_training | Collected 38 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:08:02 | INFO | game_rl_training | Training with 38 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -118.50 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -13.52 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -94.33 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -119.64 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -104.67 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -80.32 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -113.51 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -101.68 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -89.25 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:08:22 | INFO | game_rl_training | Step 4 | Reward: -0.4615 | Score: 0.2895 | Success: 26.32% | ValidRate: 0.62%
+2026-01-12 02:08:22 | INFO | game_rl_training | Step 5/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:11:20 | INFO | game_rl_training | Collected 176 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:11:20 | INFO | game_rl_training | Training with 176 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -53.34 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -54.21 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -49.18 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -38.19 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -67.74 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -71.46 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -110.05 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -76.53 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -73.45 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -84.85 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -127.76 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -119.45 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -110.56 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -82.45 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -98.89 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -113.89 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -91.69 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -135.33 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -154.29 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -133.52 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -81.24 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -121.59 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -122.48 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (31.55) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -60.98 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -128.56 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -171.12 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -64.33 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -120.93 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -128.93 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -176.67 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -55.86 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -98.05 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -82.08 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -103.74 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (42.15) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -83.17 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -118.19 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -156.96 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -146.38 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -102.17 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -128.58 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -54.73 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -155.30 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -79.42 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -160.00 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:12:58 | INFO | game_rl_training | Step 5 | Reward: -0.4861 | Score: 0.5332 | Success: 52.27% | ValidRate: 0.94%
+2026-01-12 02:12:58 | INFO | game_rl_training | Step 6/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:14:55 | INFO | game_rl_training | Collected 116 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:14:55 | INFO | game_rl_training | Training with 116 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -126.41 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -84.38 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -81.60 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -150.13 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -89.96 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -81.90 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -100.46 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -159.09 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -89.86 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -131.17 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -74.48 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -140.04 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (39.57) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -183.38 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -68.08 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (15.29) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -150.69 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -168.31 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -117.01 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -107.33 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -131.48 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -102.21 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -116.13 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (2016.62) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -92.24 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -107.45 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (20.75) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -138.59 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (16.19) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -171.85 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -63.58 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -66.16 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -121.24 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -79.72 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:16:00 | INFO | game_rl_training | Step 6 | Reward: -0.4790 | Score: 0.4781 | Success: 50.00% | ValidRate: 0.83%
+2026-01-12 02:16:00 | INFO | game_rl_training | Step 7/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:16:39 | INFO | game_rl_training | Collected 39 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:16:39 | INFO | game_rl_training | Training with 39 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (304215.22) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -65.83 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -95.20 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -102.01 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -103.84 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -59.79 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -98.38 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -116.11 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -120.21 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -135.88 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:16:59 | INFO | game_rl_training | Step 7 | Reward: -0.4566 | Score: 0.6568 | Success: 69.23% | ValidRate: 0.52%
+2026-01-12 02:16:59 | INFO | game_rl_training | Step 8/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:18:44 | INFO | game_rl_training | Collected 105 valid samples from 160 episodes. Games with valid samples: {'liars_dice': 1, 'leduc_poker': 1}
+2026-01-12 02:18:44 | INFO | game_rl_training | Training with 105 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -118.67 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -105.98 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -99.49 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -92.22 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -93.10 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -140.90 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -142.55 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -156.09 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (29.12) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -98.77 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -132.59 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -82.41 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -174.25 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -95.83 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -136.06 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -142.76 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -139.41 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -99.67 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -136.59 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -180.93 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -124.25 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -161.16 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -134.49 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (22.52) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -100.87 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -101.41 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (34.64) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -130.33 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -79.32 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:19:42 | INFO | game_rl_training | Step 8 | Reward: -0.4868 | Score: 0.4418 | Success: 39.05% | ValidRate: 0.62%
+2026-01-12 02:19:42 | INFO | game_rl_training | Step 9/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:20:32 | INFO | game_rl_training | Collected 50 valid samples from 160 episodes. Games with valid samples: {'liars_dice': 1, 'leduc_poker': 1}
+2026-01-12 02:20:32 | INFO | game_rl_training | Training with 50 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -129.21 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (15.95) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -82.23 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (645.65) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -121.21 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (110.36) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -100.44 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -83.90 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -159.53 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -143.65 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -106.73 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -102.20 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -132.61 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -98.14 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -91.96 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:20:57 | INFO | game_rl_training | Step 9 | Reward: -0.4528 | Score: 0.4462 | Success: 40.00% | ValidRate: 0.52%
+2026-01-12 02:20:57 | INFO | game_rl_training | Step 10/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:23:07 | INFO | game_rl_training | Collected 128 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:23:07 | INFO | game_rl_training | Training with 128 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -116.99 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -114.66 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -162.88 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -84.45 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -94.01 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -77.78 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -108.00 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (110513.72) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -183.33 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -108.44 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -214.12 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -151.20 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -155.93 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -213.33 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -116.49 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -147.77 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -203.17 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -192.04 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -147.41 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -171.51 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -166.50 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -189.35 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -122.10 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (10.43) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -176.24 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -227.95 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -157.59 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (1965.17) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -176.90 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (134.11) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -172.46 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (44.66) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -139.53 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (21.40) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -143.17 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (145279.38) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -158.12 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -143.80 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -142.92 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:24:18 | INFO | game_rl_training | Step 10 | Reward: -0.4874 | Score: 0.4850 | Success: 49.22% | ValidRate: 0.33%
+2026-01-12 02:24:18 | INFO | game_rl_training | Step 11/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:24:42 | INFO | game_rl_training | Collected 23 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:24:42 | INFO | game_rl_training | Training with 23 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -183.47 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -88.64 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -207.86 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -160.29 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (42.78) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -185.26 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:24:53 | INFO | game_rl_training | Step 11 | Reward: -0.3930 | Score: 0.5870 | Success: 52.17% | ValidRate: 0.33%
+2026-01-12 02:24:53 | INFO | game_rl_training | Step 12/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:25:31 | INFO | game_rl_training | Collected 37 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:25:31 | INFO | game_rl_training | Training with 37 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -174.84 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -148.94 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -139.94 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -143.68 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -112.25 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -123.94 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -137.26 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -132.32 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -164.41 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:25:51 | INFO | game_rl_training | Step 12 | Reward: -0.4340 | Score: 0.6133 | Success: 62.16% | ValidRate: 0.42%
+2026-01-12 02:25:51 | INFO | game_rl_training | Step 13/200: Collecting rollouts from 16 episodes...
+2026-01-12 02:26:32 | INFO | game_rl_training | Collected 40 valid samples from 160 episodes. Games with valid samples: {'leduc_poker': 1, 'liars_dice': 1}
+2026-01-12 02:26:32 | INFO | game_rl_training | Training with 40 samples...
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -148.80 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -134.61 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -166.05 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -146.76 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -167.40 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -141.32 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -133.70 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1222: UserWarning: The average ratio of batch (14.36) exceeds threshold 10.00. Skipping batch.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -140.94 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -210.07 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+/root/workplace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:1289: UserWarning: KL divergence is starting to become negative: -197.63 - this might be a precursor for failed training. sometimes this happens because the generation kwargs are not correctly set. Please make sure that the generation kwargs are set correctly, or review your training hyperparameters.
+  warnings.warn(
+2026-01-12 02:26:54 | INFO | game_rl_training | Step 13 | Reward: -0.4471 | Score: 0.4615 | Success: 45.00% | ValidRate: 0.33%
+2026-01-12 02:26:54 | INFO | game_rl_training | Step 14/200: Collecting rollouts from 16 episodes...

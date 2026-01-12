@@ -80,7 +80,7 @@
     {
       "turn_index": 0,
       "user_prompt": "Current State:\nYour card: J\u2665\nCurrent round: 1/2\nPot size: 2 chips\nYour chips: 99\nOpponent chips: 99\nYour turn to act\n\nYou are Player 0.\nLegal Actions:\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think>\nOkay,",
+      "raw_model_output": "<think>\u5dde\u5e02\u53f7ations Answerssintansin",
       "parsed_action_id": null,
       "actual_action_id": 1,
       "legal_actions": [
@@ -93,7 +93,7 @@
     {
       "turn_index": 1,
       "user_prompt": "Current State:\nYour card: J\u2665\nCurrent round: 1/2\nPot size: 4 chips\nYour chips: 99\nOpponent chips: 97\nRound 1 betting: Call, Raise\nYour turn to act\n\nYou are Player 0.\nLegal Actions:\n0 -> Fold\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think>\nOkay,",
+      "raw_model_output": "<think> Answers answersiiiit",
       "parsed_action_id": null,
       "actual_action_id": 2,
       "legal_actions": [
@@ -107,7 +107,7 @@
     {
       "turn_index": 2,
       "user_prompt": "Current State:\nYour card: J\u2665\nPublic card: K\u2665\nCurrent round: 2/2\nPot size: 10 chips\nYour chips: 95\nOpponent chips: 95\nRound 1 betting: Call, Raise, Raise, Call\nYour turn to act\n\nYou are Player 0.\nLegal Actions:\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think>\nOkay,",
+      "raw_model_output": "\n\n\nxr\u6708.xr",
       "parsed_action_id": null,
       "actual_action_id": 1,
       "legal_actions": [

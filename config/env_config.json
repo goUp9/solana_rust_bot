@@ -1,10 +1,14 @@
 {
   "env_name": "game",
   "env_mode": "docker",
-  "max_seq_length": 1024,
+  "max_seq_length": 2048,
   "reward_shaping": true,
   "timeout": 7200,
   "execution": "local_openspiel",
-  "opponent": "mcts",
-  "gamma": 0.99
+  "opponent": "random",
+  "gamma": 0.99,
+  "use_vllm": false,
+  "vllm_base_url": "http://localhost:8000",
+  "max_concurrent_episodes": 8,
+  "allowed_game_indices": [0, 1, 2]
 }

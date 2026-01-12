@@ -1,15 +1,15 @@
 {
-  "task_id": 202776128,
-  "seed": 1172739505,
+  "task_id": 223111035,
+  "seed": 1213318319,
   "game_name": "leduc_poker",
   "opponent": "random",
   "llm_player_id": 1,
   "num_players": 2,
-  "final_reward": 0.5384615384615384,
-  "llm_return": 1.0,
+  "final_reward": 0.6153846153846154,
+  "llm_return": 3.0,
   "all_returns": [
-    -1.0,
-    1.0
+    -3.0,
+    3.0
   ],
   "conversation": [
     {
@@ -18,7 +18,7 @@
     },
     {
       "role": "user",
-      "content": "Current State:\nYour card: J\u2665\nCurrent round: 1/2\nPot size: 2 chips\nYour chips: 99\nOpponent chips: 99\nRound 1 betting: Call\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):"
+      "content": "Current State:\nYour card: J\u2665\nCurrent round: 1/2\nPot size: 4 chips\nYour chips: 99\nOpponent chips: 97\nRound 1 betting: Raise\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n0 -> Fold\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):"
     },
     {
       "role": "assistant",
@@ -28,7 +28,7 @@
   "action_history": [
     {
       "player_id": 0,
-      "action": 1,
+      "action": 2,
       "is_llm": false
     },
     {
@@ -46,15 +46,16 @@
   "llm_turns": [
     {
       "turn_index": 0,
-      "user_prompt": "Current State:\nYour card: J\u2665\nCurrent round: 1/2\nPot size: 2 chips\nYour chips: 99\nOpponent chips: 99\nRound 1 betting: Call\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
-      "raw_model_output": "<think>ationsationsations",
+      "user_prompt": "Current State:\nYour card: J\u2665\nCurrent round: 1/2\nPot size: 4 chips\nYour chips: 99\nOpponent chips: 97\nRound 1 betting: Raise\nYour turn to act\n\nYou are Player 1.\nLegal Actions:\n0 -> Fold\n1 -> Call\n2 -> Raise\n\nYour choice (ID only):",
+      "raw_model_output": "<think>\nOkay, let's see.",
       "parsed_action_id": null,
       "actual_action_id": 2,
       "legal_actions": [
+        0,
         1,
         2
       ],
-      "num_legal_actions": 2,
+      "num_legal_actions": 3,
       "is_valid": false
     }
   ],
