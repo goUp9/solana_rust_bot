@@ -1,6 +1,0 @@
-{"time":"2026-01-10T00:10:20.113368374Z","level":"INFO","msg":"stream: starting","core version":"0.23.1"}
-{"time":"2026-01-10T00:10:20.407857072Z","level":"INFO","msg":"stream: created new stream","id":"tuisik18"}
-{"time":"2026-01-10T00:10:20.408060262Z","level":"INFO","msg":"handler: started","stream_id":"tuisik18"}
-{"time":"2026-01-10T00:10:20.408297292Z","level":"INFO","msg":"stream: started","id":"tuisik18"}
-{"time":"2026-01-10T00:10:20.408375432Z","level":"INFO","msg":"writer: started","stream_id":"tuisik18"}
-{"time":"2026-01-10T00:10:20.408385252Z","level":"INFO","msg":"sender: started","stream_id":"tuisik18"}

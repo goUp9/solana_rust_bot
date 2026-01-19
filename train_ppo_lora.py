@@ -46,6 +46,7 @@ from game_rl_training.local_openspiel import (
     run_local_openspiel_episode, 
     run_vllm_openspiel_episode,
     run_parallel_episodes,
+    run_parallel_episodes_cpu,
     EpisodeData,
 )
 
@@ -59,7 +60,7 @@ def _load_json_if_exists(path: Path) -> Dict:
 @dataclass
 class ModelConfig:
     """Model configuration"""
-    model_name: str = "Qwen/Qwen2.5-3B-Instruct"  # Using Qwen2.5-3B as Qwen3-4B might not be released
+    model_name: str = "Qwen/Qwen3-4B-Instruct"  # Using Qwen2.5-3B as Qwen3-4B might not be released
     use_4bit: bool = True
     bnb_4bit_compute_dtype: str = "bfloat16"
     bnb_4bit_quant_type: str = "nf4"
@@ -255,6 +256,10 @@ class GamePPOTrainer:
             use_score_scaling=True,
             use_score_norm=True,
             score_clip=10.0,
+            # Use "abs" KL penalty to avoid negative KL issues
+            kl_penalty="abs",
+            # Whiten rewards for more stable training
+            whiten_rewards=True,
         )
         
         # Initialize PPO trainer
@@ -297,14 +302,17 @@ class GamePPOTrainer:
         fast_game_indices = [0, 1, 2, 6, 7]  # goofspiel, liars_dice, leduc_poker, hex, clobber
         allowed_game_indices = self.env_config.get("allowed_game_indices", fast_game_indices)
         max_task_id = (max(allowed_game_indices) + 1) * 100_000_000 - 1
+        # Get opponent from env_config, default to "mcts"
+        default_opponent = str(self.env_config.get("opponent", "mcts"))
         self.curriculum_sampler = CurriculumSampler(
             env_name=self.env_name,
             failure_buffer_size=1000,
             curriculum_stages=[
                 # Stage ranges kept for readability; actual sampling is constrained by allowed_game_indices.
-                {"name": "easy", "task_range": (0, max_task_id), "opponent": "random"},
-                {"name": "medium", "task_range": (0, max_task_id), "opponent": "random"},
-                {"name": "hard", "task_range": (0, max_task_id), "opponent": "mcts"},
+                # Opponent is now configurable via env_config.json
+                {"name": "easy", "task_range": (0, max_task_id), "opponent": default_opponent},
+                {"name": "medium", "task_range": (0, max_task_id), "opponent": default_opponent},
+                {"name": "hard", "task_range": (0, max_task_id), "opponent": default_opponent},
             ]
             ,allowed_game_indices=allowed_game_indices
         )
@@ -478,6 +486,11 @@ class GamePPOTrainer:
         if use_vllm and self._execution == "local_openspiel":
             return await self._collect_rollouts_vllm(batch_size, step, vllm_base_url, max_concurrent)
         
+        # Check if we should use parallel CPU workers for episode collection
+        num_workers = int(self.env_config.get("num_episode_workers", 1))
+        if num_workers > 1 and self._execution == "local_openspiel":
+            return await self._collect_rollouts_parallel(batch_size, step, num_workers)
+        
         # Track which games have valid samples
         games_with_valid_samples: Dict[str, int] = {}
         
@@ -517,6 +530,15 @@ class GamePPOTrainer:
                 opponent = opponent or str(self.env_config.get("opponent", "mcts"))
                 seed = getattr(task_config, "seed", None) if not isinstance(task_config, dict) else task_config.get("seed")
                 seed = int(seed) if seed is not None else int(torch.randint(0, 2**31 - 1, (1,)).item())
+                
+                # Get MCTS config (higher = stronger opponent, slower training)
+                mcts_simulations = int(self.env_config.get("mcts_simulations", 100))
+                mcts_rollouts = self.env_config.get("mcts_rollouts", None)
+                if mcts_rollouts is not None:
+                    mcts_rollouts = int(mcts_rollouts)
+                mcts_workers = self.env_config.get("mcts_workers", None)
+                if mcts_workers is not None:
+                    mcts_workers = int(mcts_workers)
 
                 turn_samples, episode_info, episode_data = run_local_openspiel_episode(
                     model=self.model.pretrained_model if hasattr(self.model, "pretrained_model") else self.model,
@@ -532,6 +554,9 @@ class GamePPOTrainer:
                     device=str(self.device),
                     include_invalid=bool(self.ppo_config.include_invalid_samples),
                     invalid_penalty=float(self.ppo_config.invalid_penalty),
+                    mcts_simulations=mcts_simulations,
+                    mcts_rollouts=mcts_rollouts,
+                    mcts_workers=mcts_workers,
                 )
 
                 # Save episode data for logging
@@ -551,19 +576,30 @@ class GamePPOTrainer:
 
                 # Add each LLM decision turn as a PPO sample
                 for ts in turn_samples:
-                    q = self.tokenizer.encode(
-                        ts.prompt_text,
-                        return_tensors="pt",
-                        max_length=max(32, self.ppo_config.max_seq_length - self.ppo_config.max_new_tokens),
-                        truncation=True,
-                    ).to(self.device)
+                    # Use pre-computed token IDs if available (avoids re-encoding issues)
+                    if ts.query_ids is not None and ts.response_ids is not None:
+                        q = torch.tensor(ts.query_ids, dtype=torch.long, device=self.device)
+                        r = torch.tensor(ts.response_ids, dtype=torch.long, device=self.device)
+                    else:
+                        # Fallback: re-encode (may cause KL divergence issues)
+                        q = self.tokenizer.encode(
+                            ts.prompt_text,
+                            return_tensors="pt",
+                            max_length=max(32, self.ppo_config.max_seq_length - self.ppo_config.max_new_tokens),
+                            truncation=True,
+                            add_special_tokens=False,  # Don't add special tokens
+                        ).to(self.device).squeeze(0)
 
-                    # Encode response tokens (tiny)
-                    r = self.tokenizer.encode(ts.response_text, return_tensors="pt", truncation=True).to(self.device)
+                        r = self.tokenizer.encode(
+                            ts.response_text, 
+                            return_tensors="pt", 
+                            truncation=True,
+                            add_special_tokens=False,  # Don't add special tokens
+                        ).to(self.device).squeeze(0)
 
-                    # PPO trainer expects 1D tensors (squeeze batch dimension)
-                    rollouts["queries"].append(q.squeeze(0))
-                    rollouts["responses"].append(r.squeeze(0))
+                    # PPO trainer expects 1D tensors
+                    rollouts["queries"].append(q)
+                    rollouts["responses"].append(r)
                     rollouts["rewards"].append(torch.tensor(ts.reward))
                     rollouts["task_ids"].append(task_id)
                     rollouts["metadata"].append(
@@ -737,6 +773,138 @@ class GamePPOTrainer:
         rollouts["episode_data_list"] = episode_data_list
         return rollouts
     
+    async def _collect_rollouts_parallel(self, batch_size: int, step: int, num_workers: int) -> Dict:
+        """Collect rollouts using parallel workers for faster MCTS episode collection.
+        
+        Uses ThreadPoolExecutor to run multiple episodes concurrently.
+        MCTS C++ code releases the GIL, allowing true parallelism for opponent moves.
+        """
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        
+        rollouts = {
+            "queries": [],
+            "responses": [],
+            "rewards": [],
+            "task_ids": [],
+            "metadata": [],
+        }
+        episode_data_list: List[EpisodeData] = []
+        games_with_valid_samples: Dict[str, int] = {}
+        
+        # Get config
+        opponent = str(self.env_config.get("opponent", "mcts"))
+        mcts_simulations = int(self.env_config.get("mcts_simulations", 100))
+        mcts_rollouts = self.env_config.get("mcts_rollouts", None)
+        if mcts_rollouts is not None:
+            mcts_rollouts = int(mcts_rollouts)
+        mcts_workers = self.env_config.get("mcts_workers", None)
+        if mcts_workers is not None:
+            mcts_workers = int(mcts_workers)
+        
+        def run_single_episode(task_config):
+            """Run a single episode - model inference runs without lock for parallelism."""
+            task_id = task_config.task_id if hasattr(task_config, "task_id") else task_config["task_id"]
+            seed = task_config.seed if hasattr(task_config, "seed") else int(torch.randint(0, 2**31 - 1, (1,)).item())
+            ep_opponent = getattr(task_config, "opponent", None) or opponent
+            
+            # Run episode - PyTorch model.generate() is thread-safe for inference
+            turn_samples, episode_info, episode_data = run_local_openspiel_episode(
+                    model=self.model.pretrained_model if hasattr(self.model, "pretrained_model") else self.model,
+                    tokenizer=self.tokenizer,
+                    task_id=int(task_id),
+                    seed=seed,
+                    opponent=ep_opponent,
+                    temperature=float(self.ppo_config.temperature),
+                    top_p=float(self.ppo_config.top_p),
+                    max_new_tokens=int(self.ppo_config.max_new_tokens),
+                    max_seq_length=int(self.ppo_config.max_seq_length),
+                    gamma=float(self.env_config.get("gamma", 0.99)),
+                    device=str(self.device),
+                    include_invalid=bool(self.ppo_config.include_invalid_samples),
+                    invalid_penalty=float(self.ppo_config.invalid_penalty),
+                    mcts_simulations=mcts_simulations,
+                    mcts_rollouts=mcts_rollouts,
+                    mcts_workers=mcts_workers,
+                )
+            
+            return task_id, task_config, turn_samples, episode_info, episode_data
+        
+        # Generate task configs
+        num_episodes_to_collect = max(batch_size * 3, 16)  # Collect more to ensure enough valid samples
+        task_configs = []
+        for _ in range(num_episodes_to_collect):
+            task_config = self.curriculum_sampler.sample_task()
+            task_configs.append(task_config)
+        
+        # Run episodes in parallel
+        self.logger.info(f"Running {num_episodes_to_collect} episodes with {num_workers} workers...")
+        
+        with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            futures = {executor.submit(run_single_episode, cfg): cfg for cfg in task_configs}
+            
+            for future in as_completed(futures):
+                try:
+                    task_id, task_config, turn_samples, episode_info, episode_data = future.result()
+                    
+                    # Save episode data
+                    episode_data_list.append(episode_data)
+                    self._save_episode_data(episode_data, step)
+                    
+                    # Update curriculum
+                    score = float(episode_info.get("final_reward", 0.0))
+                    success = bool(score > 0.5)
+                    game_name = episode_info.get("game_name", "unknown")
+                    self.curriculum_sampler.update(task_id=task_id, score=score, success=success)
+                    
+                    # Track valid samples
+                    valid_turns = episode_info.get("valid_turns", 0)
+                    if valid_turns > 0:
+                        games_with_valid_samples[game_name] = games_with_valid_samples.get(game_name, 0) + valid_turns
+                    
+                    # Add turn samples to rollouts
+                    for ts in turn_samples:
+                        if ts.query_ids is not None and ts.response_ids is not None:
+                            q = torch.tensor(ts.query_ids, dtype=torch.long, device=self.device)
+                            r = torch.tensor(ts.response_ids, dtype=torch.long, device=self.device)
+                        else:
+                            q = self.tokenizer.encode(
+                                ts.prompt_text,
+                                return_tensors="pt",
+                                max_length=max(32, self.ppo_config.max_seq_length - self.ppo_config.max_new_tokens),
+                                truncation=True,
+                                add_special_tokens=False,
+                            ).to(self.device).squeeze(0)
+                            r = self.tokenizer.encode(
+                                ts.response_text,
+                                return_tensors="pt",
+                                truncation=True,
+                                add_special_tokens=False,
+                            ).to(self.device).squeeze(0)
+                        
+                        rollouts["queries"].append(q)
+                        rollouts["responses"].append(r)
+                        rollouts["rewards"].append(torch.tensor(ts.reward))
+                        rollouts["task_ids"].append(task_id)
+                        rollouts["metadata"].append({
+                            "score": score,
+                            "success": success,
+                            "task_config": task_config,
+                            "episode": {k: episode_info.get(k) for k in ("game_name", "num_turns", "final_reward", "opponent", "valid_turns", "invalid_turns")},
+                        })
+                    
+                    # Check if we have enough samples
+                    if len(rollouts["queries"]) >= batch_size:
+                        break
+                        
+                except Exception as e:
+                    self.logger.warning(f"Episode failed: {e}")
+        
+        self.logger.info(f"Parallel collection complete: {len(rollouts['queries'])} samples from {len(episode_data_list)} episodes. "
+                        f"Games: {games_with_valid_samples}")
+        
+        rollouts["episode_data_list"] = episode_data_list
+        return rollouts
+    
     def train_step(self, rollouts: Dict) -> Dict:
         """Single PPO training step"""
         # Prepare data for PPO
@@ -814,14 +982,9 @@ class GamePPOTrainer:
         optimizer = AdamW(trainable_params, lr=self.ppo_config.learning_rate * 5)  # Higher LR for SFT
         
         # Import game components
-        pyspiel, _, _, create_game, GAME_AGENTS = None, None, None, None, None
         try:
-            import sys
-            affinetes_path = "/root/workplace/affinetes/environments/openspiel"
-            if affinetes_path not in sys.path:
-                sys.path.insert(0, affinetes_path)
-            from game_config import create_game, AVAILABLE_GAMES
-            from agents import GAME_AGENTS
+            from game_rl_training.game_config import create_game, AVAILABLE_GAMES
+            from game_rl_training.agents import GAME_AGENTS
         except ImportError as e:
             self.logger.warning(f"Could not import game components for SFT: {e}")
             return
@@ -904,14 +1067,20 @@ class GamePPOTrainer:
                 labels = inputs["input_ids"].clone()
                 labels[0, :prompt_len] = -100  # Mask prompt tokens
                 
-                # Forward pass
-                outputs = self.model(
+                # Forward pass - use the pretrained_model (base LM) for SFT
+                # AutoModelForCausalLMWithValueHead wraps the base model
+                base_model = self.model.pretrained_model if hasattr(self.model, "pretrained_model") else self.model
+                outputs = base_model(
                     input_ids=inputs["input_ids"],
                     attention_mask=inputs["attention_mask"],
                     labels=labels,
                 )
                 
                 loss = outputs.loss if hasattr(outputs, 'loss') else outputs[0]
+                
+                # Ensure loss is a scalar
+                if loss.dim() > 0:
+                    loss = loss.mean()
                 
                 # Backward pass
                 optimizer.zero_grad()
@@ -1031,53 +1200,102 @@ class GamePPOTrainer:
         """Evaluate current policy"""
         eval_results = []
         
-        self.model.eval()
-        with torch.no_grad():
+        # Check if using local OpenSpiel execution (no env_wrapper)
+        if self._execution == "local_openspiel":
+            # Use local OpenSpiel for evaluation
+            self.model.eval()
             for _ in range(num_episodes):
-                # Sample random task
                 task_config = self.curriculum_sampler.sample_task(eval_mode=True)
                 task_id = task_config.task_id if hasattr(task_config, "task_id") else task_config["task_id"]
+                seed = task_config.seed if hasattr(task_config, "seed") else task_config.get("seed", 42)
+                opponent = task_config.opponent if hasattr(task_config, "opponent") else task_config.get("opponent", "random")
                 
-                # Reset environment
-                state_dict = await self.env_wrapper.reset(task_id=task_id)
-                
-                # Generate response
-                query_tensors = self.tokenizer.encode(
-                    state_dict["prompt"],
-                    return_tensors="pt",
-                    max_length=self.ppo_config.max_seq_length // 2,
-                    truncation=True,
-                ).to(self.device)
-                
-                response_tensors = self.ppo_trainer.generate(
-                    query_tensors,
-                    max_new_tokens=self.ppo_config.max_new_tokens,
-                    temperature=0.0,  # Greedy for evaluation
-                    do_sample=False,
-                    pad_token_id=self.tokenizer.pad_token_id,
-                    eos_token_id=self.tokenizer.eos_token_id,
-                )
-                
-                response_text = self.tokenizer.decode(
-                    response_tensors[0][len(query_tensors[0]):],
-                    skip_special_tokens=True
-                )
-                import re
-                m = re.search(r"\d+", response_text)
-                response_text = m.group(0) if m else "INVALID"
-                
-                # Evaluate
-                result = await self.env_wrapper.step(
-                    action=response_text,
-                    task_id=task_id,
-                    task_config=task_config
-                )
-                
-                eval_results.append(result)
-        
-        self.model.train()
+                try:
+                    mcts_simulations = int(self.env_config.get("mcts_simulations", 100))
+                    mcts_rollouts = self.env_config.get("mcts_rollouts", None)
+                    if mcts_rollouts is not None:
+                        mcts_rollouts = int(mcts_rollouts)
+                    mcts_workers = self.env_config.get("mcts_workers", None)
+                    if mcts_workers is not None:
+                        mcts_workers = int(mcts_workers)
+                    turn_samples, episode_info, _ = run_local_openspiel_episode(
+                        model=self.model,
+                        tokenizer=self.tokenizer,
+                        task_id=task_id,
+                        seed=seed,
+                        opponent=opponent,
+                        temperature=0.1,  # Low temperature for more deterministic eval
+                        top_p=0.95,
+                        max_new_tokens=self.ppo_config.max_new_tokens,
+                        max_seq_length=self.ppo_config.max_seq_length,
+                        gamma=self.env_config.get("gamma", 0.99),
+                        device=self.device,
+                        mcts_simulations=mcts_simulations,
+                        mcts_rollouts=mcts_rollouts,
+                        mcts_workers=mcts_workers,
+                    )
+                    eval_results.append({
+                        "score": episode_info.get("final_reward", 0.0),
+                        "reward": episode_info.get("final_reward", 0.0),
+                        "success": episode_info.get("final_reward", 0.0) > 0.5,
+                    })
+                except Exception as e:
+                    self.logger.warning(f"Eval episode failed: {e}")
+                    eval_results.append({"score": 0.0, "reward": 0.0, "success": False})
+            
+            self.model.train()
+        else:
+            # Use env_wrapper for evaluation
+            self.model.eval()
+            with torch.no_grad():
+                for _ in range(num_episodes):
+                    # Sample random task
+                    task_config = self.curriculum_sampler.sample_task(eval_mode=True)
+                    task_id = task_config.task_id if hasattr(task_config, "task_id") else task_config["task_id"]
+                    
+                    # Reset environment
+                    state_dict = await self.env_wrapper.reset(task_id=task_id)
+                    
+                    # Generate response
+                    query_tensors = self.tokenizer.encode(
+                        state_dict["prompt"],
+                        return_tensors="pt",
+                        max_length=self.ppo_config.max_seq_length // 2,
+                        truncation=True,
+                    ).to(self.device)
+                    
+                    response_tensors = self.ppo_trainer.generate(
+                        query_tensors,
+                        max_new_tokens=self.ppo_config.max_new_tokens,
+                        temperature=0.0,  # Greedy for evaluation
+                        do_sample=False,
+                        pad_token_id=self.tokenizer.pad_token_id,
+                        eos_token_id=self.tokenizer.eos_token_id,
+                    )
+                    
+                    response_text = self.tokenizer.decode(
+                        response_tensors[0][len(query_tensors[0]):],
+                        skip_special_tokens=True
+                    )
+                    import re
+                    m = re.search(r"\d+", response_text)
+                    response_text = m.group(0) if m else "INVALID"
+                    
+                    # Evaluate
+                    result = await self.env_wrapper.step(
+                        action=response_text,
+                        task_id=task_id,
+                        task_config=task_config
+                    )
+                    
+                    eval_results.append(result)
+            
+            self.model.train()
         
         # Aggregate stats
+        if not eval_results:
+            return {"mean_score": 0.0, "mean_reward": 0.0, "success_rate": 0.0}
+        
         stats = {
             "mean_score": sum(r["score"] for r in eval_results) / len(eval_results),
             "mean_reward": sum(r["reward"] for r in eval_results) / len(eval_results),

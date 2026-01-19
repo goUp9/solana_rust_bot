@@ -1,0 +1,153 @@
+2026-01-19 08:54:33 | INFO | game_rl_training | Setting up PPO+LoRA training...
+wandb: [wandb.login()] Loaded credentials for https://api.wandb.ai from /root/.netrc.
+wandb: Currently logged in as: tech-whiz0314 (tech-whiz0314-beta) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
+wandb: setting up run tn844cjd
+wandb: Tracking run with wandb version 0.24.0
+wandb: Run data is saved locally in /root/workspace/game_rl_training/wandb/run-20260119_085434-tn844cjd
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run toasty-valley-74
+wandb: ⭐️ View project at https://wandb.ai/tech-whiz0314-beta/game-rl-training
+wandb: 🚀 View run at https://wandb.ai/tech-whiz0314-beta/game-rl-training/runs/tn844cjd
+2026-01-19 08:54:35 | INFO | game_rl_training | Loading tokenizer: Qwen/Qwen3-4B-Instruct-2507
+2026-01-19 08:54:36 | INFO | game_rl_training | Loading base model: Qwen/Qwen3-4B-Instruct-2507
+`torch_dtype` is deprecated! Use `dtype` instead!
+2026-01-19 08:54:38 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:02<00:04,  2.03s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:04<00:02,  2.25s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:04<00:00,  1.51s/it]
+2026-01-19 08:54:43 | INFO | game_rl_training | Applying LoRA configuration...
+2026-01-19 08:54:43 | WARNING | root | The `device_map` argument is not provided. We will override the device_map argument. to set the entire model on the current device. If you want to set the model on multiple devices, please provide a custom `device_map` argument.
+2026-01-19 08:54:44 | INFO | root | peft adapter initialised
+2026-01-19 08:54:44 | INFO | game_rl_training | Creating reference model...
+2026-01-19 08:54:45 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:02<00:04,  2.10s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:04<00:02,  2.30s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:04<00:00,  1.54s/it]
+2026-01-19 08:54:50 | WARNING | root | A <class 'transformers.models.qwen3.modeling_qwen3.Qwen3ForCausalLM'> model is loaded from 'Qwen/Qwen3-4B-Instruct-2507', and no v_head weight is found. This IS expected if you are not resuming PPO training.
+2026-01-19 08:54:50 | INFO | game_rl_training | Initializing PPO trainer...
+wandb: wandb.init() called while a run is active and reinit is set to 'default', so returning the previous run.
+/root/workspace/game_rl_training/venv/lib/python3.12/site-packages/trl/trainer/ppo_trainer.py:262: UserWarning: No dataset is provided. Make sure to set config.batch_size to the correct value before training.
+  warnings.warn(
+2026-01-19 08:54:51 | INFO | game_rl_training | Using local OpenSpiel execution (in-process inference, no env server, no vLLM).
+2026-01-19 08:54:51 | INFO | game_rl_training | Initializing curriculum sampler...
+2026-01-19 08:54:51 | INFO | game_rl_training | Setup complete!
+2026-01-19 08:54:51 | INFO | game_rl_training | Running SFT warmup for 100 steps...
+`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+/root/workspace/game_rl_training/venv/lib/python3.12/site-packages/torch/_dynamo/eval_frame.py:1044: UserWarning: torch.utils.checkpoint: the use_reentrant parameter should be passed explicitly. Starting in PyTorch 2.9, calling checkpoint without use_reentrant will raise an exception. use_reentrant=False is recommended, but if you need to preserve the current default behavior, you can pass use_reentrant=True. Refer to docs for more details on the differences between the two variants.
+  return fn(*args, **kwargs)
+2026-01-19 08:54:51 | WARNING | game_rl_training | SFT step 1 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:51 | WARNING | game_rl_training | SFT step 3 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:52 | WARNING | game_rl_training | SFT step 4 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:52 | WARNING | game_rl_training | SFT step 5 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:52 | WARNING | game_rl_training | SFT step 6 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:52 | WARNING | game_rl_training | SFT step 7 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:52 | WARNING | game_rl_training | SFT step 8 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:52 | WARNING | game_rl_training | SFT step 9 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:53 | WARNING | game_rl_training | SFT step 10 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:53 | WARNING | game_rl_training | SFT step 11 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:53 | WARNING | game_rl_training | SFT step 12 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:53 | WARNING | game_rl_training | SFT step 13 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:53 | WARNING | game_rl_training | SFT step 16 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:53 | WARNING | game_rl_training | SFT step 17 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:54 | WARNING | game_rl_training | SFT step 18 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:54 | WARNING | game_rl_training | SFT step 19 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:54 | WARNING | game_rl_training | SFT step 21 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:54 | WARNING | game_rl_training | SFT step 22 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:54 | WARNING | game_rl_training | SFT step 24 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:54 | WARNING | game_rl_training | SFT step 26 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:55 | WARNING | game_rl_training | SFT step 27 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:55 | WARNING | game_rl_training | SFT step 28 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:55 | WARNING | game_rl_training | SFT step 29 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:55 | WARNING | game_rl_training | SFT step 30 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:55 | WARNING | game_rl_training | SFT step 31 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:56 | WARNING | game_rl_training | SFT step 34 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:56 | WARNING | game_rl_training | SFT step 35 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:56 | WARNING | game_rl_training | SFT step 36 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:56 | WARNING | game_rl_training | SFT step 38 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:56 | WARNING | game_rl_training | SFT step 39 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:56 | WARNING | game_rl_training | SFT step 40 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:57 | WARNING | game_rl_training | SFT step 42 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:57 | WARNING | game_rl_training | SFT step 45 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:57 | WARNING | game_rl_training | SFT step 46 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:57 | WARNING | game_rl_training | SFT step 47 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:57 | WARNING | game_rl_training | SFT step 49 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:57 | WARNING | game_rl_training | SFT step 51 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:58 | WARNING | game_rl_training | SFT step 52 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:58 | WARNING | game_rl_training | SFT step 53 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:58 | WARNING | game_rl_training | SFT step 54 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:58 | WARNING | game_rl_training | SFT step 55 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:58 | WARNING | game_rl_training | SFT step 56 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:58 | WARNING | game_rl_training | SFT step 57 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:59 | WARNING | game_rl_training | SFT step 58 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:59 | WARNING | game_rl_training | SFT step 59 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:59 | WARNING | game_rl_training | SFT step 60 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:59 | WARNING | game_rl_training | SFT step 61 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:59 | WARNING | game_rl_training | SFT step 62 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:54:59 | WARNING | game_rl_training | SFT step 65 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:00 | WARNING | game_rl_training | SFT step 67 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:00 | WARNING | game_rl_training | SFT step 68 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:00 | WARNING | game_rl_training | SFT step 69 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:00 | WARNING | game_rl_training | SFT step 70 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:00 | WARNING | game_rl_training | SFT step 71 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:00 | WARNING | game_rl_training | SFT step 73 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:01 | WARNING | game_rl_training | SFT step 74 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:01 | WARNING | game_rl_training | SFT step 76 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:01 | WARNING | game_rl_training | SFT step 77 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:01 | WARNING | game_rl_training | SFT step 78 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:01 | WARNING | game_rl_training | SFT step 79 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:01 | WARNING | game_rl_training | SFT step 80 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:02 | WARNING | game_rl_training | SFT step 82 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:02 | WARNING | game_rl_training | SFT step 83 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:02 | WARNING | game_rl_training | SFT step 84 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:02 | WARNING | game_rl_training | SFT step 85 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:02 | WARNING | game_rl_training | SFT step 87 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:02 | WARNING | game_rl_training | SFT step 91 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:03 | WARNING | game_rl_training | SFT step 92 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:03 | WARNING | game_rl_training | SFT step 93 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:03 | WARNING | game_rl_training | SFT step 94 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:03 | WARNING | game_rl_training | SFT step 95 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:03 | WARNING | game_rl_training | SFT step 97 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:03 | WARNING | game_rl_training | SFT step 98 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:04 | WARNING | game_rl_training | SFT step 99 failed: grad can be implicitly created only for scalar outputs
+2026-01-19 08:55:04 | INFO | game_rl_training | SFT warmup complete. Avg loss: 0.0000
+2026-01-19 08:55:04 | INFO | game_rl_training | Starting PPO training...
+2026-01-19 08:55:04 | INFO | game_rl_training | Step 1/1000: Collecting rollouts from 16 episodes...
+Caching is incompatible with gradient checkpointing in Qwen3DecoderLayer. Setting `past_key_values=None`.
+/root/workspace/game_rl_training/venv/lib/python3.12/site-packages/torch/utils/checkpoint.py:85: UserWarning: None of the inputs have requires_grad=True. Gradients will be None
+  warnings.warn(
+2026-01-19 08:55:34 | INFO | game_rl_training | Collected 16 valid samples from 24 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 08:55:34 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 08:55:41 | INFO | game_rl_training | Step 1 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 58.70%
+2026-01-19 08:55:41 | INFO | game_rl_training | Step 2/1000: Collecting rollouts from 16 episodes...
+2026-01-19 08:56:12 | INFO | game_rl_training | Collected 16 valid samples from 26 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 08:56:12 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 08:56:18 | INFO | game_rl_training | Step 2 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 54.00%
+2026-01-19 08:56:18 | INFO | game_rl_training | Step 3/1000: Collecting rollouts from 16 episodes...
+2026-01-19 08:56:41 | INFO | game_rl_training | Collected 16 valid samples from 17 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 08:56:41 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 08:56:46 | INFO | game_rl_training | Step 3 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 75.00%
+2026-01-19 08:56:46 | INFO | game_rl_training | Step 4/1000: Collecting rollouts from 16 episodes...
+2026-01-19 08:57:12 | INFO | game_rl_training | Collected 16 valid samples from 19 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 08:57:12 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 08:57:17 | INFO | game_rl_training | Step 4 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 62.04%
+2026-01-19 08:57:17 | INFO | game_rl_training | Step 5/1000: Collecting rollouts from 16 episodes...
+2026-01-19 08:57:52 | INFO | game_rl_training | Collected 16 valid samples from 28 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 08:57:52 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 08:57:57 | INFO | game_rl_training | Step 5 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 44.44%
+2026-01-19 08:57:57 | INFO | game_rl_training | Step 6/1000: Collecting rollouts from 16 episodes...
+2026-01-19 08:58:23 | INFO | game_rl_training | Collected 16 valid samples from 18 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 08:58:23 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 08:58:28 | INFO | game_rl_training | Step 6 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 70.59%
+2026-01-19 08:58:28 | INFO | game_rl_training | Step 7/1000: Collecting rollouts from 16 episodes...
+2026-01-19 08:58:56 | INFO | game_rl_training | Collected 16 valid samples from 22 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 08:58:56 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 08:59:02 | INFO | game_rl_training | Step 7 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 57.14%
+2026-01-19 08:59:02 | INFO | game_rl_training | Step 8/1000: Collecting rollouts from 16 episodes...
+2026-01-19 08:59:28 | INFO | game_rl_training | Collected 16 valid samples from 17 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 08:59:28 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 08:59:34 | INFO | game_rl_training | Step 8 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 65.62%
+2026-01-19 08:59:34 | INFO | game_rl_training | Step 9/1000: Collecting rollouts from 16 episodes...
+2026-01-19 09:00:06 | INFO | game_rl_training | Collected 16 valid samples from 27 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 09:00:06 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 09:00:11 | INFO | game_rl_training | Step 9 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 48.08%
+2026-01-19 09:00:11 | INFO | game_rl_training | Step 10/1000: Collecting rollouts from 16 episodes...
+2026-01-19 09:00:52 | INFO | game_rl_training | Collected 16 valid samples from 32 episodes. Games with valid samples: {'liars_dice': 16}
+2026-01-19 09:00:52 | INFO | game_rl_training | Training with 16 samples...
+2026-01-19 09:00:57 | INFO | game_rl_training | Step 10 | Reward: 0.0000 | Score: 0.0000 | Success: 0.00% | ValidRate: 40.32%
+2026-01-19 09:00:57 | INFO | game_rl_training | Step 11/1000: Collecting rollouts from 16 episodes...

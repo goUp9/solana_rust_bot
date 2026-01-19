@@ -56,11 +56,17 @@ def save_checkpoint(
     save_path = Path(save_path)
     save_path.mkdir(parents=True, exist_ok=True)
     
+    # Create subdirectories for model and tokenizer
+    model_path = save_path / "model"
+    tokenizer_path = save_path / "tokenizer"
+    model_path.mkdir(parents=True, exist_ok=True)
+    tokenizer_path.mkdir(parents=True, exist_ok=True)
+    
     # Save model (LoRA adapters)
-    model.save_pretrained(save_path / "model")
+    model.save_pretrained(model_path)
     
     # Save tokenizer
-    tokenizer.save_pretrained(save_path / "tokenizer")
+    tokenizer.save_pretrained(tokenizer_path)
     
     # Save metadata
     metadata = {
@@ -101,8 +107,38 @@ def load_checkpoint(
     """
     load_path = Path(load_path)
     
-    # Load LoRA adapters
-    model.load_adapter(load_path / "model")
+    # Load LoRA adapters - handle different model wrapper types
+    from peft import PeftModel
+    
+    # For AutoModelForCausalLMWithValueHead, the pretrained_model is the PEFT model
+    if hasattr(model, 'pretrained_model'):
+        base_model = model.pretrained_model
+        if isinstance(base_model, PeftModel):
+            # Load adapter weights directly into the existing PEFT model
+            from peft import set_peft_model_state_dict
+            from safetensors.torch import load_file
+            
+            adapter_path = load_path / "model"
+            # Try safetensors first, then pytorch
+            if (adapter_path / "adapter_model.safetensors").exists():
+                adapter_weights = load_file(adapter_path / "adapter_model.safetensors")
+            elif (adapter_path / "adapter_model.bin").exists():
+                adapter_weights = torch.load(adapter_path / "adapter_model.bin")
+            else:
+                raise FileNotFoundError(f"No adapter weights found in {adapter_path}")
+            
+            set_peft_model_state_dict(base_model, adapter_weights)
+            print(f"✅ Loaded LoRA adapter weights into pretrained_model")
+        else:
+            # Try load_adapter if available
+            if hasattr(base_model, 'load_adapter'):
+                base_model.load_adapter(load_path / "model")
+            else:
+                raise RuntimeError(f"Cannot load adapter into model type: {type(base_model)}")
+    elif hasattr(model, 'load_adapter'):
+        model.load_adapter(load_path / "model")
+    else:
+        raise RuntimeError(f"Cannot load adapter into model type: {type(model)}")
     
     # Load metadata
     metadata = {}

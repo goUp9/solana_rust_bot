@@ -29,6 +29,9 @@ class TurnSample:
     response_text: str
     reward: float
     info: Dict[str, Any]
+    # Token IDs for PPO training (avoids re-encoding issues)
+    query_ids: Optional[List[int]] = None
+    response_ids: Optional[List[int]] = None
 
 
 @dataclass
@@ -75,18 +78,13 @@ class EpisodeData:
 
 def _import_openspiel_components():
     # Lazily import to keep module importable even if open_spiel isn't installed.
-    import sys
     import pyspiel  # type: ignore
     from open_spiel.python.algorithms import mcts  # type: ignore
     from open_spiel.python.bots import uniform_random  # type: ignore
 
-    # Add the actual affinetes repo to path for direct import
-    affinetes_openspiel_path = "/root/workplace/affinetes/environments/openspiel"
-    if affinetes_openspiel_path not in sys.path:
-        sys.path.insert(0, affinetes_openspiel_path)
-    
-    from game_config import create_game  # type: ignore
-    from agents import GAME_AGENTS  # type: ignore
+    # Import from local game_config and agents modules
+    from game_rl_training.game_config import create_game
+    from game_rl_training.agents import GAME_AGENTS
 
     return pyspiel, mcts, uniform_random, create_game, GAME_AGENTS
 
@@ -117,7 +115,66 @@ def _parse_action_id(text: str) -> Optional[int]:
         return None
 
 
-def _create_opponent_bot(opponent: str, player_id: int, seed: int, game, agent):
+# Global process pool for MCTS rollouts (created lazily)
+_MCTS_PROCESS_POOL = None
+_MCTS_POOL_SIZE = None
+
+
+def _get_mcts_process_pool(num_workers: int = None):
+    """Get or create a global process pool for MCTS rollouts."""
+    global _MCTS_PROCESS_POOL, _MCTS_POOL_SIZE
+    import os
+    from concurrent.futures import ProcessPoolExecutor
+    
+    if num_workers is None:
+        num_workers = os.cpu_count() or 4
+    
+    # Recreate pool if size changed
+    if _MCTS_PROCESS_POOL is None or _MCTS_POOL_SIZE != num_workers:
+        if _MCTS_PROCESS_POOL is not None:
+            _MCTS_PROCESS_POOL.shutdown(wait=False)
+        _MCTS_PROCESS_POOL = ProcessPoolExecutor(max_workers=num_workers)
+        _MCTS_POOL_SIZE = num_workers
+    
+    return _MCTS_PROCESS_POOL
+
+
+def _run_single_rollout_worker(args: Tuple[str, str, int, int]) -> List[float]:
+    """
+    Worker function for parallel rollouts. Runs in a separate process.
+    
+    Args:
+        args: (game_name, state_str, seed, num_rollouts_per_worker)
+    
+    Returns:
+        Sum of returns across all rollouts for this worker
+    """
+    game_name, state_str, seed, num_rollouts = args
+    
+    # Import OpenSpiel in the worker process
+    import pyspiel
+    import numpy as np
+    
+    game = pyspiel.load_game(game_name)
+    state = game.deserialize_state(state_str)
+    num_players = state.num_players()
+    rng = np.random.RandomState(seed)
+    
+    total_returns = np.zeros(num_players)
+    for _ in range(num_rollouts):
+        working_state = state.clone()
+        while not working_state.is_terminal():
+            legal_actions = working_state.legal_actions()
+            if not legal_actions:
+                break
+            action = rng.choice(legal_actions)
+            working_state.apply_action(action)
+        total_returns += np.array(working_state.returns())
+    
+    return total_returns.tolist()
+
+
+def _create_opponent_bot(opponent: str, player_id: int, seed: int, game, agent, mcts_simulations: int = None, mcts_rollouts: int = None, mcts_workers: int = None):
     pyspiel, mcts, uniform_random, _, _ = _import_openspiel_components()
 
     game_type = game.get_type()
@@ -132,29 +189,85 @@ def _create_opponent_bot(opponent: str, player_id: int, seed: int, game, agent):
         if mcts_config is None:
             return uniform_random.UniformRandomBot(player_id=player_id, rng=np.random.RandomState(seed + 2))
 
-        max_simulations, n_rollouts = mcts_config
+        default_simulations, default_rollouts = mcts_config
+        # Use provided mcts_simulations/mcts_rollouts or fall back to agent's defaults
+        max_simulations = mcts_simulations if mcts_simulations is not None else default_simulations
+        n_rollouts = mcts_rollouts if mcts_rollouts is not None else default_rollouts
 
-        class _SafeRandomRolloutEvaluator(mcts.Evaluator):
-            def __init__(self, n_rollouts=1, random_state=None):
+        class _ParallelRandomRolloutEvaluator(mcts.Evaluator):
+            """
+            MCTS evaluator with parallel rollouts using multiprocessing.
+            
+            For high rollout counts (e.g., 200), this distributes work across
+            all available CPU cores for significant speedup.
+            """
+            
+            def __init__(self, n_rollouts=1, random_state=None, num_workers=None, game_name=None):
+                import os
                 self._n_rollouts = n_rollouts
                 self._random_state = random_state or np.random.RandomState()
-
+                self._num_workers = num_workers or (os.cpu_count() or 4)
+                self._game_name = game_name
+                # Only use multiprocessing for significant rollout counts
+                self._use_multiprocessing = n_rollouts >= 16 and self._num_workers > 1
+                
             def evaluate(self, state):
                 if state.is_terminal():
                     return state.returns()
                 legal_actions = state.legal_actions()
                 if not legal_actions:
                     return state.returns()
-                total_returns = np.zeros(state.num_players())
-                for _ in range(self._n_rollouts):
-                    working_state = state.clone()
-                    while not working_state.is_terminal():
-                        legal_actions = working_state.legal_actions()
-                        if not legal_actions:
-                            break
-                        action = self._random_state.choice(legal_actions)
-                        working_state.apply_action(action)
-                    total_returns += working_state.returns()
+                
+                num_players = state.num_players()
+                
+                # For small rollout counts, use sequential (faster due to no overhead)
+                if not self._use_multiprocessing or self._n_rollouts < 16:
+                    total_returns = np.zeros(num_players)
+                    for _ in range(self._n_rollouts):
+                        working_state = state.clone()
+                        while not working_state.is_terminal():
+                            legal_actions = working_state.legal_actions()
+                            if not legal_actions:
+                                break
+                            action = self._random_state.choice(legal_actions)
+                            working_state.apply_action(action)
+                        total_returns += working_state.returns()
+                    return total_returns / self._n_rollouts
+                
+                # Distribute rollouts across workers
+                state_str = state.serialize()
+                base_seed = self._random_state.randint(0, 2**31)
+                
+                # Split rollouts among workers
+                rollouts_per_worker = self._n_rollouts // self._num_workers
+                remainder = self._n_rollouts % self._num_workers
+                
+                worker_args = []
+                for i in range(self._num_workers):
+                    n = rollouts_per_worker + (1 if i < remainder else 0)
+                    if n > 0:
+                        worker_args.append((self._game_name, state_str, base_seed + i * 1000, n))
+                
+                # Use global process pool
+                pool = _get_mcts_process_pool(self._num_workers)
+                
+                total_returns = np.zeros(num_players)
+                try:
+                    results = list(pool.map(_run_single_rollout_worker, worker_args))
+                    for result in results:
+                        total_returns += np.array(result)
+                except Exception as e:
+                    # Fallback to sequential on error
+                    for _ in range(self._n_rollouts):
+                        working_state = state.clone()
+                        while not working_state.is_terminal():
+                            legal_actions = working_state.legal_actions()
+                            if not legal_actions:
+                                break
+                            action = self._random_state.choice(legal_actions)
+                            working_state.apply_action(action)
+                        total_returns += working_state.returns()
+                
                 return total_returns / self._n_rollouts
 
             def prior(self, state):
@@ -164,7 +277,15 @@ def _create_opponent_bot(opponent: str, player_id: int, seed: int, game, agent):
                 prob = 1.0 / len(legal_actions)
                 return [(a, prob) for a in legal_actions]
 
-        evaluator = _SafeRandomRolloutEvaluator(n_rollouts=n_rollouts, random_state=np.random.RandomState(seed + 3))
+        # Get game name for serialization in workers
+        game_name = game.get_type().short_name
+        
+        evaluator = _ParallelRandomRolloutEvaluator(
+            n_rollouts=n_rollouts, 
+            random_state=np.random.RandomState(seed + 3),
+            num_workers=mcts_workers,
+            game_name=game_name
+        )
         return mcts.MCTSBot(
             game=game,
             uct_c=1.414,
@@ -191,6 +312,9 @@ def run_local_openspiel_episode(
     device: str = "cuda",
     include_invalid: bool = False,
     invalid_penalty: float = -0.5,
+    mcts_simulations: int = None,
+    mcts_rollouts: int = None,
+    mcts_workers: int = None,
 ) -> Tuple[List[TurnSample], Dict[str, Any], EpisodeData]:
     """
     Play a full OpenSpiel episode locally and return per-turn samples.
@@ -200,6 +324,9 @@ def run_local_openspiel_episode(
     Args:
         include_invalid: If True, include invalid responses with penalty reward
         invalid_penalty: Reward to assign to invalid responses (default -0.5)
+        mcts_simulations: Number of MCTS simulations (lower = weaker opponent)
+        mcts_rollouts: Number of rollouts per MCTS evaluation (higher = stronger opponent)
+        mcts_workers: Number of CPU workers for parallel MCTS rollouts (default: all CPUs)
     
     Returns:
         turn_samples: List of TurnSample for PPO training
@@ -222,7 +349,7 @@ def run_local_openspiel_episode(
     bots = [None] * num_players
     for pid in range(num_players):
         if pid != llm_player_id:
-            bots[pid] = _create_opponent_bot(opponent, pid, seed + 2 + pid, game, agent)
+            bots[pid] = _create_opponent_bot(opponent, pid, seed + 2 + pid, game, agent, mcts_simulations=mcts_simulations, mcts_rollouts=mcts_rollouts, mcts_workers=mcts_workers)
 
     state = game.new_initial_state()
     messages: List[Dict[str, str]] = [{"role": "system", "content": agent.generate_system_prompt()}]
@@ -347,6 +474,9 @@ def run_local_openspiel_episode(
                         "llm_player_id": llm_player_id,
                         "valid_response": is_valid_response,
                     },
+                    # Pass actual token IDs to avoid re-encoding issues with KL divergence
+                    query_ids=inputs["input_ids"][0].tolist(),
+                    response_ids=response_ids.tolist(),
                 )
             )
 
@@ -453,6 +583,9 @@ async def run_vllm_openspiel_episode(
     max_seq_length: int = 1024,
     gamma: float = 0.99,
     session: Optional[aiohttp.ClientSession] = None,
+    mcts_simulations: int = None,
+    mcts_rollouts: int = None,
+    mcts_workers: int = None,
 ) -> Tuple[List[TurnSample], Dict[str, Any], EpisodeData]:
     """
     Play a full OpenSpiel episode using vLLM API for inference.
@@ -483,7 +616,7 @@ async def run_vllm_openspiel_episode(
     bots = [None] * num_players
     for pid in range(num_players):
         if pid != llm_player_id:
-            bots[pid] = _create_opponent_bot(opponent, pid, seed + 2 + pid, game, agent)
+            bots[pid] = _create_opponent_bot(opponent, pid, seed + 2 + pid, game, agent, mcts_simulations=mcts_simulations, mcts_rollouts=mcts_rollouts, mcts_workers=mcts_workers)
 
     state = game.new_initial_state()
     messages: List[Dict[str, str]] = [{"role": "system", "content": agent.generate_system_prompt()}]
@@ -717,4 +850,145 @@ async def run_parallel_episodes(
             valid_results.append(result)
     
     return valid_results
+
+
+def _run_episode_worker(args: Dict[str, Any]) -> Tuple[List[Dict], Dict[str, Any], Dict[str, Any]]:
+    """
+    Worker function for parallel episode collection.
+    Runs a single episode without model - returns game states for batched inference.
+    
+    This is a CPU-only worker that handles MCTS opponent moves.
+    Model inference happens in the main process after collecting states.
+    """
+    import numpy as np
+    
+    task_id = args["task_id"]
+    seed = args["seed"]
+    opponent = args["opponent"]
+    mcts_simulations = args.get("mcts_simulations", 100)
+    mcts_rollouts = args.get("mcts_rollouts", None)
+    mcts_workers = args.get("mcts_workers", None)
+    
+    pyspiel, mcts_mod, uniform_random, create_game, GAME_AGENTS = _import_openspiel_components()
+    
+    game, game_cfg = create_game(task_id)
+    game_name = game_cfg["game_name"]
+    num_players = game.num_players()
+    llm_player_id = (seed % num_players)
+    
+    agent_class = GAME_AGENTS.get(game_name)
+    if not agent_class:
+        raise ValueError(f"No agent found for game: {game_name}")
+    agent = agent_class()
+    
+    # Build opponent bots
+    bots = [None] * num_players
+    for pid in range(num_players):
+        if pid != llm_player_id:
+            bots[pid] = _create_opponent_bot(opponent, pid, seed + 2 + pid, game, agent, mcts_simulations=mcts_simulations, mcts_rollouts=mcts_rollouts, mcts_workers=mcts_workers)
+    
+    state = game.new_initial_state()
+    rng = np.random.RandomState(seed + 1)
+    
+    # Collect states where LLM needs to make decisions
+    llm_decision_points = []
+    action_history = []
+    system_prompt = agent.generate_system_prompt()
+    
+    while not state.is_terminal():
+        cur_player = state.current_player()
+        
+        # Chance nodes
+        if cur_player == pyspiel.PlayerId.CHANCE:
+            outcomes = state.chance_outcomes()
+            actions, probs = zip(*outcomes)
+            a = rng.choice(actions, p=probs)
+            state.apply_action(a)
+            continue
+        
+        # Non-LLM players (MCTS/random opponents)
+        if cur_player != llm_player_id:
+            if cur_player < 0 or cur_player >= num_players:
+                legal_actions = state.legal_actions()
+                if legal_actions:
+                    a = int(rng.choice(legal_actions))
+                    state.apply_action(a)
+                continue
+            
+            if bots[cur_player] is None:
+                legal_actions = state.legal_actions(cur_player)
+                a = int(rng.choice(legal_actions)) if legal_actions else 0
+            else:
+                a = bots[cur_player].step(state)
+            state.apply_action(a)
+            action_history.append({"player_id": int(cur_player), "action": int(a), "is_llm": False})
+            continue
+        
+        # LLM turn - save state for later batch inference
+        legal_actions = state.legal_actions(llm_player_id)
+        user_prompt = agent.generate_user_prompt(state=state, player_id=llm_player_id, legal_actions=legal_actions)
+        
+        llm_decision_points.append({
+            "state_str": str(state),
+            "user_prompt": user_prompt,
+            "legal_actions": legal_actions,
+            "state_clone": state.serialize(),  # Serialize for later
+        })
+        
+        # For now, use random action as placeholder (will be replaced by model inference)
+        placeholder_action = int(rng.choice(legal_actions)) if legal_actions else 0
+        state.apply_action(placeholder_action)
+        action_history.append({"player_id": int(llm_player_id), "action": placeholder_action, "is_llm": True, "placeholder": True})
+    
+    episode_info = {
+        "game_name": game_name,
+        "task_id": task_id,
+        "seed": seed,
+        "opponent": opponent,
+        "llm_player_id": llm_player_id,
+        "num_players": num_players,
+        "system_prompt": system_prompt,
+        "final_returns": list(state.returns()),
+    }
+    
+    return llm_decision_points, episode_info, {"action_history": action_history}
+
+
+def run_parallel_episodes_cpu(
+    num_episodes: int,
+    task_configs: List[Dict[str, Any]],
+    num_workers: int = 4,
+) -> List[Tuple[List[Dict], Dict[str, Any], Dict[str, Any]]]:
+    """
+    Run multiple episodes in parallel using CPU workers for MCTS.
+    
+    This parallelizes the MCTS opponent computations across multiple CPU cores.
+    Model inference still happens in the main process.
+    
+    Args:
+        num_episodes: Number of episodes to run
+        task_configs: List of task configurations
+        num_workers: Number of parallel workers
+        
+    Returns:
+        List of (llm_decision_points, episode_info, metadata) tuples
+    """
+    from concurrent.futures import ProcessPoolExecutor, as_completed
+    
+    results = []
+    
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        futures = {executor.submit(_run_episode_worker, cfg): i for i, cfg in enumerate(task_configs[:num_episodes])}
+        
+        for future in as_completed(futures):
+            idx = futures[future]
+            try:
+                result = future.result()
+                results.append((idx, result))
+            except Exception as e:
+                print(f"Episode {idx} failed: {e}")
+    
+    # Sort by original index and return just the results
+    results.sort(key=lambda x: x[0])
+    return [r[1] for r in results]
 
