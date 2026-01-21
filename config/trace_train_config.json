@@ -1,0 +1,57 @@
+{
+  "model": {
+    "model_name": "Qwen/Qwen3-4B-Instruct-2507",
+    "use_4bit": true,
+    "bnb_4bit_compute_dtype": "bfloat16",
+    "bnb_4bit_quant_type": "nf4",
+    "use_nested_quant": true
+  },
+  "lora": {
+    "r": 16,
+    "lora_alpha": 32,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "lora_dropout": 0.05,
+    "bias": "none",
+    "task_type": "CAUSAL_LM"
+  },
+  "ppo": {
+    "batch_size": 16,
+    "mini_batch_size": 4,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 1e-6,
+    "ppo_epochs": 2,
+    "init_kl_coef": 0.1,
+    "target_kl": 1.0,
+    "adap_kl_ctrl": true,
+    "cliprange": 0.2,
+    "cliprange_value": 0.2,
+    "vf_coef": 0.1,
+    "gamma": 1.0,
+    "lam": 0.95,
+    "max_grad_norm": 1.0,
+    "num_train_steps": 5000,
+    "save_freq": 100,
+    "eval_freq": 50,
+    "log_freq": 1,
+    "max_seq_length": 2048,
+    "max_new_tokens": 512,
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "output_dir": "./checkpoints/trace_ppo_lora",
+    "resume_from": null,
+    "use_wandb": true,
+    "wandb_project": "trace-rl-training",
+    "wandb_run_name": null,
+    "include_invalid_samples": false,
+    "invalid_penalty": -0.5,
+    "sft_warmup_steps": 100
+  }
+}

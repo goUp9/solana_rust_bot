@@ -1,0 +1,21 @@
+{
+  "env_name": "trace",
+  "env_mode": "affinetes",
+  "env_image": null,
+  "env_path": "/root/workspace/affinetes/environments/trace",
+  "max_seq_length": 2048,
+  "reward_shaping": false,
+  "timeout": 120,
+  "execution": "local_trace",
+  "gamma": 0.99,
+  "use_vllm": false,
+  "vllm_base_url": "http://localhost:8000",
+  "vllm_model_name": "Qwen/Qwen3-4B-Instruct-2507",
+  "max_concurrent_episodes": 4,
+  "num_episode_workers": 1,
+  "dataset_name": "satpalsr/rl-python",
+  "dataset_split": "train",
+  "task_id_range": [0, 100000],
+  "hf_token": null,
+  "deterministic_seed": true
+}
