@@ -3,3 +3,7 @@ checkpoints/
 wandb/
 Qwen3-0.6B-SFT/
 Qwen3-4B-Instruct-2507-SFT/
+Qwen3-4B-LoRA-SFT/
+wandb/debug-internal.log
+wandb/debug.log
+wandb/latest-run

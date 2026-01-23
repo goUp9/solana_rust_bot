@@ -12,7 +12,10 @@ An external webapp can:
 Usage:
     python serve_sft_model.py --port 8000
     python serve_sft_model.py --port 8000 --preload qwen3-4b-sft
-cd /root/workspace/game_rl_training && source venv/bin/activate && TORCH_COMPILE_DISABLE=1 VLLM_USE_TRITON_FLASH_ATTN=0 python serve_sft_model.py --port 8000 --preload qwen3-4b-sft --gpu-memory-utilization 0.85
+
+    # If you encounter Triton compilation errors (Python.h not found), use:
+    TORCH_COMPILE_DISABLE=1 python serve_sft_model.py --port 8000 --preload qwen3-4b-sft
+
 API Endpoints:
     POST /v1/models/load        - Load a model by HF name
     POST /v1/models/unload      - Unload a model
@@ -32,6 +35,10 @@ import os
 from typing import Dict, Optional, Any, List
 from datetime import datetime
 
+# Fix for Triton compilation errors (Python.h not found)
+# This disables torch.compile which requires Python dev headers
+os.environ.setdefault("TORCH_COMPILE_DISABLE", "1")
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -41,11 +48,33 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def is_lora_adapter(path: str) -> bool:
+    """Check if a path contains a LoRA adapter (has adapter_config.json but no config.json)"""
+    import os
+    if not os.path.isdir(path):
+        return False
+    has_adapter_config = os.path.exists(os.path.join(path, "adapter_config.json"))
+    has_model_config = os.path.exists(os.path.join(path, "config.json"))
+    return has_adapter_config and not has_model_config
+
+
+def get_lora_base_model(adapter_path: str) -> Optional[str]:
+    """Get the base model name from a LoRA adapter config"""
+    import json
+    import os
+    config_path = os.path.join(adapter_path, "adapter_config.json")
+    if os.path.exists(config_path):
+        with open(config_path) as f:
+            config = json.load(f)
+            return config.get("base_model_name_or_path")
+    return None
+
+
 class VLLMModelManager:
-    """Manages vLLM models with dynamic loading/unloading"""
+    """Manages vLLM models with dynamic loading/unloading, with PEFT fallback for LoRA"""
     
     def __init__(self, max_models: int = 1, gpu_memory_utilization: float = 0.85):
-        self.engines: Dict[str, Any] = {}  # model_name -> {"engine": LLM, "loaded_at": timestamp}
+        self.engines: Dict[str, Any] = {}  # model_name -> {"engine": LLM/model, "loaded_at": timestamp, "backend": "vllm"/"peft"}
         self.max_models = max_models
         self.gpu_memory_utilization = gpu_memory_utilization
         self.current_model = None
@@ -54,51 +83,97 @@ class VLLMModelManager:
         self.model_aliases = {
             "qwen3-4b-sft": "/root/workspace/game_rl_training/Qwen3-4B-Instruct-2507-SFT/checkpoint-5928",
             "qwen3-0.6b-sft": "/root/workspace/game_rl_training/Qwen3-0.6B-SFT/checkpoint-5928",
-            "qwen3-4b": "Qwen/Qwen3-4B-Instruct-2507",
-            "qwen3-0.6b": "Qwen/Qwen3-0.6B",
-            "qwen2.5-7b": "Qwen/Qwen2.5-7B-Instruct",
-            "qwen2.5-3b": "Qwen/Qwen2.5-3B-Instruct",
-            "llama3.2-3b": "meta-llama/Llama-3.2-3B-Instruct",
-            "llama3.1-8b": "meta-llama/Llama-3.1-8B-Instruct",
+            # LoRA adapter (will use PEFT backend automatically)
+            "qwen3-4b-lora-sft": "/root/workspace/game_rl_training/Qwen3-4B-LoRA-SFT/final",
+            # Merged LoRA model (full weights, works with vLLM) - latest
+            "qwen3-4b-lora-merged": "/root/workspace/game_rl_training/Qwen3-4B-LoRA-SFT/merged_final",
         }
     
     def resolve_model_name(self, name: str) -> str:
         """Resolve alias to full model path/name"""
         return self.model_aliases.get(name, name)
     
-    def load_model(self, model_name: str, force_reload: bool = False) -> dict:
-        """Load a model using vLLM"""
-        from vllm import LLM, SamplingParams
+    def _load_lora_model(self, model_name: str, resolved_name: str) -> dict:
+        """Load a LoRA adapter using transformers + PEFT"""
         import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from peft import PeftModel
         
-        resolved_name = self.resolve_model_name(model_name)
+        logger.info(f"Detected LoRA adapter, loading with PEFT: {resolved_name}")
         
-        # Check if already loaded
-        if resolved_name in self.engines and not force_reload:
-            self.current_model = resolved_name
-            logger.info(f"Model {model_name} already loaded, switching to it")
+        # Get base model from adapter config
+        base_model_name = get_lora_base_model(resolved_name)
+        if not base_model_name:
             return {
-                "status": "already_loaded",
+                "status": "error",
                 "model": model_name,
-                "resolved_name": resolved_name
+                "error": "Could not determine base model from adapter_config.json"
             }
         
-        # Unload existing models if at capacity (vLLM typically needs exclusive GPU access)
-        if len(self.engines) >= self.max_models or force_reload:
-            for existing_model in list(self.engines.keys()):
-                self._unload_model_internal(existing_model)
-            logger.info("Unloaded existing models to make room")
+        logger.info(f"Base model: {base_model_name}")
+        start_time = time.time()
+        
+        try:
+            # Load base model
+            base_model = AutoModelForCausalLM.from_pretrained(
+                base_model_name,
+                torch_dtype=torch.bfloat16,
+                device_map="auto",
+                trust_remote_code=True,
+            )
+            
+            # Load LoRA adapter
+            model = PeftModel.from_pretrained(base_model, resolved_name)
+            model.eval()
+            
+            # Load tokenizer from adapter directory
+            tokenizer = AutoTokenizer.from_pretrained(resolved_name, trust_remote_code=True)
+            
+            load_time = time.time() - start_time
+            
+            self.engines[resolved_name] = {
+                "engine": model,
+                "tokenizer": tokenizer,
+                "base_model": base_model_name,
+                "loaded_at": datetime.now().isoformat(),
+                "load_time": load_time,
+                "alias": model_name if model_name != resolved_name else None,
+                "backend": "peft",
+            }
+            self.current_model = resolved_name
+            
+            logger.info(f"LoRA model {model_name} loaded successfully with PEFT in {load_time:.2f}s")
+            
+            return {
+                "status": "loaded",
+                "model": model_name,
+                "resolved_name": resolved_name,
+                "base_model": base_model_name,
+                "load_time": load_time,
+                "backend": "peft"
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to load LoRA model {model_name}: {e}")
+            return {
+                "status": "error",
+                "model": model_name,
+                "error": str(e)
+            }
+    
+    def _load_vllm_model(self, model_name: str, resolved_name: str) -> dict:
+        """Load a full model using vLLM"""
+        from vllm import LLM
         
         logger.info(f"Loading model with vLLM: {resolved_name}...")
         start_time = time.time()
         
         try:
-            # Create vLLM engine
             engine = LLM(
                 model=resolved_name,
                 trust_remote_code=True,
                 gpu_memory_utilization=self.gpu_memory_utilization,
-                max_model_len=4096,  # Reasonable default, can be adjusted
+                max_model_len=4096,
                 dtype="bfloat16",
             )
             
@@ -109,6 +184,7 @@ class VLLMModelManager:
                 "loaded_at": datetime.now().isoformat(),
                 "load_time": load_time,
                 "alias": model_name if model_name != resolved_name else None,
+                "backend": "vllm",
             }
             self.current_model = resolved_name
             
@@ -129,6 +205,36 @@ class VLLMModelManager:
                 "model": model_name,
                 "error": str(e)
             }
+    
+    def load_model(self, model_name: str, force_reload: bool = False) -> dict:
+        """Load a model - automatically detects LoRA adapters and uses appropriate backend"""
+        import torch
+        
+        resolved_name = self.resolve_model_name(model_name)
+        
+        # Check if already loaded
+        if resolved_name in self.engines and not force_reload:
+            self.current_model = resolved_name
+            backend = self.engines[resolved_name].get("backend", "vllm")
+            logger.info(f"Model {model_name} already loaded ({backend}), switching to it")
+            return {
+                "status": "already_loaded",
+                "model": model_name,
+                "resolved_name": resolved_name,
+                "backend": backend
+            }
+        
+        # Unload existing models if at capacity
+        if len(self.engines) >= self.max_models or force_reload:
+            for existing_model in list(self.engines.keys()):
+                self._unload_model_internal(existing_model)
+            logger.info("Unloaded existing models to make room")
+        
+        # Check if this is a LoRA adapter
+        if is_lora_adapter(resolved_name):
+            return self._load_lora_model(model_name, resolved_name)
+        else:
+            return self._load_vllm_model(model_name, resolved_name)
     
     def _unload_model_internal(self, model_name: str):
         """Internal unload"""
@@ -158,7 +264,7 @@ class VLLMModelManager:
         return {"status": "unloaded", "model": model_name}
     
     def get_engine(self, model_name: str = None):
-        """Get a loaded vLLM engine"""
+        """Get a loaded engine (vLLM or PEFT model)"""
         resolved_name = self.resolve_model_name(model_name) if model_name else self.current_model
         
         if not resolved_name or resolved_name not in self.engines:
@@ -166,46 +272,94 @@ class VLLMModelManager:
         
         return self.engines[resolved_name]["engine"]
     
+    def get_backend(self, model_name: str = None) -> Optional[str]:
+        """Get the backend type for a loaded model"""
+        resolved_name = self.resolve_model_name(model_name) if model_name else self.current_model
+        
+        if not resolved_name or resolved_name not in self.engines:
+            return None
+        
+        return self.engines[resolved_name].get("backend", "vllm")
+    
     def generate(self, model_name: str, prompts: List[str], 
                  max_tokens: int = 512, temperature: float = 0.7, 
                  top_p: float = 0.9, stop: List[str] = None) -> List[str]:
-        """Generate completions using vLLM"""
-        from vllm import SamplingParams
+        """Generate completions using vLLM or PEFT depending on backend"""
+        import torch
         
-        engine = self.get_engine(model_name)
-        if engine is None:
+        resolved_name = self.resolve_model_name(model_name) if model_name else self.current_model
+        
+        if resolved_name not in self.engines:
             raise ValueError(f"Model {model_name} not loaded")
         
-        sampling_params = SamplingParams(
-            max_tokens=max_tokens,
-            temperature=temperature if temperature > 0 else 0.01,  # vLLM doesn't like 0
-            top_p=top_p,
-            stop=stop,
-        )
+        engine_info = self.engines[resolved_name]
+        backend = engine_info.get("backend", "vllm")
         
-        outputs = engine.generate(prompts, sampling_params)
+        if backend == "vllm":
+            # vLLM generation
+            from vllm import SamplingParams
+            
+            engine = engine_info["engine"]
+            sampling_params = SamplingParams(
+                max_tokens=max_tokens,
+                temperature=temperature if temperature > 0 else 0.01,
+                top_p=top_p,
+                stop=stop,
+            )
+            
+            outputs = engine.generate(prompts, sampling_params)
+            return [output.outputs[0].text for output in outputs]
         
-        return [output.outputs[0].text for output in outputs]
+        else:
+            # PEFT/transformers generation
+            model = engine_info["engine"]
+            tokenizer = engine_info["tokenizer"]
+            
+            results = []
+            for prompt in prompts:
+                inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+                
+                with torch.no_grad():
+                    outputs = model.generate(
+                        **inputs,
+                        max_new_tokens=max_tokens,
+                        temperature=temperature if temperature > 0 else None,
+                        top_p=top_p,
+                        do_sample=temperature > 0,
+                        pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
+                    )
+                
+                # Decode only new tokens
+                response = tokenizer.decode(
+                    outputs[0][inputs["input_ids"].shape[1]:],
+                    skip_special_tokens=True
+                )
+                results.append(response)
+            
+            return results
     
     def list_models(self) -> dict:
         """List all loaded models"""
         models_info = []
         for name, info in self.engines.items():
-            models_info.append({
+            model_info = {
                 "id": info.get("alias") or name,
                 "resolved_name": name,
                 "loaded_at": info["loaded_at"],
                 "load_time": info.get("load_time"),
-                "backend": "vllm",
+                "backend": info.get("backend", "vllm"),
                 "is_current": name == self.current_model
-            })
+            }
+            # Add base model info for LoRA adapters
+            if info.get("base_model"):
+                model_info["base_model"] = info["base_model"]
+            models_info.append(model_info)
         
         return {
             "object": "list",
             "data": models_info,
             "current_model": self.current_model,
-            "available_aliases": list(self.model_aliases.keys()),
-            "backend": "vllm"
+            "available_aliases": list(self.model_aliases.keys())
         }
     
     def get_status(self) -> dict:
@@ -262,7 +416,11 @@ def create_app(manager: VLLMModelManager):
     def get_tokenizer(model_name: str):
         resolved = manager.resolve_model_name(model_name) if model_name else manager.current_model
         if resolved not in tokenizer_cache:
-            tokenizer_cache[resolved] = AutoTokenizer.from_pretrained(resolved, trust_remote_code=True)
+            # For PEFT models, tokenizer is already loaded
+            if resolved in manager.engines and manager.engines[resolved].get("backend") == "peft":
+                tokenizer_cache[resolved] = manager.engines[resolved]["tokenizer"]
+            else:
+                tokenizer_cache[resolved] = AutoTokenizer.from_pretrained(resolved, trust_remote_code=True)
         return tokenizer_cache[resolved]
     
     @app.route("/v1/models/load", methods=["POST"])
@@ -403,7 +561,7 @@ def create_app(manager: VLLMModelManager):
                     "completion_tokens": output_tokens,
                     "total_tokens": input_tokens + output_tokens
                 },
-                "backend": "vllm"
+                "backend": manager.get_backend(model_name) or "vllm"
             })
             
         except Exception as e:
