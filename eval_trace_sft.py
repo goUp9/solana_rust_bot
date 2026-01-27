@@ -9,8 +9,11 @@ Usage:
     # Evaluate merged model
     python eval_trace_sft.py --model ./Qwen3-4B-Trace-SFT/merged
     
-    # Evaluate LoRA adapters
+    # Evaluate LoRA adapters (local)
     python eval_trace_sft.py --model ./Qwen3-4B-Trace-SFT/final --base_model Qwen/Qwen3-4B
+    
+    # Evaluate LoRA adapters from HuggingFace (auto-detects base model)
+    python eval_trace_sft.py --model username/Qwen3-4B-Trace-LoRA
     
     # Evaluate on specific number of samples
     python eval_trace_sft.py --model ./Qwen3-4B-Trace-SFT/merged --num_samples 100
@@ -21,6 +24,7 @@ Usage:
 
 import os
 import re
+import json
 import argparse
 from typing import Optional, Tuple
 from tqdm import tqdm
@@ -29,6 +33,7 @@ import torch
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
+from huggingface_hub import hf_hub_download, repo_exists, list_repo_files
 
 
 # Dataset config
@@ -57,6 +62,50 @@ def compare_outputs(expected: str, actual: str) -> bool:
     return normalize(expected) == normalize(actual)
 
 
+def is_lora_adapter(model_path: str) -> Tuple[bool, Optional[str]]:
+    """
+    Check if the model path contains LoRA adapters.
+    Works for both local paths and HuggingFace repos.
+    
+    Returns:
+        (is_lora, base_model_name): Tuple of whether it's LoRA and the base model name if found
+    """
+    # Check local path first
+    local_config_path = os.path.join(model_path, "adapter_config.json")
+    if os.path.exists(local_config_path):
+        try:
+            with open(local_config_path, "r") as f:
+                config = json.load(f)
+            base_model_name = config.get("base_model_name_or_path")
+            return True, base_model_name
+        except Exception:
+            return True, None
+    
+    # Check if it's a HuggingFace repo
+    if "/" in model_path and not os.path.exists(model_path):
+        try:
+            # Check if repo exists and contains adapter_config.json
+            if repo_exists(model_path):
+                repo_files = list_repo_files(model_path)
+                if "adapter_config.json" in repo_files:
+                    # Download and read the adapter config
+                    config_path = hf_hub_download(
+                        repo_id=model_path,
+                        filename="adapter_config.json",
+                    )
+                    with open(config_path, "r") as f:
+                        config = json.load(f)
+                    base_model_name = config.get("base_model_name_or_path")
+                    print(f"   Detected LoRA adapter repo on HuggingFace")
+                    if base_model_name:
+                        print(f"   Auto-detected base model: {base_model_name}")
+                    return True, base_model_name
+        except Exception as e:
+            print(f"   Warning: Could not check HuggingFace repo: {e}")
+    
+    return False, None
+
+
 def load_model_and_tokenizer(
     model_path: str,
     base_model: Optional[str] = None,
@@ -77,12 +126,19 @@ def load_model_and_tokenizer(
     else:
         bnb_config = None
     
-    # Check if this is a LoRA adapter directory
-    is_lora = os.path.exists(os.path.join(model_path, "adapter_config.json"))
+    # Check if this is a LoRA adapter (local or HuggingFace)
+    is_lora, detected_base_model = is_lora_adapter(model_path)
+    
+    # Use detected base model if not explicitly provided
+    if is_lora and base_model is None:
+        base_model = detected_base_model
     
     if is_lora:
         if base_model is None:
-            raise ValueError("--base_model required when loading LoRA adapters")
+            raise ValueError(
+                "--base_model required when loading LoRA adapters. "
+                "Could not auto-detect base model from adapter_config.json"
+            )
         
         print(f"   Loading base model: {base_model}")
         model = AutoModelForCausalLM.from_pretrained(

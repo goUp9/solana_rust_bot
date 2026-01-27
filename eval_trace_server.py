@@ -23,6 +23,11 @@ API Endpoints:
     POST /v1/eval/batch        - Run batch evaluation on multiple tasks
     POST /v1/eval/benchmark    - Run full benchmark (N random tasks)
     
+    # Real-time Status (for dashboard)
+    GET  /v1/eval/active       - Get all active/running evaluations
+    GET  /v1/eval/status/<id>  - Get status of specific evaluation/benchmark
+    POST /v1/eval/cancel/<id>  - Cancel a running evaluation
+    
     # Results
     GET  /v1/results           - Get all evaluation results (paginated)
     GET  /v1/results/<id>      - Get single result by ID
@@ -52,7 +57,8 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, asdict, field
-from threading import Lock
+from threading import Lock, Thread
+from concurrent.futures import ThreadPoolExecutor
 import sqlite3
 from pathlib import Path
 
@@ -122,12 +128,56 @@ class BenchmarkRun:
     total_time_seconds: float
     started_at: str
     completed_at: Optional[str]
-    status: str  # "running", "completed", "failed"
+    status: str  # "pending", "running", "completed", "failed", "cancelled"
     task_ids: List[int] = field(default_factory=list)
     result_ids: List[str] = field(default_factory=list)
+    current_task_id: Optional[int] = None  # Currently evaluating task
+    error_message: Optional[str] = None
     
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+@dataclass
+class ActiveEvaluation:
+    """Tracks an active/running evaluation"""
+    id: str
+    eval_type: str  # "single", "batch", "benchmark"
+    model_name: str
+    started_at: str
+    status: str  # "pending", "running", "completed", "failed", "cancelled"
+    
+    # Progress tracking
+    total_tasks: int
+    completed_tasks: int
+    correct_tasks: int
+    current_task_id: Optional[int] = None
+    current_task_index: int = 0
+    
+    # Concurrency tracking
+    concurrency: int = 1  # Number of parallel workers
+    in_progress_tasks: List[int] = field(default_factory=list)  # Currently running task IDs
+    
+    # Timing
+    avg_inference_time_ms: float = 0.0
+    elapsed_seconds: float = 0.0
+    estimated_remaining_seconds: float = 0.0
+    tasks_per_second: float = 0.0  # Throughput metric
+    
+    # Results
+    result_ids: List[str] = field(default_factory=list)
+    error_message: Optional[str] = None
+    completed_at: Optional[str] = None
+    
+    # Cancellation flag
+    cancel_requested: bool = False
+    
+    def to_dict(self) -> dict:
+        d = asdict(self)
+        d["accuracy"] = self.correct_tasks / self.completed_tasks if self.completed_tasks > 0 else 0.0
+        d["progress_percent"] = (self.completed_tasks / self.total_tasks * 100) if self.total_tasks > 0 else 0.0
+        d["in_progress_count"] = len(self.in_progress_tasks)
+        return d
 
 
 # =============================================================================
@@ -595,17 +645,237 @@ class ModelManager:
 
 
 # =============================================================================
+# ACTIVE EVALUATION MANAGER
+# =============================================================================
+
+class ActiveEvaluationManager:
+    """Manages and tracks all active/running evaluations"""
+    
+    def __init__(self):
+        self._active: Dict[str, ActiveEvaluation] = {}
+        self._lock = Lock()
+        self._history: List[ActiveEvaluation] = []  # Keep recent completed
+        self._max_history = 50
+    
+    def create(
+        self, 
+        eval_type: str, 
+        model_name: str, 
+        total_tasks: int,
+        task_ids: Optional[List[int]] = None,
+        concurrency: int = 1,
+    ) -> ActiveEvaluation:
+        """Create a new active evaluation"""
+        eval_id = str(uuid.uuid4())
+        evaluation = ActiveEvaluation(
+            id=eval_id,
+            eval_type=eval_type,
+            model_name=model_name,
+            started_at=datetime.now().isoformat(),
+            status="pending",
+            total_tasks=total_tasks,
+            completed_tasks=0,
+            correct_tasks=0,
+            concurrency=concurrency,
+        )
+        
+        with self._lock:
+            self._active[eval_id] = evaluation
+        
+        logger.info(f"Created {eval_type} evaluation {eval_id} for {model_name} ({total_tasks} tasks, concurrency={concurrency})")
+        return evaluation
+    
+    def update(
+        self,
+        eval_id: str,
+        status: Optional[str] = None,
+        completed_tasks: Optional[int] = None,
+        correct_tasks: Optional[int] = None,
+        current_task_id: Optional[int] = None,
+        current_task_index: Optional[int] = None,
+        avg_inference_time_ms: Optional[float] = None,
+        elapsed_seconds: Optional[float] = None,
+        result_id: Optional[str] = None,
+        error_message: Optional[str] = None,
+    ) -> Optional[ActiveEvaluation]:
+        """Update an active evaluation"""
+        with self._lock:
+            if eval_id not in self._active:
+                return None
+            
+            evaluation = self._active[eval_id]
+            
+            if status is not None:
+                evaluation.status = status
+            if completed_tasks is not None:
+                evaluation.completed_tasks = completed_tasks
+            if correct_tasks is not None:
+                evaluation.correct_tasks = correct_tasks
+            if current_task_id is not None:
+                evaluation.current_task_id = current_task_id
+            if current_task_index is not None:
+                evaluation.current_task_index = current_task_index
+            if avg_inference_time_ms is not None:
+                evaluation.avg_inference_time_ms = avg_inference_time_ms
+            if elapsed_seconds is not None:
+                evaluation.elapsed_seconds = elapsed_seconds
+                # Estimate remaining time
+                if evaluation.completed_tasks > 0:
+                    avg_time_per_task = elapsed_seconds / evaluation.completed_tasks
+                    remaining_tasks = evaluation.total_tasks - evaluation.completed_tasks
+                    evaluation.estimated_remaining_seconds = avg_time_per_task * remaining_tasks
+            if result_id is not None:
+                evaluation.result_ids.append(result_id)
+            if error_message is not None:
+                evaluation.error_message = error_message
+            
+            return evaluation
+    
+    def complete(self, eval_id: str, status: str = "completed") -> Optional[ActiveEvaluation]:
+        """Mark an evaluation as complete and move to history"""
+        with self._lock:
+            if eval_id not in self._active:
+                return None
+            
+            evaluation = self._active[eval_id]
+            evaluation.status = status
+            evaluation.completed_at = datetime.now().isoformat()
+            
+            # Move to history
+            self._history.insert(0, evaluation)
+            if len(self._history) > self._max_history:
+                self._history = self._history[:self._max_history]
+            
+            del self._active[eval_id]
+            
+            logger.info(f"Evaluation {eval_id} {status}")
+            return evaluation
+    
+    def cancel(self, eval_id: str) -> bool:
+        """Request cancellation of an evaluation"""
+        with self._lock:
+            if eval_id not in self._active:
+                return False
+            
+            self._active[eval_id].cancel_requested = True
+            logger.info(f"Cancellation requested for evaluation {eval_id}")
+            return True
+    
+    def is_cancelled(self, eval_id: str) -> bool:
+        """Check if evaluation has been cancelled"""
+        with self._lock:
+            if eval_id not in self._active:
+                return False
+            return self._active[eval_id].cancel_requested
+    
+    def add_in_progress_task(self, eval_id: str, task_id: int):
+        """Mark a task as in-progress"""
+        with self._lock:
+            if eval_id in self._active:
+                if task_id not in self._active[eval_id].in_progress_tasks:
+                    self._active[eval_id].in_progress_tasks.append(task_id)
+    
+    def remove_in_progress_task(self, eval_id: str, task_id: int):
+        """Remove a task from in-progress list"""
+        with self._lock:
+            if eval_id in self._active:
+                if task_id in self._active[eval_id].in_progress_tasks:
+                    self._active[eval_id].in_progress_tasks.remove(task_id)
+    
+    def increment_completed(
+        self, 
+        eval_id: str, 
+        is_correct: bool,
+        inference_time_ms: float,
+        result_id: str,
+        elapsed_seconds: float,
+    ):
+        """Thread-safe increment of completed tasks"""
+        with self._lock:
+            if eval_id not in self._active:
+                return
+            
+            evaluation = self._active[eval_id]
+            evaluation.completed_tasks += 1
+            if is_correct:
+                evaluation.correct_tasks += 1
+            evaluation.result_ids.append(result_id)
+            
+            # Update timing metrics
+            evaluation.elapsed_seconds = elapsed_seconds
+            
+            # Calculate average inference time (rolling average)
+            n = evaluation.completed_tasks
+            if n == 1:
+                evaluation.avg_inference_time_ms = inference_time_ms
+            else:
+                evaluation.avg_inference_time_ms = (
+                    (evaluation.avg_inference_time_ms * (n - 1) + inference_time_ms) / n
+                )
+            
+            # Calculate throughput
+            if elapsed_seconds > 0:
+                evaluation.tasks_per_second = evaluation.completed_tasks / elapsed_seconds
+            
+            # Estimate remaining time based on throughput
+            if evaluation.tasks_per_second > 0:
+                remaining_tasks = evaluation.total_tasks - evaluation.completed_tasks
+                evaluation.estimated_remaining_seconds = remaining_tasks / evaluation.tasks_per_second
+    
+    def get(self, eval_id: str) -> Optional[ActiveEvaluation]:
+        """Get an evaluation by ID (active or from history)"""
+        with self._lock:
+            if eval_id in self._active:
+                return self._active[eval_id]
+            
+            # Check history
+            for evaluation in self._history:
+                if evaluation.id == eval_id:
+                    return evaluation
+            
+            return None
+    
+    def get_active(self) -> List[ActiveEvaluation]:
+        """Get all active evaluations"""
+        with self._lock:
+            return list(self._active.values())
+    
+    def get_all(self, include_history: bool = True) -> Dict[str, List[Dict]]:
+        """Get all evaluations (active and recent history)"""
+        with self._lock:
+            result = {
+                "active": [e.to_dict() for e in self._active.values()],
+                "active_count": len(self._active),
+            }
+            if include_history:
+                result["recent_completed"] = [e.to_dict() for e in self._history[:10]]
+            return result
+
+
+# =============================================================================
 # TRACE EVALUATOR
 # =============================================================================
 
 class TraceEvaluator:
     """Evaluates models on trace tasks"""
     
-    def __init__(self, model_manager: ModelManager, results_db: ResultsDB):
+    # Maximum allowed concurrency (GPU memory constraint)
+    MAX_CONCURRENCY = 8
+    
+    def __init__(
+        self, 
+        model_manager: ModelManager, 
+        results_db: ResultsDB,
+        active_manager: Optional[ActiveEvaluationManager] = None,
+        default_concurrency: int = 1,
+    ):
         self.model_manager = model_manager
         self.results_db = results_db
+        self.active_manager = active_manager or ActiveEvaluationManager()
+        self.default_concurrency = min(default_concurrency, self.MAX_CONCURRENCY)
         self._trace_task = None
         self._lock = Lock()
+        self._executor = ThreadPoolExecutor(max_workers=16)  # For concurrent evaluations
     
     @property
     def trace_task(self):
@@ -706,18 +976,25 @@ class TraceEvaluator:
         max_tokens: int = 2048,
         random_seed: int = 42,
         progress_callback=None,
+        eval_id: Optional[str] = None,  # For tracking
+        concurrency: int = 1,  # Number of parallel workers
     ) -> BenchmarkRun:
-        """Run a full benchmark on random tasks"""
+        """Run a full benchmark on random tasks with optional concurrency"""
         import random
         random.seed(random_seed)
+        
+        # Validate and cap concurrency
+        concurrency = max(1, min(concurrency, self.MAX_CONCURRENCY))
+        
+        resolved_model = model_name or self.model_manager.current_model or "unknown"
         
         # Generate random task IDs
         dataset_size = len(self.trace_task.dataset)
         task_ids = random.sample(range(dataset_size), min(num_tasks, dataset_size))
         
         benchmark = BenchmarkRun(
-            id=str(uuid.uuid4()),
-            model_name=model_name or self.model_manager.current_model or "unknown",
+            id=eval_id or str(uuid.uuid4()),
+            model_name=resolved_model,
             num_tasks=len(task_ids),
             completed_tasks=0,
             correct_tasks=0,
@@ -733,10 +1010,64 @@ class TraceEvaluator:
         
         self.results_db.save_benchmark(benchmark)
         
+        # Update active evaluation status
+        if eval_id and self.active_manager:
+            self.active_manager.update(eval_id, status="running")
+        
         start_time = time.time()
+        
+        if concurrency == 1:
+            # Sequential execution (original behavior)
+            await self._run_benchmark_sequential(
+                benchmark, task_ids, model_name, temperature, max_tokens,
+                eval_id, start_time, progress_callback
+            )
+        else:
+            # Concurrent execution
+            await self._run_benchmark_concurrent(
+                benchmark, task_ids, model_name, temperature, max_tokens,
+                eval_id, start_time, progress_callback, concurrency
+            )
+        
+        return benchmark
+    
+    async def _run_benchmark_sequential(
+        self,
+        benchmark: BenchmarkRun,
+        task_ids: List[int],
+        model_name: Optional[str],
+        temperature: float,
+        max_tokens: int,
+        eval_id: Optional[str],
+        start_time: float,
+        progress_callback,
+    ):
+        """Run benchmark tasks sequentially"""
         total_inference_time = 0.0
         
         for i, task_id in enumerate(task_ids):
+            # Check for cancellation
+            if eval_id and self.active_manager and self.active_manager.is_cancelled(eval_id):
+                logger.info(f"Benchmark {eval_id} cancelled at task {i+1}/{len(task_ids)}")
+                benchmark.status = "cancelled"
+                benchmark.completed_at = datetime.now().isoformat()
+                benchmark.total_time_seconds = time.time() - start_time
+                self.results_db.save_benchmark(benchmark)
+                
+                if self.active_manager:
+                    self.active_manager.complete(eval_id, status="cancelled")
+                return
+            
+            # Update current task in tracking
+            benchmark.current_task_id = task_id
+            if eval_id and self.active_manager:
+                self.active_manager.update(
+                    eval_id,
+                    current_task_id=task_id,
+                    current_task_index=i,
+                    elapsed_seconds=time.time() - start_time,
+                )
+            
             try:
                 result = await self.evaluate_single(
                     task_id=task_id,
@@ -760,6 +1091,17 @@ class TraceEvaluator:
                 # Update benchmark in DB
                 self.results_db.save_benchmark(benchmark)
                 
+                # Update active evaluation
+                if eval_id and self.active_manager:
+                    self.active_manager.update(
+                        eval_id,
+                        completed_tasks=benchmark.completed_tasks,
+                        correct_tasks=benchmark.correct_tasks,
+                        avg_inference_time_ms=benchmark.avg_inference_time_ms,
+                        elapsed_seconds=benchmark.total_time_seconds,
+                        result_id=result.id,
+                    )
+                
                 if progress_callback:
                     progress_callback(benchmark)
                 
@@ -772,13 +1114,208 @@ class TraceEvaluator:
             except Exception as e:
                 logger.error(f"Error evaluating task {task_id}: {e}")
                 benchmark.completed_tasks += 1
+                if eval_id and self.active_manager:
+                    self.active_manager.update(
+                        eval_id,
+                        completed_tasks=benchmark.completed_tasks,
+                        elapsed_seconds=time.time() - start_time,
+                    )
         
         benchmark.completed_at = datetime.now().isoformat()
         benchmark.status = "completed"
+        benchmark.current_task_id = None
         benchmark.total_time_seconds = time.time() - start_time
         self.results_db.save_benchmark(benchmark)
         
-        return benchmark
+        # Mark evaluation as complete
+        if eval_id and self.active_manager:
+            self.active_manager.complete(eval_id, status="completed")
+    
+    async def _run_benchmark_concurrent(
+        self,
+        benchmark: BenchmarkRun,
+        task_ids: List[int],
+        model_name: Optional[str],
+        temperature: float,
+        max_tokens: int,
+        eval_id: Optional[str],
+        start_time: float,
+        progress_callback,
+        concurrency: int,
+    ):
+        """Run benchmark tasks concurrently using asyncio semaphore"""
+        import asyncio
+        
+        semaphore = asyncio.Semaphore(concurrency)
+        results_lock = asyncio.Lock()
+        total_inference_time = 0.0
+        
+        async def evaluate_task(task_id: int, task_index: int):
+            nonlocal total_inference_time
+            
+            # Check for cancellation before starting
+            if eval_id and self.active_manager and self.active_manager.is_cancelled(eval_id):
+                return None
+            
+            async with semaphore:
+                # Check again after acquiring semaphore
+                if eval_id and self.active_manager and self.active_manager.is_cancelled(eval_id):
+                    return None
+                
+                # Track in-progress task
+                if eval_id and self.active_manager:
+                    self.active_manager.add_in_progress_task(eval_id, task_id)
+                
+                try:
+                    result = await self.evaluate_single(
+                        task_id=task_id,
+                        model_name=model_name,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                    )
+                    
+                    # Thread-safe update of results
+                    async with results_lock:
+                        benchmark.completed_tasks += 1
+                        benchmark.result_ids.append(result.id)
+                        
+                        if result.score > 0:
+                            benchmark.correct_tasks += 1
+                        
+                        total_inference_time += result.inference_time_ms
+                        
+                        benchmark.accuracy = benchmark.correct_tasks / benchmark.completed_tasks
+                        benchmark.avg_inference_time_ms = total_inference_time / benchmark.completed_tasks
+                        benchmark.total_time_seconds = time.time() - start_time
+                        
+                        # Update benchmark in DB periodically (every 5 completions)
+                        if benchmark.completed_tasks % 5 == 0 or benchmark.completed_tasks == len(task_ids):
+                            self.results_db.save_benchmark(benchmark)
+                    
+                    # Update active evaluation tracking
+                    if eval_id and self.active_manager:
+                        self.active_manager.increment_completed(
+                            eval_id,
+                            is_correct=result.score > 0,
+                            inference_time_ms=result.inference_time_ms,
+                            result_id=result.id,
+                            elapsed_seconds=time.time() - start_time,
+                        )
+                    
+                    if progress_callback:
+                        progress_callback(benchmark)
+                    
+                    completed = benchmark.completed_tasks
+                    total = len(task_ids)
+                    logger.info(
+                        f"Benchmark [{completed}/{total}] "
+                        f"Task {task_id}: {result.test_result} "
+                        f"(Accuracy: {benchmark.accuracy:.1%}, "
+                        f"Rate: {completed/(time.time()-start_time):.1f}/s)"
+                    )
+                    
+                    return result
+                    
+                except Exception as e:
+                    logger.error(f"Error evaluating task {task_id}: {e}")
+                    async with results_lock:
+                        benchmark.completed_tasks += 1
+                    if eval_id and self.active_manager:
+                        self.active_manager.update(
+                            eval_id,
+                            completed_tasks=benchmark.completed_tasks,
+                            elapsed_seconds=time.time() - start_time,
+                        )
+                    return None
+                    
+                finally:
+                    # Remove from in-progress
+                    if eval_id and self.active_manager:
+                        self.active_manager.remove_in_progress_task(eval_id, task_id)
+        
+        # Create tasks for all evaluations
+        tasks = [
+            evaluate_task(task_id, i) 
+            for i, task_id in enumerate(task_ids)
+        ]
+        
+        # Run all tasks concurrently (semaphore controls actual parallelism)
+        await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Check if cancelled
+        if eval_id and self.active_manager and self.active_manager.is_cancelled(eval_id):
+            benchmark.status = "cancelled"
+            benchmark.completed_at = datetime.now().isoformat()
+            benchmark.total_time_seconds = time.time() - start_time
+            self.results_db.save_benchmark(benchmark)
+            self.active_manager.complete(eval_id, status="cancelled")
+            return
+        
+        # Finalize benchmark
+        benchmark.completed_at = datetime.now().isoformat()
+        benchmark.status = "completed"
+        benchmark.current_task_id = None
+        benchmark.total_time_seconds = time.time() - start_time
+        self.results_db.save_benchmark(benchmark)
+        
+        # Mark evaluation as complete
+        if eval_id and self.active_manager:
+            self.active_manager.complete(eval_id, status="completed")
+        
+        logger.info(
+            f"Benchmark completed: {benchmark.correct_tasks}/{benchmark.completed_tasks} correct "
+            f"({benchmark.accuracy:.1%}) in {benchmark.total_time_seconds:.1f}s "
+            f"(concurrency={concurrency})"
+        )
+    
+    def run_benchmark_async(
+        self,
+        num_tasks: int = 100,
+        model_name: Optional[str] = None,
+        temperature: float = 0.0,
+        max_tokens: int = 2048,
+        random_seed: int = 42,
+        concurrency: int = 1,
+    ) -> ActiveEvaluation:
+        """Start a benchmark asynchronously and return tracking info"""
+        resolved_model = model_name or self.model_manager.current_model or "unknown"
+        
+        # Validate concurrency
+        concurrency = max(1, min(concurrency, self.MAX_CONCURRENCY))
+        
+        # Create active evaluation entry
+        evaluation = self.active_manager.create(
+            eval_type="benchmark",
+            model_name=resolved_model,
+            total_tasks=num_tasks,
+            concurrency=concurrency,
+        )
+        
+        # Run benchmark in background thread
+        def run_in_thread():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                loop.run_until_complete(self.run_benchmark(
+                    num_tasks=num_tasks,
+                    model_name=model_name,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    random_seed=random_seed,
+                    eval_id=evaluation.id,
+                    concurrency=concurrency,
+                ))
+            except Exception as e:
+                logger.error(f"Benchmark {evaluation.id} failed: {e}")
+                self.active_manager.update(evaluation.id, error_message=str(e))
+                self.active_manager.complete(evaluation.id, status="failed")
+            finally:
+                loop.close()
+        
+        thread = Thread(target=run_in_thread, daemon=True)
+        thread.start()
+        
+        return evaluation
 
 
 # =============================================================================
@@ -789,6 +1326,7 @@ def create_app(
     model_manager: ModelManager,
     results_db: ResultsDB,
     evaluator: TraceEvaluator,
+    active_manager: ActiveEvaluationManager,
 ):
     """Create Flask app with evaluation endpoints"""
     try:
@@ -881,13 +1419,25 @@ def create_app(
     
     @app.route("/v1/eval/benchmark", methods=["POST"])
     def run_benchmark():
-        """Run a full benchmark"""
+        """Run a full benchmark (async by default, returns immediately with tracking ID)
+        
+        Request body:
+            num_tasks: int - Number of tasks to evaluate (default: 100, max: 1000)
+            model: str - Model name/alias (optional, uses current model)
+            temperature: float - Sampling temperature (default: 0.0)
+            max_tokens: int - Max output tokens (default: 2048)
+            seed: int - Random seed for task selection (default: 42)
+            sync: bool - If True, wait for completion (default: False)
+            concurrency: int - Number of parallel evaluations (default: 1, max: 8)
+        """
         data = request.json or {}
         num_tasks = data.get("num_tasks", 100)
         model_name = data.get("model")
         temperature = data.get("temperature", 0.0)
         max_tokens = data.get("max_tokens", 2048)
         random_seed = data.get("seed", 42)
+        run_sync = data.get("sync", False)  # If True, wait for completion
+        concurrency = data.get("concurrency", 1)  # Parallel workers
         
         if not model_manager.current_model:
             return jsonify({"error": "No model loaded"}), 400
@@ -895,23 +1445,123 @@ def create_app(
         if num_tasks > 1000:
             return jsonify({"error": "num_tasks must be <= 1000"}), 400
         
+        # Validate and cap concurrency
+        concurrency = max(1, min(concurrency, evaluator.MAX_CONCURRENCY))
+        
         try:
-            benchmark = run_async(evaluator.run_benchmark(
-                num_tasks=num_tasks,
-                model_name=model_name,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                random_seed=random_seed,
-            ))
-            
-            return jsonify({
-                "status": "success",
-                "benchmark": benchmark.to_dict()
-            })
+            if run_sync:
+                # Synchronous execution (blocks until complete)
+                benchmark = run_async(evaluator.run_benchmark(
+                    num_tasks=num_tasks,
+                    model_name=model_name,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    random_seed=random_seed,
+                    concurrency=concurrency,
+                ))
+                
+                return jsonify({
+                    "status": "completed",
+                    "benchmark": benchmark.to_dict()
+                })
+            else:
+                # Async execution (returns immediately)
+                evaluation = evaluator.run_benchmark_async(
+                    num_tasks=num_tasks,
+                    model_name=model_name,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    random_seed=random_seed,
+                    concurrency=concurrency,
+                )
+                
+                return jsonify({
+                    "status": "started",
+                    "message": f"Benchmark started in background (concurrency={concurrency})",
+                    "eval_id": evaluation.id,
+                    "evaluation": evaluation.to_dict(),
+                    "endpoints": {
+                        "status": f"/v1/eval/status/{evaluation.id}",
+                        "cancel": f"/v1/eval/cancel/{evaluation.id}",
+                        "active": "/v1/eval/active"
+                    }
+                })
             
         except Exception as e:
             logger.error(f"Benchmark error: {e}")
             return jsonify({"error": str(e)}), 500
+    
+    # =========================================================================
+    # REAL-TIME STATUS ENDPOINTS (for dashboard)
+    # =========================================================================
+    
+    @app.route("/v1/eval/active", methods=["GET"])
+    def get_active_evaluations():
+        """Get all active/running evaluations - for real-time dashboard"""
+        include_history = request.args.get("include_history", "true").lower() == "true"
+        result = active_manager.get_all(include_history=include_history)
+        return jsonify(result)
+    
+    @app.route("/v1/eval/config", methods=["GET"])
+    def get_eval_config():
+        """Get evaluation configuration and limits"""
+        return jsonify({
+            "max_concurrency": evaluator.MAX_CONCURRENCY,
+            "default_concurrency": evaluator.default_concurrency,
+            "max_tasks_per_benchmark": 1000,
+            "supported_parameters": {
+                "num_tasks": {"type": "int", "default": 100, "max": 1000},
+                "concurrency": {"type": "int", "default": 1, "max": evaluator.MAX_CONCURRENCY},
+                "temperature": {"type": "float", "default": 0.0},
+                "max_tokens": {"type": "int", "default": 2048},
+                "seed": {"type": "int", "default": 42},
+                "sync": {"type": "bool", "default": False},
+            }
+        })
+    
+    @app.route("/v1/eval/status/<eval_id>", methods=["GET"])
+    def get_evaluation_status(eval_id):
+        """Get status of a specific evaluation by ID"""
+        evaluation = active_manager.get(eval_id)
+        
+        if evaluation is None:
+            # Check if it's a benchmark ID in the database
+            benchmarks = results_db.get_benchmarks(limit=100)
+            for b in benchmarks:
+                if b["id"] == eval_id:
+                    return jsonify({
+                        "found": True,
+                        "source": "database",
+                        "evaluation": b
+                    })
+            
+            return jsonify({"error": "Evaluation not found"}), 404
+        
+        return jsonify({
+            "found": True,
+            "source": "active" if evaluation.status in ["pending", "running"] else "history",
+            "evaluation": evaluation.to_dict()
+        })
+    
+    @app.route("/v1/eval/cancel/<eval_id>", methods=["POST"])
+    def cancel_evaluation(eval_id):
+        """Cancel a running evaluation"""
+        success = active_manager.cancel(eval_id)
+        
+        if not success:
+            evaluation = active_manager.get(eval_id)
+            if evaluation:
+                return jsonify({
+                    "error": f"Evaluation already {evaluation.status}",
+                    "evaluation": evaluation.to_dict()
+                }), 400
+            return jsonify({"error": "Evaluation not found"}), 404
+        
+        return jsonify({
+            "status": "cancellation_requested",
+            "eval_id": eval_id,
+            "message": "Cancellation requested. Evaluation will stop after current task."
+        })
     
     # =========================================================================
     # RESULTS ENDPOINTS
@@ -1035,20 +1685,24 @@ def create_app(
     @app.route("/health", methods=["GET"])
     def health():
         """Health check"""
+        active_evals = active_manager.get_active()
         return jsonify({
             "status": "healthy",
             "models_loaded": len(model_manager.engines),
             "current_model": model_manager.current_model,
-            "total_evaluations": results_db.get_count()
+            "total_evaluations": results_db.get_count(),
+            "active_evaluations": len(active_evals),
+            "active_eval_ids": [e.id for e in active_evals]
         })
     
     @app.route("/v1/status", methods=["GET"])
     def full_status():
-        """Full system status"""
+        """Full system status including active evaluations"""
         return jsonify({
             "model_status": model_manager.get_status(),
             "results_summary": results_db.get_summary(),
-            "recent_benchmarks": results_db.get_benchmarks(limit=5)
+            "recent_benchmarks": results_db.get_benchmarks(limit=5),
+            "active_evaluations": active_manager.get_all(include_history=True)
         })
     
     return app
@@ -1065,13 +1719,21 @@ def main():
     parser.add_argument("--preload", type=str, default=None, help="Model to preload on startup")
     parser.add_argument("--db", type=str, default="eval_results.db", help="SQLite database path")
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.85, help="GPU memory utilization")
+    parser.add_argument("--default-concurrency", type=int, default=1, 
+                        help=f"Default concurrency for benchmarks (max: {TraceEvaluator.MAX_CONCURRENCY})")
     
     args = parser.parse_args()
     
     # Create components
     model_manager = ModelManager(gpu_memory_utilization=args.gpu_memory_utilization)
     results_db = ResultsDB(db_path=args.db)
-    evaluator = TraceEvaluator(model_manager, results_db)
+    active_manager = ActiveEvaluationManager()
+    evaluator = TraceEvaluator(
+        model_manager, 
+        results_db, 
+        active_manager,
+        default_concurrency=args.default_concurrency
+    )
     
     # Preload model if specified
     if args.preload:
@@ -1082,17 +1744,24 @@ def main():
             sys.exit(1)
     
     # Create and run app
-    app = create_app(model_manager, results_db, evaluator)
+    app = create_app(model_manager, results_db, evaluator, active_manager)
     
     print(f"\n🔬 Trace Environment Evaluation Server")
     print("=" * 60)
     print(f"Host: {args.host}:{args.port}")
     print(f"Database: {args.db}")
     print(f"GPU Memory Utilization: {args.gpu_memory_utilization}")
+    print(f"Max Concurrency: {evaluator.MAX_CONCURRENCY}")
+    print(f"Default Concurrency: {evaluator.default_concurrency}")
     print("\nEvaluation Endpoints:")
     print(f"  POST /v1/eval/run         - Evaluate single task")
     print(f"  POST /v1/eval/batch       - Evaluate multiple tasks")
-    print(f"  POST /v1/eval/benchmark   - Run full benchmark")
+    print(f"  POST /v1/eval/benchmark   - Run benchmark (supports concurrency)")
+    print(f"  GET  /v1/eval/config      - Get evaluation config/limits")
+    print("\nReal-time Status Endpoints (for dashboard):")
+    print(f"  GET  /v1/eval/active      - Get all active evaluations")
+    print(f"  GET  /v1/eval/status/<id> - Get evaluation status by ID")
+    print(f"  POST /v1/eval/cancel/<id> - Cancel running evaluation")
     print("\nResults Endpoints:")
     print(f"  GET  /v1/results          - Get results (paginated)")
     print(f"  GET  /v1/results/<id>     - Get single result")
