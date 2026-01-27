@@ -277,24 +277,50 @@ def compare_outputs(expected: str, actual: str) -> bool:
 
 
 class LocalTraceTask:
-    """Local Trace task generator and evaluator"""
+    """Local Trace task generator and evaluator
+    
+    Supports two modes:
+    1. Raw Python programs (satpalsr/rl-python) - generates challenges dynamically
+    2. Pre-built SFT dataset (weirek/sft-warmup-trace) - uses pre-generated challenges
+    """
     
     def __init__(
         self,
         dataset_name: str = "satpalsr/rl-python",
+        dataset_config: str = None,
         dataset_split: str = "train",
         hf_token: str = None,
+        use_sft_dataset: bool = False,
     ):
         if not DATASETS_AVAILABLE:
             raise RuntimeError("datasets library not available")
         
         self.hf_token = hf_token or os.environ.get("HF_TOKEN")
-        print(f"Loading dataset: {dataset_name} split={dataset_split}")
-        self.dataset = load_dataset(dataset_name, split=dataset_split, token=self.hf_token)
+        self.use_sft_dataset = use_sft_dataset
+        
+        # Use SFT warmup dataset for consistency with SFT training
+        if use_sft_dataset:
+            dataset_name = "weirek/sft-warmup-trace"
+            dataset_config = dataset_config or "chat_original"
+            print(f"Loading SFT dataset: {dataset_name} config={dataset_config} split={dataset_split}")
+            self.dataset = load_dataset(
+                dataset_name, 
+                dataset_config,
+                split=dataset_split, 
+                token=self.hf_token
+            )
+        else:
+            print(f"Loading dataset: {dataset_name} split={dataset_split}")
+            self.dataset = load_dataset(dataset_name, split=dataset_split, token=self.hf_token)
+        
         print(f"Dataset loaded: {len(self.dataset)} examples")
     
     def generate_challenge(self, task_id: int = None, seed: int = None) -> Dict[str, Any]:
-        """Generate a trace challenge"""
+        """Generate a trace challenge
+        
+        If using SFT dataset, returns pre-built challenges.
+        Otherwise, generates challenges dynamically with print injection.
+        """
         if task_id is not None:
             idx = task_id % len(self.dataset)
             sample = self.dataset[idx]
@@ -302,6 +328,27 @@ class LocalTraceTask:
             idx = random.randint(0, len(self.dataset) - 1)
             sample = self.dataset[idx]
         
+        # Handle SFT dataset format (pre-built challenges)
+        if self.use_sft_dataset:
+            messages = sample.get("messages", [])
+            if len(messages) >= 2:
+                prompt = messages[0]["content"]  # User message
+                ground_truth = messages[1]["content"]  # Assistant response
+            else:
+                prompt = ""
+                ground_truth = ""
+            
+            return {
+                "prompt": prompt,
+                "ground_truth": ground_truth,
+                "transformed_code": "",  # Not available in pre-built format
+                "inputs": "",
+                "seed": seed or 0,
+                "dataset_index": idx,
+                "task_id": task_id,
+            }
+        
+        # Handle raw Python dataset (dynamic generation)
         source = sample.get("program", "")
         inputs = sample.get("inputs", "")
         
