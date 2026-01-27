@@ -14,6 +14,12 @@ Usage:
     # Basic training (chat format, recommended)
     python sft_trace_warmup.py
     
+    # B200 mode - RECOMMENDED for B200 GPU (183GB VRAM, 192 cores)
+    python sft_trace_warmup.py --b200
+    
+    # B200 mode without 4-bit quantization (even faster, uses ~20GB more VRAM)
+    python sft_trace_warmup.py --b200 --no_4bit
+    
     # Use reasoning format (includes thinking steps)
     python sft_trace_warmup.py --config sft_reasoning
     
@@ -81,19 +87,73 @@ BNB_CONFIG = {
 }
 
 
-def get_training_config(output_dir: str, fast_mode: bool = False, h200_mode: bool = False) -> dict:
+def get_training_config(output_dir: str, fast_mode: bool = False, h200_mode: bool = False, b200_mode: bool = False) -> dict:
     """Get training configuration with optimized settings for trace task.
     
     Args:
         output_dir: Output directory for checkpoints
         fast_mode: Disable gradient checkpointing (uses more VRAM)
         h200_mode: Aggressive optimizations for H200 (143GB VRAM, 44 cores)
+        b200_mode: Maximum optimizations for B200 (183GB VRAM, 192 cores)
     """
     
-    # H200 optimized settings - maximize throughput
-    if h200_mode:
+    # B200 optimized settings - for 183GB VRAM, 192 CPU cores
+    if b200_mode:
         config = {
-            # MUCH larger batch sizes - H200 can handle it
+            # Batch sizes - reduced to avoid OOM with 4096 seq length
+            # Memory usage: model (~8GB) + activations (~batch*seq*hidden*layers)
+            "per_device_train_batch_size": 8,
+            "gradient_accumulation_steps": 4,  # Effective batch = 32
+            
+            # Learning rate
+            "learning_rate": 1e-4,
+            "lr_scheduler_type": "cosine",
+            "warmup_ratio": 0.03,
+            
+            # Training duration
+            "num_train_epochs": 3,
+            
+            # Sequence length
+            "max_length": 4096,
+            
+            # Packing disabled - requires Flash Attention to avoid cross-contamination
+            # Install flash-attn and set packing=True for ~30% more efficiency
+            "packing": False,
+            
+            # Use pre-tokenized dataset (tokenization done in load_trace_dataset)
+            "dataset_text_field": None,  # Data is already tokenized
+            
+            # Regularization
+            "weight_decay": 0.01,
+            "max_grad_norm": 1.0,
+            
+            # Less frequent saves/evals for speed
+            "save_strategy": "steps",
+            "save_steps": 500,
+            "save_total_limit": 5,
+            "logging_steps": 10,
+            "eval_strategy": "steps",
+            "eval_steps": 500,
+            
+            # Performance optimizations for B200
+            "bf16": True,
+            "gradient_checkpointing": True,  # Enable to reduce memory - needed for long sequences
+            "gradient_checkpointing_kwargs": {"use_reentrant": False},
+            "optim": "adamw_torch_fused",
+            "dataloader_num_workers": 16,  # Reduced to avoid memory pressure
+            "dataloader_pin_memory": True,
+            "dataloader_prefetch_factor": 4,
+            "torch_compile": False,  # Disabled - TF32 API conflict
+            
+            # Output
+            "output_dir": output_dir,
+            "report_to": "wandb",
+            "run_name": "qwen3-4b-trace-sft-b200",
+        }
+    # H200 optimized settings - maximize throughput
+    elif h200_mode:
+        config = {
+            # Larger batch sizes - H200 can handle it
             "per_device_train_batch_size": 16,
             "gradient_accumulation_steps": 2,  # Effective batch = 32
             
@@ -108,8 +168,9 @@ def get_training_config(output_dir: str, fast_mode: bool = False, h200_mode: boo
             # Sequence length
             "max_length": 4096,
             
-            # Packing for efficiency
-            "packing": True,
+            # Packing disabled - requires Flash Attention
+            "packing": False,
+            "dataset_text_field": None,
             
             # Regularization
             "weight_decay": 0.01,
@@ -138,6 +199,7 @@ def get_training_config(output_dir: str, fast_mode: bool = False, h200_mode: boo
             "run_name": "qwen3-4b-trace-sft-h200",
         }
     else:
+        # Default settings - conservative for unknown hardware
         config = {
             # Batch sizes
             "per_device_train_batch_size": 4 if not fast_mode else 8,
@@ -154,8 +216,9 @@ def get_training_config(output_dir: str, fast_mode: bool = False, h200_mode: boo
             # Sequence length
             "max_length": 4096,
             
-            # Packing
-            "packing": True,
+            # Packing disabled without Flash Attention
+            "packing": False,
+            "dataset_text_field": None,
             
             # Regularization
             "weight_decay": 0.01,
@@ -208,14 +271,15 @@ def format_alpaca_to_chat(example, tokenizer):
     return {"messages": messages}
 
 
-def load_trace_dataset(config_name: str, tokenizer, max_samples: Optional[int] = None, num_proc: int = 8):
-    """Load and prepare the trace dataset.
+def load_trace_dataset(config_name: str, tokenizer, max_samples: Optional[int] = None, num_proc: int = 8, max_length: int = 4096):
+    """Load and prepare the trace dataset with pre-tokenization for speed.
     
     Args:
         config_name: Dataset configuration name
         tokenizer: Tokenizer instance
         max_samples: Limit number of samples (for testing)
         num_proc: Number of processes for dataset preprocessing
+        max_length: Maximum sequence length for tokenization
     """
     print(f"📚 Loading dataset: {DATASET_NAME} (config: {config_name})")
     
@@ -225,6 +289,27 @@ def load_trace_dataset(config_name: str, tokenizer, max_samples: Optional[int] =
     
     print(f"   Train samples: {len(train_dataset)}")
     print(f"   Test samples: {len(test_dataset)}")
+    
+    # Filter out corrupted/extremely long samples BEFORE any processing
+    # Some samples have 1B+ characters which crash tokenization
+    MAX_CHARS = 50000  # ~12k tokens max, well under 4096 after truncation buffer
+    
+    def is_reasonable_length(example):
+        """Filter out samples that are unreasonably long (corrupted data)."""
+        total_chars = sum(len(m["content"]) for m in example["messages"])
+        return total_chars < MAX_CHARS
+    
+    original_train = len(train_dataset)
+    original_test = len(test_dataset)
+    
+    train_dataset = train_dataset.filter(is_reasonable_length, num_proc=num_proc, desc="Filtering train")
+    test_dataset = test_dataset.filter(is_reasonable_length, num_proc=num_proc, desc="Filtering test")
+    
+    filtered_train = original_train - len(train_dataset)
+    filtered_test = original_test - len(test_dataset)
+    if filtered_train > 0 or filtered_test > 0:
+        print(f"   ⚠️  Filtered {filtered_train} train, {filtered_test} test samples (>{MAX_CHARS} chars, likely corrupted)")
+    print(f"   After filtering: {len(train_dataset)} train, {len(test_dataset)} test")
     
     # Limit samples if specified
     if max_samples:
@@ -248,6 +333,90 @@ def load_trace_dataset(config_name: str, tokenizer, max_samples: Optional[int] =
             desc="Converting test"
         )
     
+    # First, apply chat template to convert messages to text (lightweight, can use many processes)
+    print(f"   Applying chat template (using {num_proc} processes)...")
+    
+    def apply_chat_template(examples):
+        """Apply chat template to convert messages to text."""
+        texts = []
+        for messages in examples["messages"]:
+            text = tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=False,
+            )
+            texts.append(text)
+        return {"text": texts}
+    
+    train_dataset = train_dataset.map(
+        apply_chat_template,
+        batched=True,
+        batch_size=500,
+        num_proc=num_proc,
+        remove_columns=["messages"],
+        desc="Applying template (train)",
+        load_from_cache_file=True,
+    )
+    
+    test_dataset = test_dataset.map(
+        apply_chat_template,
+        batched=True,
+        batch_size=500,
+        num_proc=num_proc,
+        remove_columns=["messages"],
+        desc="Applying template (test)",
+        load_from_cache_file=True,
+    )
+    
+    # Now tokenize - use fewer processes to avoid memory issues with tokenizer
+    # Each process loads the tokenizer, so limit to 8 processes max
+    tokenize_num_proc = min(num_proc, 8)
+    print(f"   Tokenizing dataset (using {tokenize_num_proc} processes)...")
+    
+    def tokenize_function(examples):
+        """Tokenize text."""
+        tokenized = tokenizer(
+            examples["text"],
+            truncation=True,
+            max_length=max_length,
+            padding=False,
+            return_attention_mask=True,
+        )
+        # Add labels (same as input_ids for causal LM)
+        tokenized["labels"] = tokenized["input_ids"].copy()
+        return tokenized
+    
+    train_dataset = train_dataset.map(
+        tokenize_function,
+        batched=True,
+        batch_size=500,
+        num_proc=tokenize_num_proc,
+        remove_columns=["text"],
+        desc="Tokenizing train",
+        load_from_cache_file=True,
+    )
+    
+    test_dataset = test_dataset.map(
+        tokenize_function,
+        batched=True,
+        batch_size=500,
+        num_proc=tokenize_num_proc,
+        remove_columns=["text"],
+        desc="Tokenizing test",
+        load_from_cache_file=True,
+    )
+    
+    # Filter out samples that are too long (> max_length)
+    original_train_len = len(train_dataset)
+    train_dataset = train_dataset.filter(
+        lambda x: len(x["input_ids"]) <= max_length,
+        num_proc=num_proc,
+    )
+    if len(train_dataset) < original_train_len:
+        print(f"   Filtered {original_train_len - len(train_dataset)} samples exceeding {max_length} tokens")
+    
+    print(f"   Final dataset: {len(train_dataset)} train, {len(test_dataset)} test samples")
+    
     return train_dataset, test_dataset
 
 
@@ -258,6 +427,7 @@ def main(
     resume_from_checkpoint: bool = False,
     fast_mode: bool = False,
     h200_mode: bool = False,
+    b200_mode: bool = False,
     max_samples: Optional[int] = None,
     use_4bit: bool = True,
     disable_wandb: bool = False,
@@ -274,6 +444,7 @@ def main(
     print(f"4-bit:       {use_4bit}")
     print(f"Fast mode:   {fast_mode}")
     print(f"H200 mode:   {h200_mode}")
+    print(f"B200 mode:   {b200_mode}")
     print("=" * 70)
     
     # Create LoRA config
@@ -315,17 +486,24 @@ def main(
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.pad_token_id = tokenizer.eos_token_id
     
-    # Load dataset (use more processes on H200)
-    num_proc = 16 if h200_mode else 8
+    # Load dataset (use more processes on high-end GPUs)
+    if b200_mode:
+        num_proc = 32  # B200 has 192 cores
+    elif h200_mode:
+        num_proc = 16
+    else:
+        num_proc = 8
+    max_length = 4096  # Max sequence length
     train_dataset, eval_dataset = load_trace_dataset(
         config_name, 
         tokenizer, 
         max_samples=max_samples,
         num_proc=num_proc,
+        max_length=max_length,
     )
     
     # Get training config
-    training_config = get_training_config(output_dir, fast_mode, h200_mode)
+    training_config = get_training_config(output_dir, fast_mode, h200_mode, b200_mode)
     training_config["model_init_kwargs"] = model_kwargs
     
     if disable_wandb:
@@ -353,15 +531,19 @@ def main(
     # Print optimization summary
     print("\n⚡ Optimizations enabled:")
     print(f"   ✓ {attn_impl.upper().replace('_', ' ')}")
-    print("   ✓ Packing (multiple samples per sequence)")
+    print("   ✓ Pre-tokenized dataset (fast multiprocessing tokenization)")
     print("   ✓ Fused AdamW optimizer")
     print(f"   ✓ Parallel data loading ({training_config.get('dataloader_num_workers', 4)} workers)")
-    if h200_mode:
+    if b200_mode:
+        print("   ✓ B200 mode: batch=8, grad_accum=4 (effective=32), grad checkpointing")
+    elif h200_mode:
         print("   ✓ H200 mode: large batches, torch.compile, no grad checkpointing")
     elif fast_mode:
         print("   ✓ Gradient checkpointing disabled (fast mode)")
     else:
-        print("   ○ Gradient checkpointing enabled (use --fast or --h200 to disable)")
+        print("   ○ Gradient checkpointing enabled (use --fast, --h200, or --b200 to disable)")
+    if not training_config.get("packing", False):
+        print("   ○ Packing disabled (install flash-attn to enable)")
     
     # Train
     print("\n🚀 Starting training...")
@@ -406,20 +588,20 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-    # Basic training with chat format (recommended)
-    python sft_trace_warmup.py
+    # B200 mode - RECOMMENDED for your machine (183GB VRAM, 192 cores)
+    python sft_trace_warmup.py --b200
+    
+    # B200 mode without quantization (faster, you have plenty of VRAM)
+    python sft_trace_warmup.py --b200 --no_4bit
     
     # Use reasoning format with extended thinking
-    python sft_trace_warmup.py --config sft_reasoning
-    
-    # Fast mode for quicker iteration
-    python sft_trace_warmup.py --fast
+    python sft_trace_warmup.py --config sft_reasoning --b200
     
     # Resume from checkpoint
-    python sft_trace_warmup.py --resume
+    python sft_trace_warmup.py --resume --b200
     
     # Limit samples for testing
-    python sft_trace_warmup.py --max_samples 1000
+    python sft_trace_warmup.py --max_samples 1000 --b200
         """
     )
     
@@ -458,6 +640,11 @@ Examples:
         help="H200 mode: aggressive optimizations for H200 GPU (143GB VRAM, 44 cores)"
     )
     parser.add_argument(
+        "--b200",
+        action="store_true",
+        help="B200 mode: maximum optimizations for B200 GPU (183GB VRAM, 192 cores)"
+    )
+    parser.add_argument(
         "--max_samples", 
         type=int, 
         default=None,
@@ -483,6 +670,7 @@ Examples:
         resume_from_checkpoint=args.resume,
         fast_mode=args.fast,
         h200_mode=args.h200,
+        b200_mode=args.b200,
         max_samples=args.max_samples,
         use_4bit=not args.no_4bit,
         disable_wandb=args.no_wandb,
