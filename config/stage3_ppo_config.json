@@ -1,0 +1,78 @@
+{
+  "description": "Stage 3: PPO/RL Training Configuration for Trace Environment",
+  "model": {
+    "model_name": "./checkpoints/stage2_sft/merged",
+    "base_model_fallback": "Qwen/Qwen3-4B",
+    "use_4bit": true,
+    "bnb_4bit_compute_dtype": "bfloat16",
+    "bnb_4bit_quant_type": "nf4",
+    "use_nested_quant": true
+  },
+  "lora": {
+    "r": 16,
+    "lora_alpha": 32,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ],
+    "lora_dropout": 0.05,
+    "bias": "none",
+    "task_type": "CAUSAL_LM"
+  },
+  "ppo": {
+    "batch_size": 16,
+    "mini_batch_size": 4,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 5e-7,
+    "ppo_epochs": 2,
+    "init_kl_coef": 0.05,
+    "target_kl": 6.0,
+    "adap_kl_ctrl": true,
+    "cliprange": 0.2,
+    "cliprange_value": 0.2,
+    "vf_coef": 0.1,
+    "gamma": 1.0,
+    "lam": 0.95,
+    "max_grad_norm": 1.0,
+    "num_train_steps": 5000,
+    "save_freq": 100,
+    "eval_freq": 50,
+    "log_freq": 1,
+    "max_seq_length": 4096,
+    "max_new_tokens": 1024,
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "output_dir": "./checkpoints/stage3_ppo",
+    "resume_from": null,
+    "use_wandb": true,
+    "wandb_project": "trace-rl-training",
+    "wandb_run_name": "stage3-ppo"
+  },
+  "reward": {
+    "exact_match_reward": 1.0,
+    "partial_match_enabled": true,
+    "partial_match_max": 0.5,
+    "invalid_penalty": -0.1,
+    "timeout_penalty": -0.2
+  },
+  "curriculum": {
+    "enabled": true,
+    "start_difficulty": "easy",
+    "difficulty_levels": ["easy", "medium", "hard"],
+    "promotion_threshold": 0.7,
+    "promotion_window": 100,
+    "easy_max_lines": 20,
+    "medium_max_lines": 50
+  },
+  "hardware": {
+    "b200_mode": true,
+    "dataloader_workers": 8,
+    "pin_memory": true,
+    "prefetch_factor": 2
+  }
+}

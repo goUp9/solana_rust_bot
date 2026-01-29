@@ -1,0 +1,64 @@
+{
+  "description": "Full Training Pipeline Configuration for Trace Environment",
+  "version": "1.0",
+  "created": "2026-01-27",
+  
+  "model": {
+    "base_model": "Qwen/Qwen3-4B",
+    "description": "Base model to fine-tune. Can also use Qwen/Qwen3-4B-Instruct-2507"
+  },
+  
+  "hardware": {
+    "b200_mode": true,
+    "no_4bit": false,
+    "description": "B200 has 183GB VRAM, 192 CPU cores. Set no_4bit=true for ~20% faster training."
+  },
+  
+  "stage0": {
+    "enabled": true,
+    "description": "Data Generation - Create training datasets",
+    "variants_per_sample": 3,
+    "max_samples": null,
+    "num_workers": 32,
+    "output_dir": "./datasets/trace_training",
+    "estimated_time_b200": "30-45 minutes"
+  },
+  
+  "stage1": {
+    "enabled": true,
+    "description": "Original Warmup - Train on original code without debug prints",
+    "epochs": 2,
+    "output_dir": "./checkpoints/stage1_warmup",
+    "estimated_time_b200": "18-20 minutes"
+  },
+  
+  "stage2": {
+    "enabled": true,
+    "description": "Transformed SFT - Train on code with injected debug prints",
+    "epochs": 3,
+    "output_dir": "./checkpoints/stage2_sft",
+    "estimated_time_b200": "1.5-2 hours"
+  },
+  
+  "stage3": {
+    "enabled": true,
+    "description": "PPO/RL - Online reinforcement learning with trace environment",
+    "num_steps": 5000,
+    "output_dir": "./checkpoints/stage3_ppo",
+    "estimated_time_b200": "5-7 hours"
+  },
+  
+  "quick_test": {
+    "description": "Settings for quick test runs",
+    "stage0_max_samples": 500,
+    "stage1_epochs": 1,
+    "stage2_epochs": 1,
+    "stage2_max_samples": 1000,
+    "stage3_num_steps": 100
+  },
+  
+  "total_estimated_time_b200": {
+    "full_pipeline": "8-10 hours",
+    "quick_test": "30-45 minutes"
+  }
+}
