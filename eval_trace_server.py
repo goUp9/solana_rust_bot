@@ -85,6 +85,7 @@ logger = logging.getLogger(__name__)
 class EvalResult:
     """Single evaluation result"""
     id: str
+    session_id: Optional[str]  # Link to evaluation session
     task_id: Optional[int]
     dataset_index: int
     model_name: str
@@ -115,6 +116,42 @@ class EvalResult:
         return asdict(self)
 
 
+@dataclass
+class EvalSession:
+    """An evaluation session that groups multiple eval results"""
+    id: str
+    name: str
+    description: Optional[str]
+    model_name: str
+    eval_type: str  # "single", "batch", "benchmark", "range"
+    
+    # Task selection
+    num_tasks: int
+    task_ids: List[int] = field(default_factory=list)  # Individual task IDs
+    task_id_start: Optional[int] = None  # Range start (inclusive)
+    task_id_end: Optional[int] = None  # Range end (inclusive)
+    
+    # Progress
+    completed_tasks: int = 0
+    correct_tasks: int = 0
+    accuracy: float = 0.0
+    
+    # Timing
+    avg_inference_time_ms: float = 0.0
+    total_time_seconds: float = 0.0
+    started_at: str = ""
+    completed_at: Optional[str] = None
+    status: str = "pending"  # "pending", "running", "completed", "failed", "cancelled"
+    
+    # Configuration
+    config: Dict[str, Any] = field(default_factory=dict)
+    
+    def to_dict(self) -> dict:
+        d = asdict(self)
+        d["progress_percent"] = (self.completed_tasks / self.num_tasks * 100) if self.num_tasks > 0 else 0.0
+        return d
+
+
 @dataclass 
 class BenchmarkRun:
     """A complete benchmark run"""
@@ -142,15 +179,24 @@ class BenchmarkRun:
 class ActiveEvaluation:
     """Tracks an active/running evaluation"""
     id: str
-    eval_type: str  # "single", "batch", "benchmark"
+    eval_type: str  # "single", "batch", "benchmark", "range"
     model_name: str
     started_at: str
     status: str  # "pending", "running", "completed", "failed", "cancelled"
     
+    # Session info
+    session_id: Optional[str] = None  # Link to EvalSession
+    session_name: Optional[str] = None
+    
+    # Task selection
+    task_ids: List[int] = field(default_factory=list)  # Individual task IDs
+    task_id_start: Optional[int] = None  # Range start
+    task_id_end: Optional[int] = None  # Range end
+    
     # Progress tracking
-    total_tasks: int
-    completed_tasks: int
-    correct_tasks: int
+    total_tasks: int = 0
+    completed_tasks: int = 0
+    correct_tasks: int = 0
     current_task_id: Optional[int] = None
     current_task_index: int = 0
     
@@ -193,11 +239,22 @@ class ResultsDB:
         self._init_db()
     
     def _init_db(self):
-        """Initialize database tables"""
+        """Initialize database tables with migration support"""
         with sqlite3.connect(self.db_path) as conn:
+            # Check if eval_results table exists and has session_id column
+            cursor = conn.execute("PRAGMA table_info(eval_results)")
+            columns = {row[1] for row in cursor.fetchall()}
+            
+            if "id" in columns and "session_id" not in columns:
+                # Migration: add session_id column to existing table
+                logger.info("Migrating eval_results table: adding session_id column")
+                conn.execute("ALTER TABLE eval_results ADD COLUMN session_id TEXT")
+                conn.commit()
+            
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS eval_results (
                     id TEXT PRIMARY KEY,
+                    session_id TEXT,
                     task_id INTEGER,
                     dataset_index INTEGER,
                     model_name TEXT,
@@ -234,9 +291,34 @@ class ResultsDB:
                     result_ids TEXT
                 )
             """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS eval_sessions (
+                    id TEXT PRIMARY KEY,
+                    name TEXT,
+                    description TEXT,
+                    model_name TEXT,
+                    eval_type TEXT,
+                    num_tasks INTEGER,
+                    completed_tasks INTEGER,
+                    correct_tasks INTEGER,
+                    accuracy REAL,
+                    avg_inference_time_ms REAL,
+                    total_time_seconds REAL,
+                    started_at TEXT,
+                    completed_at TEXT,
+                    status TEXT,
+                    task_ids TEXT,
+                    task_id_start INTEGER,
+                    task_id_end INTEGER,
+                    config TEXT
+                )
+            """)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_model_name ON eval_results(model_name)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON eval_results(timestamp)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_score ON eval_results(score)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_session_id ON eval_results(session_id)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_session_status ON eval_sessions(status)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_session_model ON eval_sessions(model_name)")
             conn.commit()
     
     def save_result(self, result: EvalResult):
@@ -245,10 +327,10 @@ class ResultsDB:
             with sqlite3.connect(self.db_path) as conn:
                 conn.execute("""
                     INSERT OR REPLACE INTO eval_results VALUES (
-                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                     )
                 """, (
-                    result.id, result.task_id, result.dataset_index, result.model_name,
+                    result.id, result.session_id, result.task_id, result.dataset_index, result.model_name,
                     result.prompt, result.transformed_code, result.stdin_input,
                     result.ground_truth, result.model_output, result.cleaned_output,
                     result.score, result.test_result, result.timestamp,
@@ -396,6 +478,159 @@ class ResultsDB:
     def export_results(self, model_name: Optional[str] = None) -> List[Dict]:
         """Export all results as JSON-serializable dicts"""
         return self.get_results(model_name=model_name, limit=100000, offset=0)
+    
+    # =========================================================================
+    # SESSION METHODS
+    # =========================================================================
+    
+    def save_session(self, session: EvalSession):
+        """Save an evaluation session"""
+        with self._lock:
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute("""
+                    INSERT OR REPLACE INTO eval_sessions VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    )
+                """, (
+                    session.id, session.name, session.description, session.model_name,
+                    session.eval_type, session.num_tasks, session.completed_tasks,
+                    session.correct_tasks, session.accuracy, session.avg_inference_time_ms,
+                    session.total_time_seconds, session.started_at, session.completed_at,
+                    session.status, json.dumps(session.task_ids),
+                    session.task_id_start, session.task_id_end, json.dumps(session.config)
+                ))
+                conn.commit()
+    
+    def get_session(self, session_id: str) -> Optional[Dict]:
+        """Get a session by ID"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.execute("SELECT * FROM eval_sessions WHERE id = ?", (session_id,))
+            row = cursor.fetchone()
+            if row:
+                d = dict(row)
+                d["task_ids"] = json.loads(d["task_ids"]) if d["task_ids"] else []
+                d["config"] = json.loads(d["config"]) if d["config"] else {}
+                return d
+            return None
+    
+    def get_sessions(
+        self,
+        model_name: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> List[Dict]:
+        """Get paginated sessions"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            
+            query = "SELECT * FROM eval_sessions WHERE 1=1"
+            params = []
+            
+            if model_name:
+                query += " AND model_name = ?"
+                params.append(model_name)
+            
+            if status:
+                query += " AND status = ?"
+                params.append(status)
+            
+            query += " ORDER BY started_at DESC LIMIT ? OFFSET ?"
+            params.extend([limit, offset])
+            
+            cursor = conn.execute(query, params)
+            results = []
+            for row in cursor.fetchall():
+                d = dict(row)
+                d["task_ids"] = json.loads(d["task_ids"]) if d["task_ids"] else []
+                d["config"] = json.loads(d["config"]) if d["config"] else {}
+                results.append(d)
+            return results
+    
+    def get_session_results(
+        self,
+        session_id: str,
+        limit: int = 1000,
+        offset: int = 0,
+        order_by: str = "task_id",
+        order_dir: str = "ASC",
+    ) -> List[Dict]:
+        """Get all results for a specific session"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            
+            # Validate order_by to prevent SQL injection
+            valid_columns = ["task_id", "timestamp", "score", "inference_time_ms"]
+            if order_by not in valid_columns:
+                order_by = "task_id"
+            order_dir = "DESC" if order_dir.upper() == "DESC" else "ASC"
+            
+            query = f"""
+                SELECT * FROM eval_results 
+                WHERE session_id = ?
+                ORDER BY {order_by} {order_dir}
+                LIMIT ? OFFSET ?
+            """
+            cursor = conn.execute(query, (session_id, limit, offset))
+            return [dict(row) for row in cursor.fetchall()]
+    
+    def get_session_summary(self, session_id: str) -> Dict:
+        """Get summary statistics for a session"""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute("""
+                SELECT 
+                    COUNT(*) as total_evals,
+                    SUM(CASE WHEN score > 0 THEN 1 ELSE 0 END) as correct,
+                    AVG(score) as accuracy,
+                    AVG(inference_time_ms) as avg_inference_time_ms,
+                    MIN(timestamp) as first_eval,
+                    MAX(timestamp) as last_eval,
+                    SUM(input_tokens) as total_input_tokens,
+                    SUM(output_tokens) as total_output_tokens
+                FROM eval_results WHERE session_id = ?
+            """, (session_id,))
+            row = cursor.fetchone()
+            
+            # Get session info
+            session = self.get_session(session_id)
+            
+            return {
+                "session_id": session_id,
+                "session": session,
+                "total_evaluations": row[0] or 0,
+                "correct": row[1] or 0,
+                "accuracy": row[2] or 0.0,
+                "avg_inference_time_ms": row[3] or 0.0,
+                "first_eval": row[4],
+                "last_eval": row[5],
+                "total_input_tokens": row[6] or 0,
+                "total_output_tokens": row[7] or 0,
+            }
+    
+    def delete_session(self, session_id: str) -> Dict:
+        """Delete a session and all its results"""
+        with self._lock:
+            with sqlite3.connect(self.db_path) as conn:
+                # Get counts before deletion
+                cursor = conn.execute(
+                    "SELECT COUNT(*) FROM eval_results WHERE session_id = ?", 
+                    (session_id,)
+                )
+                results_count = cursor.fetchone()[0]
+                
+                # Delete results
+                conn.execute("DELETE FROM eval_results WHERE session_id = ?", (session_id,))
+                
+                # Delete session
+                conn.execute("DELETE FROM eval_sessions WHERE id = ?", (session_id,))
+                conn.commit()
+                
+                return {
+                    "session_id": session_id,
+                    "results_deleted": results_count,
+                    "status": "deleted"
+                }
 
 
 # =============================================================================
@@ -435,9 +670,10 @@ class ModelManager:
             "qwen3-4b-sft": "/root/workspace/game_rl_training/Qwen3-4B-Instruct-2507-SFT/checkpoint-5928",
             "qwen3-0.6b-sft": "/root/workspace/game_rl_training/Qwen3-0.6B-SFT/checkpoint-5928",
             "qwen3-4b-lora-sft": "/root/workspace/game_rl_training/Qwen3-4B-LoRA-SFT/final",
-            "qwen3-4b-lora-merged": "/root/workspace/game_rl_training/Qwen3-4B-LoRA-SFT/merged_final",
             "qwen3-4b-base": "Qwen/Qwen3-4B",
             "qwen3-4b-instruct": "Qwen/Qwen3-4B-Instruct",
+            "qwen3-4b-chat": "/root/workspace/game_rl_training/new-0127-b200-merged",
+            "qwen3-4b-thinking-reasoning": "/root/workspace/game_rl_training/Qwen3-4B-Trace-SFT/merged",
         }
     
     def resolve_model_name(self, name: str) -> str:
@@ -592,12 +828,116 @@ class ModelManager:
         response_text = tokenizer.decode(response_ids, skip_special_tokens=True)
         output_tokens = len(response_ids)
         
+        # Clean up intermediate tensors
+        del inputs, outputs, response_ids
+        
         return {
             "response": response_text,
             "input_tokens": input_tokens,
             "output_tokens": output_tokens,
             "inference_time_ms": inference_time,
         }
+    
+    def generate_batch(
+        self,
+        messages_list: List[List[Dict[str, str]]],
+        model_name: Optional[str] = None,
+        max_tokens: int = 2048,
+        temperature: float = 0.0,
+    ) -> List[Dict[str, Any]]:
+        """Generate responses for multiple chat messages in a single batch (true GPU parallelism)"""
+        import torch
+        
+        resolved = self.resolve_model_name(model_name) if model_name else self.current_model
+        
+        if resolved not in self.engines:
+            raise ValueError(f"Model not loaded: {model_name}")
+        
+        model = self.engines[resolved]["model"]
+        tokenizer = self.engines[resolved]["tokenizer"]
+        
+        # Validate temperature - must be a positive float for sampling, or 0 for greedy
+        if temperature is None or not isinstance(temperature, (int, float)):
+            temperature = 0.0
+        temperature = float(temperature)
+        if temperature < 0 or temperature > 2.0:
+            temperature = 0.0  # Invalid temperature, use greedy decoding
+        
+        # Apply chat template to all messages
+        prompts = [
+            tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True
+            )
+            for messages in messages_list
+        ]
+        
+        # Save original padding side and switch to left padding for batch generation
+        # Decoder-only models require left-padding for correct batch generation
+        original_padding_side = tokenizer.padding_side
+        tokenizer.padding_side = "left"
+        
+        try:
+            # Tokenize all prompts with LEFT padding (required for decoder-only models)
+            inputs = tokenizer(
+                prompts, 
+                return_tensors="pt", 
+                padding=True,
+                truncation=True,
+                max_length=4096,  # Reasonable max input length
+            ).to(model.device)
+            
+            # With left-padding, input_lengths are the actual token counts (excluding left pad)
+            input_lengths = [
+                (inputs["attention_mask"][i] == 1).sum().item()
+                for i in range(len(prompts))
+            ]
+            
+            start_time = time.time()
+            
+            with torch.no_grad():
+                outputs = model.generate(
+                    **inputs,
+                    max_new_tokens=max_tokens,
+                    temperature=temperature if temperature > 0 else None,
+                    do_sample=temperature > 0,
+                    pad_token_id=tokenizer.pad_token_id,
+                )
+            
+            inference_time = (time.time() - start_time) * 1000  # ms
+            per_sample_time = inference_time / len(prompts)
+            
+            # Decode responses for each input
+            # With left-padding, the response starts after the padded input
+            results = []
+            for i, output_ids in enumerate(outputs):
+                # Find where the actual input starts (skip left padding)
+                input_start = (inputs["attention_mask"][i] == 0).sum().item()
+                input_end = input_start + input_lengths[i]
+                
+                # Get only the new tokens (after the input)
+                response_ids = output_ids[input_end:]
+                # Remove any padding tokens that might appear
+                response_ids = response_ids[response_ids != tokenizer.pad_token_id]
+                response_text = tokenizer.decode(response_ids, skip_special_tokens=True)
+                
+                results.append({
+                    "response": response_text,
+                    "input_tokens": input_lengths[i],
+                    "output_tokens": len(response_ids),
+                    "inference_time_ms": per_sample_time,  # Approximate per-sample time
+                })
+            
+            return results
+            
+        finally:
+            # Restore original padding side
+            tokenizer.padding_side = original_padding_side
+            
+            # Clean up batch tensors to free VRAM
+            del inputs, outputs
+            torch.cuda.empty_cache()
     
     def list_models(self) -> dict:
         """List loaded models"""
@@ -663,7 +1003,11 @@ class ActiveEvaluationManager:
         model_name: str, 
         total_tasks: int,
         task_ids: Optional[List[int]] = None,
+        task_id_start: Optional[int] = None,
+        task_id_end: Optional[int] = None,
         concurrency: int = 1,
+        session_id: Optional[str] = None,
+        session_name: Optional[str] = None,
     ) -> ActiveEvaluation:
         """Create a new active evaluation"""
         eval_id = str(uuid.uuid4())
@@ -673,6 +1017,11 @@ class ActiveEvaluationManager:
             model_name=model_name,
             started_at=datetime.now().isoformat(),
             status="pending",
+            session_id=session_id,
+            session_name=session_name,
+            task_ids=task_ids or [],
+            task_id_start=task_id_start,
+            task_id_end=task_id_end,
             total_tasks=total_tasks,
             completed_tasks=0,
             correct_tasks=0,
@@ -859,8 +1208,11 @@ class ActiveEvaluationManager:
 class TraceEvaluator:
     """Evaluates models on trace tasks"""
     
-    # Maximum allowed concurrency (GPU memory constraint)
-    MAX_CONCURRENCY = 8
+    # Maximum allowed concurrency (batch size for GPU inference)
+    # H200 (143GB VRAM): Can handle 128+ with Qwen3-4B
+    # At batch 64: ~61GB used, so batch 128 should use ~100-110GB
+    # Recommended: 64 for safety margin, 128 for max throughput
+    MAX_CONCURRENCY = 150
     
     def __init__(
         self, 
@@ -885,12 +1237,25 @@ class TraceEvaluator:
             self._trace_task = TraceTask()
         return self._trace_task
     
+    def _cleanup_vram(self):
+        """Clean up VRAM by forcing garbage collection and clearing CUDA cache"""
+        import torch
+        
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            # Synchronize to ensure all operations are complete
+            torch.cuda.synchronize()
+        
+        logger.debug("VRAM cleanup completed")
+    
     async def evaluate_single(
         self,
         task_id: Optional[int] = None,
         model_name: Optional[str] = None,
         temperature: float = 0.0,
         max_tokens: int = 2048,
+        session_id: Optional[str] = None,
     ) -> EvalResult:
         """Evaluate a single trace task"""
         from trace_task import clean_llm_prediction, compare_outputs
@@ -925,6 +1290,7 @@ class TraceEvaluator:
         # Create result
         result = EvalResult(
             id=str(uuid.uuid4()),
+            session_id=session_id,
             task_id=task_id,
             dataset_index=challenge.extra.get("dataset_index", -1),
             model_name=model_name or self.model_manager.current_model or "unknown",
@@ -949,12 +1315,97 @@ class TraceEvaluator:
         
         return result
     
+    def parse_task_ids(
+        self,
+        task_ids: Optional[List[int]] = None,
+        task_id_start: Optional[int] = None,
+        task_id_end: Optional[int] = None,
+        num_random: Optional[int] = None,
+        random_seed: int = 42,
+        use_modulo_wrapping: bool = True,
+    ) -> List[int]:
+        """Parse task IDs from various input formats
+        
+        Supports:
+        - Individual task IDs: task_ids=[1, 5, 10, 15]
+        - Range: task_id_start=0, task_id_end=99 (inclusive)
+        - Random: num_random=100 with random_seed
+        - Combination: Individual IDs + range
+        
+        Args:
+            use_modulo_wrapping: If True (default), applies modulo wrapping to task IDs
+                                 that exceed dataset size (matching original validator behavior).
+                                 e.g., task_id 491120 with dataset_size 23303 -> 491120 % 23303 = 1757
+                                 If False, out-of-range IDs are skipped.
+        
+        Returns deduplicated, sorted list of valid task IDs (after wrapping if enabled)
+        """
+        import random
+        
+        dataset_size = len(self.trace_task.dataset)
+        result_ids = set()
+        wrapped_count = 0
+        skipped_count = 0
+        
+        # Add individual task IDs
+        if task_ids:
+            for tid in task_ids:
+                if 0 <= tid < dataset_size:
+                    result_ids.add(tid)
+                elif use_modulo_wrapping:
+                    # Apply modulo wrapping (matches original trace_task.py behavior)
+                    wrapped_id = tid % dataset_size
+                    result_ids.add(wrapped_id)
+                    wrapped_count += 1
+                else:
+                    skipped_count += 1
+            
+            if wrapped_count > 0:
+                logger.info(
+                    f"Applied modulo wrapping to {wrapped_count}/{len(task_ids)} task IDs "
+                    f"(dataset size: {dataset_size}). Example: {task_ids[0]} -> {task_ids[0] % dataset_size}"
+                )
+            
+            if skipped_count > 0:
+                logger.warning(
+                    f"Skipped {skipped_count}/{len(task_ids)} task IDs out of valid range "
+                    f"[0, {dataset_size-1}]. Dataset size: {dataset_size}"
+                )
+        
+        # Add range of task IDs
+        if task_id_start is not None and task_id_end is not None:
+            start = max(0, task_id_start)
+            end = min(dataset_size - 1, task_id_end)
+            original_range = task_id_end - task_id_start + 1
+            actual_range = end - start + 1
+            for tid in range(start, end + 1):
+                result_ids.add(tid)
+            
+            if actual_range < original_range:
+                logger.warning(
+                    f"Range clamped: requested [{task_id_start}, {task_id_end}] "
+                    f"but dataset only has {dataset_size} items, using [{start}, {end}]"
+                )
+        
+        # Add random task IDs
+        if num_random is not None and num_random > 0:
+            random.seed(random_seed)
+            available = [i for i in range(dataset_size) if i not in result_ids]
+            num_to_sample = min(num_random, len(available))
+            random_ids = random.sample(available, num_to_sample)
+            result_ids.update(random_ids)
+        
+        logger.info(f"Parsed {len(result_ids)} unique task IDs (dataset size: {dataset_size})")
+        
+        return sorted(list(result_ids))
+    
     async def evaluate_batch(
         self,
         task_ids: List[int],
         model_name: Optional[str] = None,
         temperature: float = 0.0,
         max_tokens: int = 2048,
+        session_id: Optional[str] = None,
     ) -> List[EvalResult]:
         """Evaluate multiple tasks"""
         results = []
@@ -964,6 +1415,7 @@ class TraceEvaluator:
                 model_name=model_name,
                 temperature=temperature,
                 max_tokens=max_tokens,
+                session_id=session_id,
             )
             results.append(result)
         return results
@@ -978,8 +1430,18 @@ class TraceEvaluator:
         progress_callback=None,
         eval_id: Optional[str] = None,  # For tracking
         concurrency: int = 1,  # Number of parallel workers
+        session_id: Optional[str] = None,  # Link to session
+        task_ids: Optional[List[int]] = None,  # Explicit task IDs (overrides random)
+        task_id_start: Optional[int] = None,  # Range start
+        task_id_end: Optional[int] = None,  # Range end
     ) -> BenchmarkRun:
-        """Run a full benchmark on random tasks with optional concurrency"""
+        """Run a full benchmark with flexible task selection
+        
+        Task selection priority:
+        1. If task_ids provided, use those
+        2. If task_id_start/end provided, use range
+        3. Otherwise, select num_tasks random tasks
+        """
         import random
         random.seed(random_seed)
         
@@ -988,9 +1450,17 @@ class TraceEvaluator:
         
         resolved_model = model_name or self.model_manager.current_model or "unknown"
         
-        # Generate random task IDs
-        dataset_size = len(self.trace_task.dataset)
-        task_ids = random.sample(range(dataset_size), min(num_tasks, dataset_size))
+        # Determine task IDs based on input
+        if task_ids:
+            # Use explicitly provided task IDs
+            task_ids = self.parse_task_ids(task_ids=task_ids)
+        elif task_id_start is not None and task_id_end is not None:
+            # Use range
+            task_ids = self.parse_task_ids(task_id_start=task_id_start, task_id_end=task_id_end)
+        else:
+            # Generate random task IDs
+            dataset_size = len(self.trace_task.dataset)
+            task_ids = random.sample(range(dataset_size), min(num_tasks, dataset_size))
         
         benchmark = BenchmarkRun(
             id=eval_id or str(uuid.uuid4()),
@@ -1010,6 +1480,9 @@ class TraceEvaluator:
         
         self.results_db.save_benchmark(benchmark)
         
+        # Use session_id from benchmark ID if not explicitly provided
+        session_id = session_id or benchmark.id
+        
         # Update active evaluation status
         if eval_id and self.active_manager:
             self.active_manager.update(eval_id, status="running")
@@ -1020,13 +1493,13 @@ class TraceEvaluator:
             # Sequential execution (original behavior)
             await self._run_benchmark_sequential(
                 benchmark, task_ids, model_name, temperature, max_tokens,
-                eval_id, start_time, progress_callback
+                eval_id, start_time, progress_callback, session_id
             )
         else:
             # Concurrent execution
             await self._run_benchmark_concurrent(
                 benchmark, task_ids, model_name, temperature, max_tokens,
-                eval_id, start_time, progress_callback, concurrency
+                eval_id, start_time, progress_callback, concurrency, session_id
             )
         
         return benchmark
@@ -1041,6 +1514,7 @@ class TraceEvaluator:
         eval_id: Optional[str],
         start_time: float,
         progress_callback,
+        session_id: Optional[str] = None,
     ):
         """Run benchmark tasks sequentially"""
         total_inference_time = 0.0
@@ -1074,6 +1548,7 @@ class TraceEvaluator:
                     model_name=model_name,
                     temperature=temperature,
                     max_tokens=max_tokens,
+                    session_id=session_id,
                 )
                 
                 benchmark.completed_tasks += 1
@@ -1130,6 +1605,9 @@ class TraceEvaluator:
         # Mark evaluation as complete
         if eval_id and self.active_manager:
             self.active_manager.complete(eval_id, status="completed")
+        
+        # Clean up VRAM after sequential benchmark
+        self._cleanup_vram()
     
     async def _run_benchmark_concurrent(
         self,
@@ -1142,55 +1620,110 @@ class TraceEvaluator:
         start_time: float,
         progress_callback,
         concurrency: int,
+        session_id: Optional[str] = None,
     ):
-        """Run benchmark tasks concurrently using asyncio semaphore"""
-        import asyncio
+        """Run benchmark tasks with true batched GPU inference for parallelism"""
+        from trace_task import clean_llm_prediction, compare_outputs
         
-        semaphore = asyncio.Semaphore(concurrency)
-        results_lock = asyncio.Lock()
         total_inference_time = 0.0
         
-        async def evaluate_task(task_id: int, task_index: int):
-            nonlocal total_inference_time
-            
-            # Check for cancellation before starting
+        # Process tasks in batches for true GPU parallelism
+        for batch_start in range(0, len(task_ids), concurrency):
+            # Check for cancellation
             if eval_id and self.active_manager and self.active_manager.is_cancelled(eval_id):
-                return None
+                logger.info(f"Benchmark {eval_id} cancelled at batch starting {batch_start}")
+                benchmark.status = "cancelled"
+                benchmark.completed_at = datetime.now().isoformat()
+                benchmark.total_time_seconds = time.time() - start_time
+                self.results_db.save_benchmark(benchmark)
+                if self.active_manager:
+                    self.active_manager.complete(eval_id, status="cancelled")
+                return
             
-            async with semaphore:
-                # Check again after acquiring semaphore
-                if eval_id and self.active_manager and self.active_manager.is_cancelled(eval_id):
-                    return None
-                
-                # Track in-progress task
-                if eval_id and self.active_manager:
+            batch_end = min(batch_start + concurrency, len(task_ids))
+            batch_task_ids = task_ids[batch_start:batch_end]
+            
+            # Track in-progress tasks
+            if eval_id and self.active_manager:
+                for task_id in batch_task_ids:
                     self.active_manager.add_in_progress_task(eval_id, task_id)
+            
+            try:
+                # Generate challenges for the batch
+                challenges = []
+                for task_id in batch_task_ids:
+                    challenge = await self.trace_task.generate(task_id=task_id)
+                    challenges.append(challenge)
                 
+                # Prepare messages for batch inference
+                messages_list = [
+                    [{"role": "user", "content": challenge.prompt}]
+                    for challenge in challenges
+                ]
+                
+                # Batch inference - TRUE GPU parallelism
                 try:
-                    result = await self.evaluate_single(
-                        task_id=task_id,
+                    gen_results = self.model_manager.generate_batch(
+                        messages_list=messages_list,
                         model_name=model_name,
-                        temperature=temperature,
                         max_tokens=max_tokens,
+                        temperature=temperature,
+                    )
+                except Exception as e:
+                    logger.error(f"Batch inference error: {e}")
+                    gen_results = [
+                        {"response": "", "input_tokens": 0, "output_tokens": 0, "inference_time_ms": 0}
+                        for _ in batch_task_ids
+                    ]
+                
+                # Process results for each task in the batch
+                for i, (task_id, challenge, gen_result) in enumerate(zip(batch_task_ids, challenges, gen_results)):
+                    model_output = gen_result["response"]
+                    
+                    # Evaluate
+                    cleaned_output = clean_llm_prediction(model_output)
+                    ground_truth = challenge.extra.get("ground_truth", "")
+                    score = 1.0 if compare_outputs(ground_truth, cleaned_output) else 0.0
+                    test_result = "1/1" if score > 0 else "0/1"
+                    
+                    # Create result
+                    result = EvalResult(
+                        id=str(uuid.uuid4()),
+                        session_id=session_id,
+                        task_id=task_id,
+                        dataset_index=challenge.extra.get("dataset_index", -1),
+                        model_name=model_name or self.model_manager.current_model or "unknown",
+                        prompt=challenge.prompt,
+                        transformed_code=challenge.extra.get("transformed_code", ""),
+                        stdin_input=challenge.extra.get("inputs", ""),
+                        ground_truth=ground_truth,
+                        model_output=model_output,
+                        cleaned_output=cleaned_output,
+                        score=score,
+                        test_result=test_result,
+                        timestamp=datetime.now().isoformat(),
+                        inference_time_ms=gen_result["inference_time_ms"],
+                        input_tokens=gen_result["input_tokens"],
+                        output_tokens=gen_result["output_tokens"],
+                        seed=challenge.extra.get("seed", 0),
+                        error=None,
                     )
                     
-                    # Thread-safe update of results
-                    async with results_lock:
-                        benchmark.completed_tasks += 1
-                        benchmark.result_ids.append(result.id)
-                        
-                        if result.score > 0:
-                            benchmark.correct_tasks += 1
-                        
-                        total_inference_time += result.inference_time_ms
-                        
-                        benchmark.accuracy = benchmark.correct_tasks / benchmark.completed_tasks
-                        benchmark.avg_inference_time_ms = total_inference_time / benchmark.completed_tasks
-                        benchmark.total_time_seconds = time.time() - start_time
-                        
-                        # Update benchmark in DB periodically (every 5 completions)
-                        if benchmark.completed_tasks % 5 == 0 or benchmark.completed_tasks == len(task_ids):
-                            self.results_db.save_benchmark(benchmark)
+                    # Save to database
+                    self.results_db.save_result(result)
+                    
+                    # Update benchmark stats
+                    benchmark.completed_tasks += 1
+                    benchmark.result_ids.append(result.id)
+                    
+                    if result.score > 0:
+                        benchmark.correct_tasks += 1
+                    
+                    total_inference_time += result.inference_time_ms
+                    
+                    benchmark.accuracy = benchmark.correct_tasks / benchmark.completed_tasks
+                    benchmark.avg_inference_time_ms = total_inference_time / benchmark.completed_tasks
+                    benchmark.total_time_seconds = time.time() - start_time
                     
                     # Update active evaluation tracking
                     if eval_id and self.active_manager:
@@ -1207,49 +1740,40 @@ class TraceEvaluator:
                     
                     completed = benchmark.completed_tasks
                     total = len(task_ids)
+                    rate = completed / (time.time() - start_time) if time.time() > start_time else 0
                     logger.info(
                         f"Benchmark [{completed}/{total}] "
                         f"Task {task_id}: {result.test_result} "
                         f"(Accuracy: {benchmark.accuracy:.1%}, "
-                        f"Rate: {completed/(time.time()-start_time):.1f}/s)"
+                        f"Rate: {rate:.2f}/s)"
                     )
-                    
-                    return result
-                    
-                except Exception as e:
-                    logger.error(f"Error evaluating task {task_id}: {e}")
-                    async with results_lock:
-                        benchmark.completed_tasks += 1
+                
+            except Exception as e:
+                logger.error(f"Error processing batch starting at {batch_start}: {e}")
+                # Mark tasks as completed with errors
+                for task_id in batch_task_ids:
+                    benchmark.completed_tasks += 1
                     if eval_id and self.active_manager:
                         self.active_manager.update(
                             eval_id,
                             completed_tasks=benchmark.completed_tasks,
                             elapsed_seconds=time.time() - start_time,
                         )
-                    return None
-                    
-                finally:
-                    # Remove from in-progress
-                    if eval_id and self.active_manager:
+            
+            finally:
+                # Remove tasks from in-progress
+                if eval_id and self.active_manager:
+                    for task_id in batch_task_ids:
                         self.active_manager.remove_in_progress_task(eval_id, task_id)
-        
-        # Create tasks for all evaluations
-        tasks = [
-            evaluate_task(task_id, i) 
-            for i, task_id in enumerate(task_ids)
-        ]
-        
-        # Run all tasks concurrently (semaphore controls actual parallelism)
-        await asyncio.gather(*tasks, return_exceptions=True)
-        
-        # Check if cancelled
-        if eval_id and self.active_manager and self.active_manager.is_cancelled(eval_id):
-            benchmark.status = "cancelled"
-            benchmark.completed_at = datetime.now().isoformat()
-            benchmark.total_time_seconds = time.time() - start_time
-            self.results_db.save_benchmark(benchmark)
-            self.active_manager.complete(eval_id, status="cancelled")
-            return
+                
+                # Save benchmark progress periodically
+                if benchmark.completed_tasks % 5 == 0 or benchmark.completed_tasks == len(task_ids):
+                    self.results_db.save_benchmark(benchmark)
+                
+                # Periodic VRAM cleanup every 10 batches to prevent memory accumulation
+                batch_num = batch_start // concurrency
+                if batch_num > 0 and batch_num % 10 == 0:
+                    self._cleanup_vram()
         
         # Finalize benchmark
         benchmark.completed_at = datetime.now().isoformat()
@@ -1265,8 +1789,11 @@ class TraceEvaluator:
         logger.info(
             f"Benchmark completed: {benchmark.correct_tasks}/{benchmark.completed_tasks} correct "
             f"({benchmark.accuracy:.1%}) in {benchmark.total_time_seconds:.1f}s "
-            f"(concurrency={concurrency})"
+            f"(batch_size={concurrency})"
         )
+        
+        # Clean up VRAM after benchmark completion
+        self._cleanup_vram()
     
     def run_benchmark_async(
         self,
@@ -1276,19 +1803,71 @@ class TraceEvaluator:
         max_tokens: int = 2048,
         random_seed: int = 42,
         concurrency: int = 1,
+        session_name: Optional[str] = None,
+        session_description: Optional[str] = None,
+        task_ids: Optional[List[int]] = None,
+        task_id_start: Optional[int] = None,
+        task_id_end: Optional[int] = None,
     ) -> ActiveEvaluation:
-        """Start a benchmark asynchronously and return tracking info"""
+        """Start a benchmark asynchronously and return tracking info
+        
+        Supports flexible task selection:
+        - task_ids: List of specific task IDs [1, 5, 10, 20]
+        - task_id_start/end: Range of task IDs (inclusive)
+        - num_tasks: Random selection (default)
+        """
         resolved_model = model_name or self.model_manager.current_model or "unknown"
         
         # Validate concurrency
         concurrency = max(1, min(concurrency, self.MAX_CONCURRENCY))
         
+        # Determine actual task IDs for tracking
+        if task_ids:
+            actual_task_ids = self.parse_task_ids(task_ids=task_ids)
+            eval_type = "batch"
+        elif task_id_start is not None and task_id_end is not None:
+            actual_task_ids = self.parse_task_ids(task_id_start=task_id_start, task_id_end=task_id_end)
+            eval_type = "range"
+        else:
+            actual_task_ids = []  # Will be determined randomly
+            eval_type = "benchmark"
+        
+        actual_num_tasks = len(actual_task_ids) if actual_task_ids else num_tasks
+        
+        # Create session
+        session_id = str(uuid.uuid4())
+        session = EvalSession(
+            id=session_id,
+            name=session_name or f"Eval-{datetime.now().strftime('%Y%m%d-%H%M%S')}",
+            description=session_description,
+            model_name=resolved_model,
+            eval_type=eval_type,
+            num_tasks=actual_num_tasks,
+            task_ids=actual_task_ids,
+            task_id_start=task_id_start,
+            task_id_end=task_id_end,
+            started_at=datetime.now().isoformat(),
+            status="pending",
+            config={
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "random_seed": random_seed,
+                "concurrency": concurrency,
+            }
+        )
+        self.results_db.save_session(session)
+        
         # Create active evaluation entry
         evaluation = self.active_manager.create(
-            eval_type="benchmark",
+            eval_type=eval_type,
             model_name=resolved_model,
-            total_tasks=num_tasks,
+            total_tasks=actual_num_tasks,
+            task_ids=actual_task_ids,
+            task_id_start=task_id_start,
+            task_id_end=task_id_end,
             concurrency=concurrency,
+            session_id=session_id,
+            session_name=session.name,
         )
         
         # Run benchmark in background thread
@@ -1296,6 +1875,10 @@ class TraceEvaluator:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
+                # Update session status
+                session.status = "running"
+                self.results_db.save_session(session)
+                
                 loop.run_until_complete(self.run_benchmark(
                     num_tasks=num_tasks,
                     model_name=model_name,
@@ -1304,11 +1887,31 @@ class TraceEvaluator:
                     random_seed=random_seed,
                     eval_id=evaluation.id,
                     concurrency=concurrency,
+                    session_id=session_id,
+                    task_ids=actual_task_ids if actual_task_ids else None,
+                    task_id_start=task_id_start,
+                    task_id_end=task_id_end,
                 ))
+                
+                # Update session on completion
+                summary = self.results_db.get_session_summary(session_id)
+                session.completed_tasks = summary["total_evaluations"]
+                session.correct_tasks = summary["correct"]
+                session.accuracy = summary["accuracy"]
+                session.avg_inference_time_ms = summary["avg_inference_time_ms"]
+                session.completed_at = datetime.now().isoformat()
+                session.status = "completed"
+                self.results_db.save_session(session)
+                
             except Exception as e:
                 logger.error(f"Benchmark {evaluation.id} failed: {e}")
                 self.active_manager.update(evaluation.id, error_message=str(e))
                 self.active_manager.complete(evaluation.id, status="failed")
+                
+                # Update session on failure
+                session.status = "failed"
+                session.completed_at = datetime.now().isoformat()
+                self.results_db.save_session(session)
             finally:
                 loop.close()
         
@@ -1422,27 +2025,84 @@ def create_app(
         """Run a full benchmark (async by default, returns immediately with tracking ID)
         
         Request body:
-            num_tasks: int - Number of tasks to evaluate (default: 100, max: 1000)
+            # Task Selection (use ONE of these approaches):
+            num_tasks: int - Number of random tasks (default: 100, max: 1000)
+            task_ids: list[int] - Specific task IDs [1, 5, 10, 20]
+            task_id_start: int - Range start (inclusive), use with task_id_end
+            task_id_end: int - Range end (inclusive), use with task_id_start
+            
+            # Model & Generation:
             model: str - Model name/alias (optional, uses current model)
             temperature: float - Sampling temperature (default: 0.0)
             max_tokens: int - Max output tokens (default: 2048)
+            
+            # Session:
+            session_name: str - Name for this evaluation session
+            session_description: str - Description for the session
+            
+            # Execution:
             seed: int - Random seed for task selection (default: 42)
             sync: bool - If True, wait for completion (default: False)
-            concurrency: int - Number of parallel evaluations (default: 1, max: 8)
+            concurrency: int - Number of parallel evaluations (default: 1, max: 150)
+        
+        Examples:
+            # Random 100 tasks
+            {"num_tasks": 100}
+            
+            # Specific task IDs
+            {"task_ids": [0, 10, 20, 30, 40]}
+            
+            # Range of tasks (0-99 inclusive)
+            {"task_id_start": 0, "task_id_end": 99}
+            
+            # Range with session name
+            {"task_id_start": 100, "task_id_end": 199, "session_name": "Batch 2"}
         """
         data = request.json or {}
+        
+        # Task selection
         num_tasks = data.get("num_tasks", 100)
+        task_ids = data.get("task_ids")  # List of specific IDs
+        task_id_start = data.get("task_id_start")  # Range start
+        task_id_end = data.get("task_id_end")  # Range end
+        
+        # Model & generation
         model_name = data.get("model")
         temperature = data.get("temperature", 0.0)
         max_tokens = data.get("max_tokens", 2048)
+        
+        # Session
+        session_name = data.get("session_name")
+        session_description = data.get("session_description")
+        
+        # Execution
         random_seed = data.get("seed", 42)
-        run_sync = data.get("sync", False)  # If True, wait for completion
-        concurrency = data.get("concurrency", 1)  # Parallel workers
+        run_sync = data.get("sync", False)
+        concurrency = data.get("concurrency", 1)
+        
+        # Validate temperature
+        try:
+            temperature = float(temperature) if temperature is not None else 0.0
+            if temperature < 0 or temperature > 2.0:
+                temperature = 0.0
+        except (TypeError, ValueError):
+            temperature = 0.0
         
         if not model_manager.current_model:
             return jsonify({"error": "No model loaded"}), 400
         
-        if num_tasks > 1000:
+        # Validate task selection
+        if task_ids:
+            if not isinstance(task_ids, list):
+                return jsonify({"error": "task_ids must be a list of integers"}), 400
+            if len(task_ids) > 1000:
+                return jsonify({"error": "task_ids must have <= 1000 items"}), 400
+        elif task_id_start is not None and task_id_end is not None:
+            if task_id_end < task_id_start:
+                return jsonify({"error": "task_id_end must be >= task_id_start"}), 400
+            if (task_id_end - task_id_start + 1) > 1000:
+                return jsonify({"error": "Range must be <= 1000 tasks"}), 400
+        elif num_tasks > 1000:
             return jsonify({"error": "num_tasks must be <= 1000"}), 400
         
         # Validate and cap concurrency
@@ -1458,6 +2118,9 @@ def create_app(
                     max_tokens=max_tokens,
                     random_seed=random_seed,
                     concurrency=concurrency,
+                    task_ids=task_ids,
+                    task_id_start=task_id_start,
+                    task_id_end=task_id_end,
                 ))
                 
                 return jsonify({
@@ -1473,16 +2136,25 @@ def create_app(
                     max_tokens=max_tokens,
                     random_seed=random_seed,
                     concurrency=concurrency,
+                    session_name=session_name,
+                    session_description=session_description,
+                    task_ids=task_ids,
+                    task_id_start=task_id_start,
+                    task_id_end=task_id_end,
                 )
                 
                 return jsonify({
                     "status": "started",
                     "message": f"Benchmark started in background (concurrency={concurrency})",
                     "eval_id": evaluation.id,
+                    "session_id": evaluation.session_id,
+                    "session_name": evaluation.session_name,
                     "evaluation": evaluation.to_dict(),
                     "endpoints": {
                         "status": f"/v1/eval/status/{evaluation.id}",
                         "cancel": f"/v1/eval/cancel/{evaluation.id}",
+                        "session": f"/v1/sessions/{evaluation.session_id}",
+                        "session_results": f"/v1/sessions/{evaluation.session_id}/results",
                         "active": "/v1/eval/active"
                     }
                 })
@@ -1505,10 +2177,18 @@ def create_app(
     @app.route("/v1/eval/config", methods=["GET"])
     def get_eval_config():
         """Get evaluation configuration and limits"""
+        # Get dataset size
+        try:
+            dataset_size = len(evaluator.trace_task.dataset)
+        except Exception:
+            dataset_size = None
+        
         return jsonify({
             "max_concurrency": evaluator.MAX_CONCURRENCY,
             "default_concurrency": evaluator.default_concurrency,
             "max_tasks_per_benchmark": 1000,
+            "dataset_size": dataset_size,
+            "valid_task_id_range": [0, dataset_size - 1] if dataset_size else None,
             "supported_parameters": {
                 "num_tasks": {"type": "int", "default": 100, "max": 1000},
                 "concurrency": {"type": "int", "default": 1, "max": evaluator.MAX_CONCURRENCY},
@@ -1639,6 +2319,117 @@ def create_app(
         })
     
     # =========================================================================
+    # SESSION ENDPOINTS
+    # =========================================================================
+    
+    @app.route("/v1/sessions", methods=["GET"])
+    def get_sessions():
+        """Get all evaluation sessions
+        
+        Query params:
+            model: str - Filter by model name
+            status: str - Filter by status (pending, running, completed, failed, cancelled)
+            limit: int - Max results (default: 50)
+            offset: int - Pagination offset
+        """
+        model_name = request.args.get("model")
+        status = request.args.get("status")
+        limit = int(request.args.get("limit", 50))
+        offset = int(request.args.get("offset", 0))
+        
+        sessions = results_db.get_sessions(
+            model_name=model_name,
+            status=status,
+            limit=limit,
+            offset=offset,
+        )
+        
+        return jsonify({
+            "object": "list",
+            "data": sessions,
+            "limit": limit,
+            "offset": offset,
+        })
+    
+    @app.route("/v1/sessions/<session_id>", methods=["GET"])
+    def get_session(session_id):
+        """Get a specific session by ID with summary"""
+        session = results_db.get_session(session_id)
+        
+        if session is None:
+            return jsonify({"error": "Session not found"}), 404
+        
+        # Get summary stats
+        summary = results_db.get_session_summary(session_id)
+        
+        return jsonify({
+            "session": session,
+            "summary": summary,
+            "endpoints": {
+                "results": f"/v1/sessions/{session_id}/results",
+                "summary": f"/v1/sessions/{session_id}/summary",
+            }
+        })
+    
+    @app.route("/v1/sessions/<session_id>/results", methods=["GET"])
+    def get_session_results(session_id):
+        """Get all results for a specific session
+        
+        Query params:
+            limit: int - Max results (default: 1000)
+            offset: int - Pagination offset
+            order_by: str - Sort field (task_id, timestamp, score, inference_time_ms)
+            order_dir: str - Sort direction (ASC, DESC)
+        """
+        # Verify session exists
+        session = results_db.get_session(session_id)
+        if session is None:
+            return jsonify({"error": "Session not found"}), 404
+        
+        limit = int(request.args.get("limit", 1000))
+        offset = int(request.args.get("offset", 0))
+        order_by = request.args.get("order_by", "task_id")
+        order_dir = request.args.get("order_dir", "ASC")
+        
+        results = results_db.get_session_results(
+            session_id=session_id,
+            limit=limit,
+            offset=offset,
+            order_by=order_by,
+            order_dir=order_dir,
+        )
+        
+        return jsonify({
+            "object": "list",
+            "session_id": session_id,
+            "session": session,
+            "data": results,
+            "total": len(results),
+            "limit": limit,
+            "offset": offset,
+        })
+    
+    @app.route("/v1/sessions/<session_id>/summary", methods=["GET"])
+    def get_session_summary(session_id):
+        """Get summary statistics for a session"""
+        session = results_db.get_session(session_id)
+        if session is None:
+            return jsonify({"error": "Session not found"}), 404
+        
+        summary = results_db.get_session_summary(session_id)
+        return jsonify(summary)
+    
+    @app.route("/v1/sessions/<session_id>", methods=["DELETE"])
+    def delete_session(session_id):
+        """Delete a session and all its results"""
+        session = results_db.get_session(session_id)
+        if session is None:
+            return jsonify({"error": "Session not found"}), 404
+        
+        result = results_db.delete_session(session_id)
+        return jsonify(result)
+    
+    # =========================================================================
     # MODEL ENDPOINTS
     # =========================================================================
     
@@ -1681,6 +2472,82 @@ def create_app(
     # =========================================================================
     # SYSTEM ENDPOINTS
     # =========================================================================
+    
+    @app.route("/v1/system/cleanup", methods=["POST"])
+    def cleanup_vram():
+        """Manually trigger VRAM cleanup (garbage collection + CUDA cache clear)"""
+        import torch
+        
+        # Get memory before cleanup
+        before = {}
+        if torch.cuda.is_available():
+            for i in range(torch.cuda.device_count()):
+                before[f"cuda:{i}"] = {
+                    "allocated_gb": round(torch.cuda.memory_allocated(i) / 1024**3, 2),
+                    "reserved_gb": round(torch.cuda.memory_reserved(i) / 1024**3, 2),
+                }
+        
+        # Perform cleanup
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+        
+        # Get memory after cleanup
+        after = {}
+        if torch.cuda.is_available():
+            for i in range(torch.cuda.device_count()):
+                after[f"cuda:{i}"] = {
+                    "allocated_gb": round(torch.cuda.memory_allocated(i) / 1024**3, 2),
+                    "reserved_gb": round(torch.cuda.memory_reserved(i) / 1024**3, 2),
+                }
+        
+        # Calculate freed memory
+        freed = {}
+        for device in before:
+            if device in after:
+                freed[device] = {
+                    "allocated_freed_gb": round(before[device]["allocated_gb"] - after[device]["allocated_gb"], 2),
+                    "reserved_freed_gb": round(before[device]["reserved_gb"] - after[device]["reserved_gb"], 2),
+                }
+        
+        logger.info(f"VRAM cleanup: freed {freed}")
+        
+        return jsonify({
+            "status": "cleanup_complete",
+            "memory_before": before,
+            "memory_after": after,
+            "memory_freed": freed,
+        })
+    
+    @app.route("/v1/system/memory", methods=["GET"])
+    def get_memory_status():
+        """Get detailed GPU memory status"""
+        import torch
+        
+        memory = {}
+        if torch.cuda.is_available():
+            for i in range(torch.cuda.device_count()):
+                props = torch.cuda.get_device_properties(i)
+                allocated = torch.cuda.memory_allocated(i)
+                reserved = torch.cuda.memory_reserved(i)
+                total = props.total_memory
+                
+                memory[f"cuda:{i}"] = {
+                    "device_name": props.name,
+                    "total_gb": round(total / 1024**3, 2),
+                    "allocated_gb": round(allocated / 1024**3, 2),
+                    "reserved_gb": round(reserved / 1024**3, 2),
+                    "free_gb": round((total - reserved) / 1024**3, 2),
+                    "allocated_percent": round(allocated / total * 100, 1),
+                    "reserved_percent": round(reserved / total * 100, 1),
+                }
+        
+        return jsonify({
+            "gpu_memory": memory,
+            "models_loaded": len(model_manager.engines),
+            "current_model": model_manager.current_model,
+        })
     
     @app.route("/health", methods=["GET"])
     def health():
@@ -1747,35 +2614,51 @@ def main():
     app = create_app(model_manager, results_db, evaluator, active_manager)
     
     print(f"\n🔬 Trace Environment Evaluation Server")
-    print("=" * 60)
+    print("=" * 70)
     print(f"Host: {args.host}:{args.port}")
     print(f"Database: {args.db}")
+    print(f"Backend: vLLM (High-Performance Inference)")
     print(f"GPU Memory Utilization: {args.gpu_memory_utilization}")
     print(f"Max Concurrency: {evaluator.MAX_CONCURRENCY}")
     print(f"Default Concurrency: {evaluator.default_concurrency}")
     print("\nEvaluation Endpoints:")
-    print(f"  POST /v1/eval/run         - Evaluate single task")
-    print(f"  POST /v1/eval/batch       - Evaluate multiple tasks")
-    print(f"  POST /v1/eval/benchmark   - Run benchmark (supports concurrency)")
-    print(f"  GET  /v1/eval/config      - Get evaluation config/limits")
+    print(f"  POST /v1/eval/run           - Evaluate single task")
+    print(f"  POST /v1/eval/batch         - Evaluate multiple tasks")
+    print(f"  POST /v1/eval/benchmark     - Run benchmark (supports task_ids, ranges)")
+    print(f"  GET  /v1/eval/config        - Get evaluation config/limits")
     print("\nReal-time Status Endpoints (for dashboard):")
-    print(f"  GET  /v1/eval/active      - Get all active evaluations")
-    print(f"  GET  /v1/eval/status/<id> - Get evaluation status by ID")
-    print(f"  POST /v1/eval/cancel/<id> - Cancel running evaluation")
+    print(f"  GET  /v1/eval/active        - Get all active evaluations")
+    print(f"  GET  /v1/eval/status/<id>   - Get evaluation status by ID")
+    print(f"  POST /v1/eval/cancel/<id>   - Cancel running evaluation")
+    print("\nSession Endpoints (NEW):")
+    print(f"  GET  /v1/sessions           - List all sessions")
+    print(f"  GET  /v1/sessions/<id>      - Get session details")
+    print(f"  GET  /v1/sessions/<id>/results  - Get all results for a session")
+    print(f"  GET  /v1/sessions/<id>/summary  - Get session summary stats")
+    print(f"  DELETE /v1/sessions/<id>    - Delete session and results")
     print("\nResults Endpoints:")
-    print(f"  GET  /v1/results          - Get results (paginated)")
-    print(f"  GET  /v1/results/<id>     - Get single result")
-    print(f"  GET  /v1/results/summary  - Get summary stats")
-    print(f"  GET  /v1/results/export   - Export all results")
-    print(f"  GET  /v1/benchmarks       - Get benchmark runs")
+    print(f"  GET  /v1/results            - Get results (paginated)")
+    print(f"  GET  /v1/results/<id>       - Get single result")
+    print(f"  GET  /v1/results/summary    - Get summary stats")
+    print(f"  GET  /v1/results/export     - Export all results")
+    print(f"  GET  /v1/benchmarks         - Get benchmark runs")
     print("\nModel Endpoints:")
-    print(f"  POST /v1/models/load      - Load a model")
-    print(f"  GET  /v1/models           - List loaded models")
-    print(f"  GET  /v1/models/status    - Model status")
+    print(f"  POST /v1/models/load        - Load a model")
+    print(f"  GET  /v1/models             - List loaded models")
+    print(f"  GET  /v1/models/status      - Model status")
+    print("\nSystem Endpoints:")
+    print(f"  POST /v1/system/cleanup     - Manual VRAM cleanup")
+    print(f"  GET  /v1/system/memory      - Get GPU memory status")
+    print(f"  GET  /health                - Health check")
+    print(f"  GET  /v1/status             - Full system status")
+    print("\nTask Selection Examples:")
+    print(f"  Random:  {{'num_tasks': 100}}")
+    print(f"  Specific: {{'task_ids': [0, 10, 20, 30]}}")
+    print(f"  Range:   {{'task_id_start': 0, 'task_id_end': 99}}")
     print("\nAvailable model aliases:")
     for alias, path in model_manager.model_aliases.items():
         print(f"  {alias:25} -> {path}")
-    print("=" * 60 + "\n")
+    print("=" * 70 + "\n")
     
     app.run(host=args.host, port=args.port, threaded=True)
 
