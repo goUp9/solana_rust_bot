@@ -1,639 +1,458 @@
 #!/usr/bin/env python3
 """
-Stage 3: PPO/RL Training for Trace Environment
+Stage 2: Transformed Dataset SFT Training
 
-This script performs reinforcement learning on the trace task using PPO.
-The model learns from actual code execution feedback in the trace environment.
+This script trains the model on code with injected debug prints.
+This is the MAIN training stage that teaches the actual trace task:
+predicting stdout output including __DBG_N__ debug prints.
 
 Purpose:
-- Fine-tune the model with RL for better trace performance
-- Learn from binary rewards (exact match vs no match)
-- Optional curriculum learning (easy → medium → hard programs)
+- Teach the model to trace code execution with debug print injection
+- Multiple variants per sample prevent memorization
+- Build core capability for the trace environment
 
 Prerequisites:
-- Run Stage 1 and Stage 2 first (or at least Stage 2)
-- Have the merged Stage 2 model available
+- Run generate_trace_datasets.py first to create the dataset
+- Optionally run train_stage1_warmup.py first for better starting point
 
 Usage:
-    # Basic training with Stage 2 model
-    python train_stage3_ppo.py
+    # Basic training (uses Qwen3-4B as base)
+    python train_stage2_sft.py
     
-    # Use custom config
-    python train_stage3_ppo.py --config config/stage3_ppo_config.json
+    # Use Stage 1 warmup model as base (recommended)
+    python train_stage2_sft.py --base_model ./checkpoints/stage1_warmup/merged
     
-    # Specify base model explicitly
-    python train_stage3_ppo.py --base_model ./checkpoints/stage2_sft/merged
+    # B200 optimized
+    python train_stage2_sft.py --b200
     
-    # Quick test run
-    python train_stage3_ppo.py --num_steps 100 --eval_freq 10
+    # B200 without quantization
+    python train_stage2_sft.py --b200 --no_4bit
     
-    # Resume training
-    python train_stage3_ppo.py --resume ./checkpoints/stage3_ppo/step_1000
+    # Custom settings
+    python train_stage2_sft.py --epochs 4 --batch_size 16
 """
 
 import os
 import sys
 import json
-import random
-import asyncio
 import argparse
-import time
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
-from dataclasses import dataclass, field
+from typing import Optional, Dict, Any
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-from peft import LoraConfig, get_peft_model, TaskType, PeftModel
-from trl import PPOConfig, PPOTrainer, AutoModelForCausalLMWithValueHead
-
-try:
-    import wandb
-    WANDB_AVAILABLE = True
-except ImportError:
-    WANDB_AVAILABLE = False
-
-# Add path for trace_task imports
-TRACE_ENV_PATH = "/root/workstation/sn120/affine_repo/affinetes/environments/trace"
-sys.path.insert(0, TRACE_ENV_PATH)
-
-try:
-    from trace_task import (
-        TraceTask,
-        inject_non_overfittable_prints,
-        run_code_sync,
-        clean_llm_prediction,
-        compare_outputs,
-    )
-    TRACE_AVAILABLE = True
-except ImportError as e:
-    print(f"Warning: Could not import trace_task: {e}")
-    TRACE_AVAILABLE = False
+from datasets import load_dataset, Dataset
+from transformers import (
+    AutoTokenizer,
+    BitsAndBytesConfig,
+)
+from peft import LoraConfig, TaskType
+from trl import SFTTrainer, SFTConfig
 
 
 # =============================================================================
-# CONFIGURATION
+# DEFAULT CONFIGURATION
 # =============================================================================
 
-DEFAULT_CONFIG_PATH = "./config/stage3_ppo_config.json"
-DEFAULT_BASE_MODEL = "./checkpoints/stage2_sft/merged"
-DEFAULT_OUTPUT_DIR = "./checkpoints/stage3_ppo"
+# Model Configuration
+DEFAULT_MODEL_NAME = "Qwen/Qwen3-4B"
+DEFAULT_OUTPUT_DIR = "./checkpoints/stage2_sft"
+
+# Dataset Configuration
+DEFAULT_DATASET_PATH = "./datasets/trace_training/stage2_transformed_train.jsonl"
+DEFAULT_EVAL_PATH = "./datasets/trace_training/stage2_transformed_test.jsonl"
+
+# LoRA Configuration - same as Stage 1 for consistency
+LORA_CONFIG = {
+    "r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "target_modules": [
+        "q_proj", "k_proj", "v_proj", "o_proj",
+        "gate_proj", "up_proj", "down_proj",
+    ],
+    "bias": "none",
+    "task_type": TaskType.CAUSAL_LM,
+}
+
+# Quantization Configuration
+BNB_CONFIG = {
+    "load_in_4bit": True,
+    "bnb_4bit_compute_dtype": torch.bfloat16,
+    "bnb_4bit_quant_type": "nf4",
+    "bnb_4bit_use_double_quant": True,
+}
 
 
-@dataclass
-class PPOTrainingState:
-    """Training state for checkpointing"""
-    step: int = 0
-    total_reward: float = 0.0
-    success_count: int = 0
-    total_count: int = 0
-    current_difficulty: str = "easy"
-    best_success_rate: float = 0.0
+def get_training_config(
+    output_dir: str,
+    b200_mode: bool = False,
+    num_epochs: int = 3,
+    batch_size: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Get training configuration optimized for hardware."""
     
-    def to_dict(self) -> Dict:
-        return {
-            "step": self.step,
-            "total_reward": self.total_reward,
-            "success_count": self.success_count,
-            "total_count": self.total_count,
-            "current_difficulty": self.current_difficulty,
-            "best_success_rate": self.best_success_rate,
+    if b200_mode:
+        # B200 optimized: 183GB VRAM, 192 CPU cores
+        config = {
+            "per_device_train_batch_size": batch_size or 8,
+            "gradient_accumulation_steps": 4,  # Effective batch = 32
+            "learning_rate": 1e-4,
+            "lr_scheduler_type": "cosine",
+            "warmup_ratio": 0.03,
+            "num_train_epochs": num_epochs,
+            "max_length": 4096,  # Longer for transformed code with debug prints
+            "packing": False,
+            "dataset_text_field": None,
+            "weight_decay": 0.01,
+            "max_grad_norm": 1.0,
+            "save_strategy": "steps",
+            "save_steps": 500,
+            "save_total_limit": 5,
+            "logging_steps": 10,
+            "eval_strategy": "steps",
+            "eval_steps": 500,
+            "bf16": True,
+            "gradient_checkpointing": True,
+            "gradient_checkpointing_kwargs": {"use_reentrant": False},
+            "optim": "adamw_torch_fused",
+            "dataloader_num_workers": 16,
+            "dataloader_pin_memory": True,
+            "dataloader_prefetch_factor": 4,
+            "torch_compile": False,
+            "output_dir": output_dir,
+            "report_to": "wandb",
+            "run_name": "qwen3-4b-stage2-sft",
+        }
+    else:
+        # Default conservative settings
+        config = {
+            "per_device_train_batch_size": batch_size or 4,
+            "gradient_accumulation_steps": 4,
+            "learning_rate": 1e-4,
+            "lr_scheduler_type": "cosine",
+            "warmup_ratio": 0.05,
+            "num_train_epochs": num_epochs,
+            "max_length": 4096,
+            "packing": False,
+            "dataset_text_field": None,
+            "weight_decay": 0.01,
+            "max_grad_norm": 1.0,
+            "save_strategy": "steps",
+            "save_steps": 500,
+            "save_total_limit": 3,
+            "logging_steps": 10,
+            "eval_strategy": "steps",
+            "eval_steps": 500,
+            "bf16": True,
+            "gradient_checkpointing": True,
+            "optim": "adamw_torch_fused",
+            "dataloader_num_workers": 8,
+            "dataloader_pin_memory": True,
+            "output_dir": output_dir,
+            "report_to": "wandb",
+            "run_name": "qwen3-4b-stage2-sft",
         }
     
-    @classmethod
-    def from_dict(cls, data: Dict) -> "PPOTrainingState":
-        return cls(**data)
+    return config
 
 
-class TraceRewardComputer:
-    """Compute rewards for trace task predictions"""
+def load_jsonl_dataset(
+    path: str,
+    tokenizer,
+    max_length: int,
+    num_proc: int = 8,
+    max_samples: Optional[int] = None,
+):
+    """Load JSONL dataset and tokenize."""
     
-    def __init__(self, config: Dict[str, Any]):
-        self.exact_match_reward = config.get("exact_match_reward", 1.0)
-        self.partial_match_enabled = config.get("partial_match_enabled", True)
-        self.partial_match_max = config.get("partial_match_max", 0.5)
-        self.invalid_penalty = config.get("invalid_penalty", -0.1)
-        self.timeout_penalty = config.get("timeout_penalty", -0.2)
+    print(f"📚 Loading dataset: {path}")
     
-    def compute_reward(
-        self,
-        prediction: str,
-        ground_truth: str,
-        error: Optional[str] = None,
-    ) -> Tuple[float, Dict[str, Any]]:
-        """Compute reward for a prediction."""
-        
-        info = {
-            "exact_match": False,
-            "partial_score": 0.0,
-            "error": error,
-        }
-        
-        if error:
-            if "timeout" in error.lower():
-                return self.timeout_penalty, info
-            return self.invalid_penalty, info
-        
-        # Clean prediction
-        cleaned = clean_llm_prediction(prediction) if prediction else ""
-        
-        # Check exact match
-        if compare_outputs(ground_truth, cleaned):
-            info["exact_match"] = True
-            return self.exact_match_reward, info
-        
-        # Partial credit
-        if self.partial_match_enabled and cleaned and ground_truth:
-            pred_lines = cleaned.strip().split('\n')
-            truth_lines = ground_truth.strip().split('\n')
-            
-            if truth_lines:
-                matching = sum(
-                    1 for p, t in zip(pred_lines, truth_lines)
-                    if p.strip().lower() == t.strip().lower()
-                )
-                partial = matching / len(truth_lines)
-                info["partial_score"] = partial
-                return partial * self.partial_match_max, info
-        
-        return 0.0, info
-
-
-class TracePPOTrainer:
-    """PPO Trainer for Trace Environment"""
-    
-    def __init__(
-        self,
-        config: Dict[str, Any],
-        base_model_path: str,
-        output_dir: str,
-    ):
-        self.config = config
-        self.base_model_path = base_model_path
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Initialize components
-        self.trace_task = TraceTask() if TRACE_AVAILABLE else None
-        self.reward_computer = TraceRewardComputer(config.get("reward", {}))
-        self.state = PPOTrainingState()
-        
-        # Curriculum settings
-        curriculum_config = config.get("curriculum", {})
-        self.curriculum_enabled = curriculum_config.get("enabled", False)
-        self.difficulty_levels = curriculum_config.get("difficulty_levels", ["easy", "medium", "hard"])
-        self.promotion_threshold = curriculum_config.get("promotion_threshold", 0.7)
-        self.promotion_window = curriculum_config.get("promotion_window", 100)
-        self.easy_max_lines = curriculum_config.get("easy_max_lines", 20)
-        self.medium_max_lines = curriculum_config.get("medium_max_lines", 50)
-        
-        # Recent results for curriculum
-        self.recent_results: List[bool] = []
-        
-        # Load model and tokenizer
-        self._load_model()
-    
-    def _load_model(self):
-        """Load model with LoRA for PPO training."""
-        
-        print(f"\n📦 Loading model: {self.base_model_path}")
-        
-        model_config = self.config.get("model", {})
-        lora_config = self.config.get("lora", {})
-        ppo_config = self.config.get("ppo", {})
-        
-        # Quantization
-        if model_config.get("use_4bit", True):
-            bnb_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.bfloat16,
-                bnb_4bit_quant_type=model_config.get("bnb_4bit_quant_type", "nf4"),
-                bnb_4bit_use_double_quant=model_config.get("use_nested_quant", True),
-            )
-        else:
-            bnb_config = None
-        
-        # Check attention implementation
-        try:
-            import flash_attn
-            attn_impl = "flash_attention_2"
-        except ImportError:
-            attn_impl = "sdpa"
-        
-        # Load tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.base_model_path,
-            trust_remote_code=True,
-        )
-        if self.tokenizer.pad_token is None:
-            self.tokenizer.pad_token = self.tokenizer.eos_token
-            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
-        
-        # Load model with value head for PPO
-        model_kwargs = {
-            "trust_remote_code": True,
-            "attn_implementation": attn_impl,
-        }
-        if bnb_config:
-            model_kwargs["quantization_config"] = bnb_config
-            model_kwargs["device_map"] = "auto"
-        else:
-            model_kwargs["torch_dtype"] = torch.bfloat16
-            model_kwargs["device_map"] = "auto"
-        
-        self.model = AutoModelForCausalLMWithValueHead.from_pretrained(
-            self.base_model_path,
-            **model_kwargs,
-        )
-        
-        # Apply LoRA
-        peft_config = LoraConfig(
-            r=lora_config.get("r", 16),
-            lora_alpha=lora_config.get("lora_alpha", 32),
-            target_modules=lora_config.get("target_modules", ["q_proj", "v_proj"]),
-            lora_dropout=lora_config.get("lora_dropout", 0.05),
-            bias=lora_config.get("bias", "none"),
-            task_type=TaskType.CAUSAL_LM,
-        )
-        self.model.pretrained_model = get_peft_model(self.model.pretrained_model, peft_config)
-        
-        # Create PPO config
-        self.ppo_trainer_config = PPOConfig(
-            learning_rate=ppo_config.get("learning_rate", 5e-7),
-            batch_size=ppo_config.get("batch_size", 16),
-            mini_batch_size=ppo_config.get("mini_batch_size", 4),
-            gradient_accumulation_steps=ppo_config.get("gradient_accumulation_steps", 4),
-            ppo_epochs=ppo_config.get("ppo_epochs", 2),
-            kl_coef=ppo_config.get("init_kl_coef", 0.05),
-            cliprange=ppo_config.get("cliprange", 0.2),
-            vf_coef=ppo_config.get("vf_coef", 0.1),
-            max_grad_norm=ppo_config.get("max_grad_norm", 1.0),
-        )
-        
-        # Create PPO trainer
-        self.ppo_trainer = PPOTrainer(
-            config=self.ppo_trainer_config,
-            model=self.model,
-            tokenizer=self.tokenizer,
-        )
-        
-        print(f"   Model loaded with LoRA")
-        trainable = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
-        total = sum(p.numel() for p in self.model.parameters())
-        print(f"   Trainable: {trainable:,} / {total:,} ({100*trainable/total:.2f}%)")
-    
-    def _get_task_ids_for_difficulty(self, difficulty: str, count: int) -> List[int]:
-        """Get task IDs appropriate for current difficulty level."""
-        
-        if not self.trace_task:
-            return list(range(count))
-        
-        dataset_size = len(self.trace_task.dataset)
-        
-        # Sample task IDs and filter by difficulty
-        candidates = random.sample(range(dataset_size), min(count * 10, dataset_size))
-        selected = []
-        
-        for task_id in candidates:
-            if len(selected) >= count:
+    # Load JSONL
+    samples = []
+    with open(path, 'r') as f:
+        for i, line in enumerate(f):
+            if max_samples and i >= max_samples:
                 break
-            
-            sample = self.trace_task.dataset[task_id]
-            program = sample.get("program", "")
-            lines = len(program.strip().split('\n'))
-            
-            if difficulty == "easy" and lines <= self.easy_max_lines:
-                selected.append(task_id)
-            elif difficulty == "medium" and self.easy_max_lines < lines <= self.medium_max_lines:
-                selected.append(task_id)
-            elif difficulty == "hard" and lines > self.medium_max_lines:
-                selected.append(task_id)
-            elif not self.curriculum_enabled:
-                selected.append(task_id)
-        
-        # Fill remaining with random if needed
-        while len(selected) < count:
-            selected.append(random.randint(0, dataset_size - 1))
-        
-        return selected
+            data = json.loads(line)
+            samples.append(data)
     
-    def _maybe_promote_difficulty(self):
-        """Check if we should increase difficulty level."""
-        
-        if not self.curriculum_enabled:
-            return
-        
-        if len(self.recent_results) < self.promotion_window:
-            return
-        
-        recent_success_rate = sum(self.recent_results[-self.promotion_window:]) / self.promotion_window
-        
-        if recent_success_rate >= self.promotion_threshold:
-            current_idx = self.difficulty_levels.index(self.state.current_difficulty)
-            if current_idx < len(self.difficulty_levels) - 1:
-                self.state.current_difficulty = self.difficulty_levels[current_idx + 1]
-                print(f"\n🎯 Promoted to difficulty: {self.state.current_difficulty}")
-                self.recent_results = []  # Reset
+    print(f"   Loaded {len(samples):,} samples")
     
-    async def _generate_and_evaluate_batch(
-        self,
-        task_ids: List[int],
-    ) -> List[Tuple[str, str, str, float, Dict]]:
-        """Generate challenges and get model predictions for a batch."""
-        
-        ppo_config = self.config.get("ppo", {})
-        max_new_tokens = ppo_config.get("max_new_tokens", 1024)
-        temperature = ppo_config.get("temperature", 0.7)
-        top_p = ppo_config.get("top_p", 0.9)
-        
-        results = []
-        
-        for task_id in task_ids:
-            try:
-                # Generate challenge
-                challenge = await self.trace_task.generate(task_id=task_id)
-                prompt = challenge.prompt
-                ground_truth = challenge.extra.get("ground_truth", "")
-                
-                # Tokenize prompt
-                inputs = self.tokenizer(
-                    prompt,
-                    return_tensors="pt",
-                    truncation=True,
-                    max_length=ppo_config.get("max_seq_length", 4096) - max_new_tokens,
-                ).to(self.model.pretrained_model.device)
-                
-                # Generate response
-                with torch.no_grad():
-                    outputs = self.model.pretrained_model.generate(
-                        **inputs,
-                        max_new_tokens=max_new_tokens,
-                        temperature=temperature,
-                        top_p=top_p,
-                        do_sample=True,
-                        pad_token_id=self.tokenizer.pad_token_id,
-                    )
-                
-                # Decode response
-                response = self.tokenizer.decode(
-                    outputs[0][inputs["input_ids"].shape[1]:],
-                    skip_special_tokens=True,
-                )
-                
-                # Compute reward
-                reward, info = self.reward_computer.compute_reward(
-                    response, ground_truth
-                )
-                
-                results.append((prompt, response, ground_truth, reward, info))
-                
-            except Exception as e:
-                print(f"   Error on task {task_id}: {e}")
-                results.append(("", "", "", self.reward_computer.invalid_penalty, {"error": str(e)}))
-        
-        return results
+    # Filter extremely long samples before processing
+    MAX_CHARS = 50000
+    original_count = len(samples)
+    samples = [s for s in samples if sum(len(m["content"]) for m in s["messages"]) < MAX_CHARS]
+    if len(samples) < original_count:
+        print(f"   Filtered {original_count - len(samples)} samples (>{MAX_CHARS} chars)")
     
-    def train(
-        self,
-        num_steps: int,
-        eval_freq: int = 50,
-        save_freq: int = 100,
-        log_freq: int = 1,
-    ):
-        """Main training loop."""
-        
-        print("\n" + "=" * 70)
-        print("🚀 Stage 3: PPO Training")
-        print("=" * 70)
-        print(f"   Steps:        {num_steps}")
-        print(f"   Eval freq:    {eval_freq}")
-        print(f"   Save freq:    {save_freq}")
-        print(f"   Curriculum:   {self.curriculum_enabled}")
-        print("=" * 70)
-        
-        ppo_config = self.config.get("ppo", {})
-        batch_size = ppo_config.get("batch_size", 16)
-        
-        # Initialize wandb
-        use_wandb = ppo_config.get("use_wandb", False) and WANDB_AVAILABLE
-        if use_wandb:
-            wandb.init(
-                project=ppo_config.get("wandb_project", "trace-rl"),
-                name=ppo_config.get("wandb_run_name", "stage3-ppo"),
-                config=self.config,
+    # Convert to HF Dataset
+    dataset = Dataset.from_list([{"messages": s["messages"]} for s in samples])
+    
+    # Apply chat template
+    def apply_chat_template(examples):
+        texts = []
+        for messages in examples["messages"]:
+            text = tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=False,
             )
-        
-        # Training loop
-        for step in range(self.state.step, num_steps):
-            step_start = time.time()
-            
-            # Get task IDs for current difficulty
-            task_ids = self._get_task_ids_for_difficulty(
-                self.state.current_difficulty,
-                batch_size,
-            )
-            
-            # Generate and evaluate
-            results = asyncio.run(self._generate_and_evaluate_batch(task_ids))
-            
-            # Prepare for PPO update
-            queries = []
-            responses = []
-            rewards = []
-            
-            for prompt, response, ground_truth, reward, info in results:
-                if prompt and response:
-                    query_tensor = self.tokenizer(prompt, return_tensors="pt")["input_ids"][0]
-                    response_tensor = self.tokenizer(response, return_tensors="pt")["input_ids"][0]
-                    
-                    queries.append(query_tensor)
-                    responses.append(response_tensor)
-                    rewards.append(torch.tensor([reward]))
-                    
-                    # Track success
-                    success = info.get("exact_match", False)
-                    self.recent_results.append(success)
-                    self.state.success_count += int(success)
-                    self.state.total_count += 1
-            
-            # PPO update
-            if queries and responses:
-                try:
-                    stats = self.ppo_trainer.step(queries, responses, rewards)
-                except Exception as e:
-                    print(f"   PPO step error: {e}")
-                    stats = {}
-            else:
-                stats = {}
-            
-            # Update state
-            self.state.step = step + 1
-            self.state.total_reward += sum(r.item() for r in rewards)
-            
-            # Check curriculum promotion
-            self._maybe_promote_difficulty()
-            
-            # Logging
-            if step % log_freq == 0:
-                success_rate = self.state.success_count / max(self.state.total_count, 1)
-                avg_reward = self.state.total_reward / max(self.state.total_count, 1)
-                step_time = time.time() - step_start
-                
-                print(f"Step {step+1}/{num_steps} | "
-                      f"Reward: {avg_reward:.3f} | "
-                      f"Success: {success_rate:.1%} | "
-                      f"Difficulty: {self.state.current_difficulty} | "
-                      f"Time: {step_time:.1f}s")
-                
-                if use_wandb:
-                    wandb.log({
-                        "step": step + 1,
-                        "avg_reward": avg_reward,
-                        "success_rate": success_rate,
-                        "difficulty": self.state.current_difficulty,
-                        "step_time": step_time,
-                        **stats,
-                    })
-            
-            # Save checkpoint
-            if step % save_freq == 0 and step > 0:
-                self._save_checkpoint(step)
-            
-            # Evaluation
-            if step % eval_freq == 0 and step > 0:
-                self._evaluate(num_samples=50)
-        
-        # Final save
-        self._save_checkpoint(num_steps, final=True)
-        
-        if use_wandb:
-            wandb.finish()
-        
-        print("\n" + "=" * 70)
-        print("✅ Stage 3 Complete!")
-        print("=" * 70)
-        print(f"   Final success rate: {self.state.success_count / max(self.state.total_count, 1):.1%}")
-        print(f"   Best success rate:  {self.state.best_success_rate:.1%}")
-        print(f"   Checkpoints:        {self.output_dir}")
-        print("=" * 70)
+            texts.append(text)
+        return {"text": texts}
     
-    def _save_checkpoint(self, step: int, final: bool = False):
-        """Save training checkpoint."""
-        
-        suffix = "final" if final else f"step_{step}"
-        checkpoint_dir = self.output_dir / suffix
-        checkpoint_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save model
-        self.model.save_pretrained(checkpoint_dir)
-        self.tokenizer.save_pretrained(checkpoint_dir)
-        
-        # Save state
-        with open(checkpoint_dir / "training_state.json", "w") as f:
-            json.dump(self.state.to_dict(), f, indent=2)
-        
-        print(f"   💾 Saved checkpoint: {checkpoint_dir}")
+    dataset = dataset.map(
+        apply_chat_template,
+        batched=True,
+        batch_size=500,
+        num_proc=num_proc,
+        remove_columns=["messages"],
+        desc="Applying template",
+        load_from_cache_file=True,
+    )
     
-    def _evaluate(self, num_samples: int = 50):
-        """Run evaluation."""
-        
-        print(f"\n📊 Evaluating on {num_samples} samples...")
-        
-        task_ids = random.sample(range(len(self.trace_task.dataset)), num_samples)
-        results = asyncio.run(self._generate_and_evaluate_batch(task_ids))
-        
-        successes = sum(1 for _, _, _, _, info in results if info.get("exact_match", False))
-        success_rate = successes / num_samples
-        
-        print(f"   Eval success rate: {success_rate:.1%} ({successes}/{num_samples})")
-        
-        if success_rate > self.state.best_success_rate:
-            self.state.best_success_rate = success_rate
-            print(f"   🎉 New best!")
-
-
-def load_config(config_path: str) -> Dict[str, Any]:
-    """Load configuration from JSON file."""
-    with open(config_path, 'r') as f:
-        return json.load(f)
+    # Tokenize
+    tokenize_proc = min(num_proc, 8)  # Limit tokenization processes
+    
+    def tokenize_function(examples):
+        tokenized = tokenizer(
+            examples["text"],
+            truncation=True,
+            max_length=max_length,
+            padding=False,
+            return_attention_mask=True,
+        )
+        tokenized["labels"] = tokenized["input_ids"].copy()
+        return tokenized
+    
+    dataset = dataset.map(
+        tokenize_function,
+        batched=True,
+        batch_size=500,
+        num_proc=tokenize_proc,
+        remove_columns=["text"],
+        desc="Tokenizing",
+        load_from_cache_file=True,
+    )
+    
+    # Filter by length
+    original_len = len(dataset)
+    dataset = dataset.filter(lambda x: len(x["input_ids"]) <= max_length, num_proc=num_proc)
+    if len(dataset) < original_len:
+        print(f"   Filtered {original_len - len(dataset)} samples exceeding {max_length} tokens")
+    
+    print(f"   Final: {len(dataset):,} samples")
+    
+    return dataset
 
 
 def main(args):
-    """Main function."""
+    """Main training function."""
     
-    if not TRACE_AVAILABLE:
-        print("ERROR: trace_task module not available.")
-        print(f"Please ensure {TRACE_ENV_PATH}/trace_task.py exists.")
-        sys.exit(1)
+    print("\n" + "=" * 70)
+    print("🚀 Stage 2: Transformed Dataset SFT Training")
+    print("=" * 70)
+    print(f"Base Model:  {args.base_model}")
+    print(f"Dataset:     {args.dataset}")
+    print(f"Output:      {args.output_dir}")
+    print(f"Epochs:      {args.epochs}")
+    print(f"B200 mode:   {args.b200}")
+    print(f"4-bit:       {not args.no_4bit}")
+    print("=" * 70)
     
-    # Load config
-    config_path = args.config or DEFAULT_CONFIG_PATH
-    if Path(config_path).exists():
-        config = load_config(config_path)
-        print(f"📋 Loaded config: {config_path}")
+    # Check if using warmup model
+    if args.base_model != DEFAULT_MODEL_NAME:
+        print(f"\n📦 Using fine-tuned base: {args.base_model}")
+        if not Path(args.base_model).exists():
+            print(f"   WARNING: Path does not exist. Will try to load from HuggingFace.")
+    
+    # Create LoRA config
+    print("\n🔧 Configuring LoRA...")
+    lora_config = LoraConfig(**LORA_CONFIG)
+    
+    # Check Flash Attention
+    try:
+        import flash_attn
+        attn_impl = "flash_attention_2"
+        print("   Using Flash Attention 2")
+    except ImportError:
+        attn_impl = "sdpa"
+        print("   Using SDPA (Flash Attention 2 not available)")
+    
+    # Model kwargs
+    if not args.no_4bit:
+        bnb_config = BitsAndBytesConfig(**BNB_CONFIG)
+        model_kwargs = {
+            "quantization_config": bnb_config,
+            "device_map": "auto",
+            "trust_remote_code": True,
+            "attn_implementation": attn_impl,
+        }
     else:
-        print(f"⚠️  Config not found: {config_path}")
-        print("   Using default configuration.")
-        config = {}
+        model_kwargs = {
+            "torch_dtype": torch.bfloat16,
+            "device_map": "auto",
+            "trust_remote_code": True,
+            "attn_implementation": attn_impl,
+        }
     
-    # Override with command line args
-    base_model = args.base_model or config.get("model", {}).get("model_name", DEFAULT_BASE_MODEL)
-    output_dir = args.output_dir or config.get("ppo", {}).get("output_dir", DEFAULT_OUTPUT_DIR)
-    num_steps = args.num_steps or config.get("ppo", {}).get("num_train_steps", 5000)
-    eval_freq = args.eval_freq or config.get("ppo", {}).get("eval_freq", 50)
-    save_freq = args.save_freq or config.get("ppo", {}).get("save_freq", 100)
+    # Load tokenizer
+    print(f"\n📦 Loading tokenizer...")
+    # Use base tokenizer for custom models
+    tokenizer_name = args.base_model if Path(args.base_model).exists() else DEFAULT_MODEL_NAME
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token_id = tokenizer.eos_token_id
     
-    # Check base model
-    if not Path(base_model).exists():
-        print(f"⚠️  Base model not found: {base_model}")
-        fallback = config.get("model", {}).get("base_model_fallback", "Qwen/Qwen3-4B")
-        print(f"   Using fallback: {fallback}")
-        base_model = fallback
+    # Get training config
+    training_config = get_training_config(
+        args.output_dir, 
+        args.b200, 
+        args.epochs,
+        args.batch_size,
+    )
+    max_length = training_config["max_length"]
+    num_proc = 32 if args.b200 else 8
+    
+    # Load datasets
+    train_dataset = load_jsonl_dataset(
+        args.dataset, 
+        tokenizer, 
+        max_length, 
+        num_proc,
+        args.max_samples,
+    )
+    
+    eval_dataset = None
+    if args.eval_dataset and Path(args.eval_dataset).exists():
+        eval_dataset = load_jsonl_dataset(
+            args.eval_dataset, 
+            tokenizer, 
+            max_length, 
+            num_proc,
+            args.max_samples // 10 if args.max_samples else None,
+        )
+    
+    # Update config
+    training_config["model_init_kwargs"] = model_kwargs
+    if args.no_wandb:
+        training_config["report_to"] = "none"
+    
+    # Create SFT config
+    sft_config = SFTConfig(**training_config)
     
     # Create trainer
-    trainer = TracePPOTrainer(
-        config=config,
-        base_model_path=base_model,
-        output_dir=output_dir,
+    print("\n🏋️ Creating trainer...")
+    trainer = SFTTrainer(
+        model=args.base_model,
+        args=sft_config,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        peft_config=lora_config,
+        processing_class=tokenizer,
     )
     
-    # Resume if specified
-    if args.resume:
-        resume_path = Path(args.resume)
-        state_file = resume_path / "training_state.json"
-        if state_file.exists():
-            with open(state_file, 'r') as f:
-                trainer.state = PPOTrainingState.from_dict(json.load(f))
-            print(f"📋 Resumed from step {trainer.state.step}")
+    # Print info
+    trainable = sum(p.numel() for p in trainer.model.parameters() if p.requires_grad)
+    total = sum(p.numel() for p in trainer.model.parameters())
+    print(f"📊 Trainable: {trainable:,} / {total:,} ({100*trainable/total:.2f}%)")
+    
+    # Estimate time
+    steps_per_epoch = len(train_dataset) // (training_config["per_device_train_batch_size"] * training_config["gradient_accumulation_steps"])
+    total_steps = steps_per_epoch * args.epochs
+    est_time_mins = total_steps * 0.85 / 60  # ~0.85s per step on B200
+    print(f"📊 Steps: {steps_per_epoch}/epoch × {args.epochs} epochs = {total_steps:,} total")
+    print(f"📊 Estimated time: ~{est_time_mins:.0f} minutes ({est_time_mins/60:.1f} hours)")
     
     # Train
-    trainer.train(
-        num_steps=num_steps,
-        eval_freq=eval_freq,
-        save_freq=save_freq,
-        log_freq=args.log_freq,
-    )
+    print("\n🚀 Starting training...")
+    trainer.train(resume_from_checkpoint=args.resume)
+    
+    # Save
+    print("\n💾 Saving model...")
+    final_path = f"{args.output_dir}/final"
+    trainer.save_model(final_path)
+    tokenizer.save_pretrained(final_path)
+    
+    # Merge LoRA - need to reload in full precision for quantized models
+    print("💾 Merging LoRA weights...")
+    merged_path = f"{args.output_dir}/merged"
+    try:
+        from peft import PeftModel, AutoPeftModelForCausalLM
+        from transformers import AutoModelForCausalLM
+        
+        # For quantized models, we need to reload base model in full precision
+        # then apply the LoRA adapters
+        if not args.no_4bit:
+            print("   Reloading base model in full precision for merging...")
+            base_model = AutoModelForCausalLM.from_pretrained(
+                args.base_model,
+                torch_dtype=torch.bfloat16,
+                device_map="auto",
+                trust_remote_code=True,
+            )
+            # Load and merge the LoRA adapters
+            model_with_lora = PeftModel.from_pretrained(base_model, final_path)
+            merged = model_with_lora.merge_and_unload()
+        else:
+            # For non-quantized models, can merge directly
+            merged = trainer.model.merge_and_unload()
+        
+        merged.save_pretrained(merged_path, safe_serialization=True)
+        tokenizer.save_pretrained(merged_path)
+        print(f"   Merged model: {merged_path}")
+        
+        # Remove quantization config from merged model (it's now in full precision)
+        config_path = os.path.join(merged_path, "config.json")
+        if os.path.exists(config_path):
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+            if 'quantization_config' in config:
+                del config['quantization_config']
+                with open(config_path, 'w') as f:
+                    json.dump(config, f, indent=2)
+                print(f"   ✓ Removed quantization_config from merged model")
+        
+        # Verify the merged model has weights
+        merged_files = os.listdir(merged_path)
+        has_weights = any(f.endswith('.safetensors') or f.endswith('.bin') for f in merged_files if 'model' in f.lower())
+        if has_weights:
+            print(f"   ✓ Verified: model weights saved successfully")
+        else:
+            print(f"   ⚠ Warning: No model weight files found in {merged_path}")
+    except Exception as e:
+        import traceback
+        print(f"   Warning: Could not merge: {e}")
+        traceback.print_exc()
+    
+    print("\n" + "=" * 70)
+    print("✅ Stage 2 Complete!")
+    print("=" * 70)
+    print(f"   LoRA adapters: {final_path}")
+    print(f"   Merged model:  {args.output_dir}/merged")
+    print("\nNext: python train_trace_ppo.py --base_model", f"{args.output_dir}/merged")
+    print("=" * 70)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Stage 3: PPO Training for Trace Environment",
+        description="Stage 2: Transformed Dataset SFT Training",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     
-    parser.add_argument("--config", type=str, default=DEFAULT_CONFIG_PATH)
-    parser.add_argument("--base_model", type=str, default=None)
-    parser.add_argument("--output_dir", type=str, default=None)
-    parser.add_argument("--num_steps", type=int, default=None)
-    parser.add_argument("--eval_freq", type=int, default=None)
-    parser.add_argument("--save_freq", type=int, default=None)
-    parser.add_argument("--log_freq", type=int, default=1)
-    parser.add_argument("--resume", type=str, default=None, help="Resume from checkpoint path")
-    parser.add_argument("--no_wandb", action="store_true")
+    parser.add_argument("--base_model", type=str, default=DEFAULT_MODEL_NAME,
+                        help="Base model (use Stage 1 output for best results)")
+    parser.add_argument("--output_dir", type=str, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--dataset", type=str, default=DEFAULT_DATASET_PATH)
+    parser.add_argument("--eval_dataset", type=str, default=DEFAULT_EVAL_PATH)
+    parser.add_argument("--epochs", type=int, default=3)
+    parser.add_argument("--batch_size", type=int, default=None)
+    parser.add_argument("--max_samples", type=int, default=None,
+                        help="Limit training samples (for testing)")
+    parser.add_argument("--b200", action="store_true", help="B200 optimizations")
+    parser.add_argument("--no_4bit", action="store_true", help="Disable 4-bit quantization")
+    parser.add_argument("--no_wandb", action="store_true", help="Disable wandb")
+    parser.add_argument("--resume", action="store_true", help="Resume from checkpoint")
     
     args = parser.parse_args()
-    
-    if args.no_wandb:
-        os.environ["WANDB_DISABLED"] = "true"
-    
     main(args)
